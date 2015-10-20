@@ -616,6 +616,9 @@ Let LamEHSS := InitialObject _ LamEHSS_Initial.
 Definition FLATTEN : (hss_precategory CC LamE_S) ⟦LamEHSS, LamE_model_on_Lam⟧
   := InitialArrow _ _ _ .
 
-(* this comment only as a test by R.M. *)
+(* this comment only as a test by R.M.
+
+Print Assumptions FLATTEN.
+*)
 
 End Lambda.
