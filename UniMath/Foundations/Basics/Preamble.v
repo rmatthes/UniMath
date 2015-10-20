@@ -74,7 +74,17 @@ Implicit Arguments ii2 [ A B ] .
 
 Notation coprod_rect := sum_rect.
 
+Notation "X ⨿ Y" := (coprod X Y) (at level 50, left associativity) : type_scope.
+  (* type this in emacs with C-X 8 RET AMALGAMATION OR COPRODUCT *)
 
+
+Notation "∀  x .. y , P" := (forall x, .. (forall y, P) ..)
+  (at level 200, x binder, y binder, right associativity) : type_scope.
+  (* type this in emacs in agda-input method with \forall *)
+
+Notation "'λ' x .. y , t" := (fun x => .. (fun y => t) ..)
+  (at level 200, x binder, y binder, right associativity).
+  (* type this in emacs in agda-input method with \lambda *)
 
 (** Dependent sums. 
 
@@ -97,6 +107,14 @@ if we used "Record", has a known interpretation in the framework of the univalen
 
 
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
+
+Notation "'Σ'  x .. y , P" := (total2 (fun x => .. (total2 (fun y => P)) ..))
+  (at level 200, x binder, y binder, right associativity) : type_scope.
+  (* type this in emacs in agda-input method with \Sigma *)
+
+Notation "x ,, y" := (tpair _ x y) (at level 60, right associativity). (* looser than '+' *)
+(* Example: *)
+Goal Σ (_:nat) (_:nat) (_:nat) (_:nat), nat. exact (2,,3,,4,,5,,6). Defined.
 
 Definition pr1 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : T .
 Proof . intros .  induction t as [ t p ] . exact t . Defined. 
@@ -126,6 +144,28 @@ Inductive Phant ( T : Type ) := phant : Phant T .
 Check (O = O) .
 
 
+(* confirm and repair some aspects of multiplication on [nat] *)
+Goal ∀ n, 0*n = 0.     reflexivity. Qed.
+Goal ∀ n, n*1 = n. try reflexivity. Abort.
+Goal ∀ n, 1*n = n. try reflexivity. Abort.
 
+(* Those two failures are not good.  The cause is that Nat.mul defines
+   multiplication as a right-associative sum.  Note also that the parser treats
+   "+" and "*" as left associative.  We redefine multiplication in nat here,
+   avoiding "Fixpoint", too. *)
 
-(* End of the file uuu.v *)
+Definition mul : nat -> nat -> nat.
+Proof.
+  intros n m.
+  induction n as [|p pm].
+  - exact O.
+  - exact (pm + m).
+Defined.
+Notation mult := mul.           (* this overrides the notation "mult" defined in Coq's Peano.v *)
+Notation "n * m" := (mul n m) : nat_scope.
+
+(* confirm: *)
+Goal ∀ n, 0*n = 0.             reflexivity. Qed.
+Goal ∀ n m, S n * m = n*m + m. reflexivity. Qed.
+Goal ∀ n, 1*n = n.             reflexivity. Qed.
+Goal 3*5=15.                   reflexivity. Qed.
