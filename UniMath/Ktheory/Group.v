@@ -5,7 +5,7 @@ Require Import UniMath.Foundations.Algebra.Monoids_and_Groups
                UniMath.Ktheory.Utilities.
 Require UniMath.Ktheory.Monoid.
 Local Notation Hom := monoidfun.
-Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, only parsing).
+Local Notation "g ∘ f" := (monoidfuncomp f g) (at level 50, left associativity, only parsing).
 Local Notation "x * y" := ( op x y ). 
 Definition zero : gr.
   exists Monoid.zero. exists (pr2 Monoid.zero). exists (idfun unit).
@@ -89,7 +89,7 @@ Module Presentation.
   Definition smallestAdequateRelation0 {X I} (R:I->reln X) : hrel (word X).
     intros ? ? ? v w.
     exists (∀ r: hrel (word X), AdequateRelation R r -> r v w).
-    abstract (apply impred; intro r; apply impred; intros _; apply propproperty).
+    abstract (apply impred; intro r; apply impred_prop).
   Defined.
   Lemma adequacy {X I} (R:I->reln X) : 
     AdequateRelation R (smallestAdequateRelation0 R).

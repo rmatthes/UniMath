@@ -149,7 +149,7 @@ Lemma iscoantisymmnatgth ( n m : nat ) : neg ( natgth n m ) -> coprod ( natgth m
 Proof . apply isantisymmnegtoiscoantisymm . apply isdecrelnatgth .  intros n m . apply isantisymmnegnatgth . Defined .  
 
 Lemma iscotransnatgth ( n m k : nat ) : natgth n k -> hdisj ( natgth n m ) ( natgth m k ) .
-Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr _ ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
+Proof . intros x y z gxz .  destruct ( isdecrelnatgth x y ) as [ gxy | ngxy ] . apply ( hinhpr ( ii1 gxy ) ) . apply hinhpr .   apply ii2 .  destruct ( isdecrelnatgth y x ) as [ gyx | ngyx ] . apply ( istransnatgth _ _ _ gyx gxz ) .  set ( e := isantisymmnegnatgth _ _ ngxy ngyx ) . rewrite e in gxz .  apply gxz .  Defined .   
 
 
 
@@ -229,7 +229,7 @@ Proof . apply isdecreltoisnegrel . apply isdecrelnatleh . Defined .
 Definition iscoasymmnatleh ( n m : nat ) ( nl : neg ( natleh n m ) ) : natleh m n := negf ( isasymmnatgth _ _ ) nl . 
 
 Definition istotalnatleh : istotal natleh . 
-Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr _ ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
+Proof . intros x y . destruct ( isdecrelnatleh x y ) as [ lxy | lyx ] . apply ( hinhpr ( ii1 lxy ) ) . apply hinhpr .   apply ii2 . apply ( iscoasymmnatleh _ _ lyx ) .   Defined . 
 
 
 
@@ -266,7 +266,29 @@ Definition iscoasymmnatgeh ( n m : nat ) ( nl : neg ( natgeh n m ) ) : natgeh m 
 Definition istotalnatgeh : istotal natgeh := fun n m => istotalnatleh m n .
 
 
+Definition natlth_DecidableProposition := decrel_to_DecidableRelation natlthdec.
+Definition natleh_DecidableProposition := decrel_to_DecidableRelation natlehdec.
+Definition natgth_DecidableProposition := decrel_to_DecidableRelation natgthdec.
+Definition natgeh_DecidableProposition := decrel_to_DecidableRelation natgehdec.
+Definition nateq_DecidableProposition := decrel_to_DecidableRelation natdeceq.
+Definition natneq_DecidableProposition := decrel_to_DecidableRelation natdecneq.
 
+Notation " x < y " := ( natlth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x <= y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≤ y " := ( natleh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x >= y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≥ y " := ( natgeh_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x > y " := ( natgth_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x =? y " := ( nateq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x !=? y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Notation " x ≠ y " := ( natneq_DecidableProposition x y ) (at level 70, no associativity) : decidable_nat.
+Delimit Scope decidable_nat with dnat.
+
+Goal choice (3 < 4)%dnat true false = true. reflexivity. Defined.
+Goal choice (3 < 4 ∧ 4 < 5)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (¬ (3 < 4))%dnat%declog true false = false. reflexivity. Defined.
+Goal choice (3 < 4 ∨ 4 < 3)%dnat%declog true false = true. reflexivity. Defined.
+Goal choice (4 < 3 ∨ 2 < 1)%dnat%declog true false = false. reflexivity. Defined.
 
 (** *** Simple implications between comparisons *)
 
@@ -505,6 +527,12 @@ Definition natlehandplusl ( n m k : nat ) : natleh n m -> natleh ( k + n ) ( k +
 
 Definition natlehandplusr ( n m k : nat ) : natleh n m -> natleh ( n + k ) ( m + k ) := negf ( natgthandplusrinv n m k )  . 
 
+Definition natlehandplus i j k l : i≤j -> k≤l -> i+k ≤ j+l.
+Proof.
+  intros ? ? ? ? r s. eapply istransnatleh. { apply natlehandplusr. apply r. }
+  apply natlehandplusl. apply s.
+Defined.
+ 
 Definition natlehandpluslinv  ( n m k : nat ) : natleh ( k + n ) ( k + m ) -> natleh n m := negf ( natgthandplusl n m k )  .  
 
 Definition natlehandplusrinv ( n m k : nat ) :  natleh ( n + k ) ( m + k ) -> natleh n m :=  negf ( natgthandplusr n m k ) . 
@@ -624,6 +652,9 @@ Proof . intros . rewrite ( natpluscomm _ _ ) in is . rewrite ( natpluscomm c b )
 
 Lemma iscontrhfibernatplusr ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => i + n ) m ) .
 Proof. intros . apply iscontraprop1 .    apply isinclnatplusr . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . apply ( maponpaths S e' ) .  split with 0 . simpl .  assumption .  Defined . 
+
+Lemma iscontrhfibernatplusl ( n m : nat ) ( is : natgeh m n ) : iscontr ( hfiber ( fun i : nat => n + i ) m ) .
+Proof. intros . apply iscontraprop1 .    apply isinclnatplusl . induction m as [ | m IHm ] . set ( e := natleh0tois0 _ is ) .   split with 0 . rewrite <- plus_n_O. apply e .  destruct ( natlehchoice2 _ _ is ) as [ l | e ] .  set ( j := IHm l ) .  destruct j as [ j e' ] . split with ( S j ) .  simpl . rewrite <- plus_n_Sm. apply ( maponpaths S e' ) .  split with 0 . simpl .  rewrite <- plus_n_O. assumption .  Defined . 
 
 Lemma neghfibernatplusr ( n m : nat ) ( is : natlth m n ) : neg ( hfiber  ( fun i : nat => i + n ) m ) .
 Proof. intros. intro h . destruct h as [ i e ] . rewrite ( pathsinv0 e )  in is . destruct ( natlehtonegnatgth _ _ ( natlehmplusnm i n ) is ) .  Defined .    
@@ -1316,7 +1347,18 @@ Proof. intros . set ( is1 := isaprople n m ) . set ( is2 := pr2 ( natleh n m )  
 
 Definition weqletoleh ( n m : nat ) := weqpair _ ( isweqletoleh n m ) .
 
+(* more lemmas about natural numbers *)
 
+Lemma natsubsub n i j : n-i-j = n-(i+j).
+Proof.
+  intros n; induction n as [|n N].
+  { reflexivity. }
+  intros i; induction i as [|i _].
+  { reflexivity. }
+  { apply N. }
+Defined.  
 
-
-(* End of the file hnat.v *)
+Lemma natltplusS n i : i < i + S n.
+Proof.
+  intros. rewrite <- (natplusr0 i). rewrite natplusassoc. apply natlthandplusl. reflexivity.
+Defined.

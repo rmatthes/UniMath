@@ -4,7 +4,7 @@ Started by: Benedikt Ahrens, Chris Kapulkin, Mike Shulman
 
 january 2013
 
-Extended by: Anders Mörtberg
+Extended by: Anders Mörtberg (October 2015)
 
 ************************************************************)
 
@@ -16,9 +16,8 @@ Contents :
             Precategory HSET of hSets
 
 	    HSET is a category
-	    
-	    Colimits in HSET
 
+	    Colimits in HSET
 
 ************************************************************)
 
@@ -28,14 +27,26 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.Foundations.FunctionalExtensionality.
 
 Require Import UniMath.CategoryTheory.precategories.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.HLevel_n_is_of_hlevel_Sn.
+Require Import UniMath.CategoryTheory.colimits.colimits.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+Require Import UniMath.CategoryTheory.limits.initial.
+Require Import UniMath.CategoryTheory.opp_precat.
+Require Import UniMath.CategoryTheory.limits.limits.
+Require Import UniMath.CategoryTheory.limits.products.
+Require Import UniMath.CategoryTheory.limits.terminal.
+Require Import UniMath.CategoryTheory.limits.pullbacks.
 
+
+(*
 Local Notation "a --> b" :=
   (precategory_morphisms a b) (at level 50).
-Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
+*)
+
 Local Notation "# F" := (functor_on_morphisms F) (at level 3).
-Local Notation "f ;; g" := (compose f g) (at level 50, format "f  ;;  g").
+Local Notation "C '^op'" := (opp_precat C) (at level 3, format "C ^op").
 
 (* This should be moved upstream. Constructs the smallest eqrel
    containing a given relation *)
@@ -44,16 +55,10 @@ Section extras.
 Variable A : UU.
 Variable R0 : hrel A.
 
-Definition isaprop_hProp (X : hProp) : isaprop X.
-Proof.
-exact (pr2 X).
-Qed.
-
 Lemma isaprop_eqrel_from_hrel a b :
   isaprop (∀ R : eqrel A, (∀ x y, R0 x y -> R x y) -> R a b).
 Proof.
-apply impred; intro R; apply impred; intro HR.
-now apply isaprop_hProp.
+  apply impred; intro R; apply impred_prop.
 Qed.
 
 Definition eqrel_from_hrel : hrel A :=
@@ -86,6 +91,7 @@ End extras.
 Arguments eqrel_from_hrel {_} _ _ _.
 
 (** * Precategory of hSets *)
+Section HSET_precategory.
 
 Lemma isaset_set_fun_space (A B : hSet) : isaset (A -> B).
 Proof.
@@ -114,7 +120,7 @@ Qed.
 Definition hset_precategory : precategory :=
   tpair _ _ is_precategory_hset_precategory_data.
 
-Notation HSET := hset_precategory.
+Local Notation HSET := hset_precategory.
 
 Lemma has_homsets_HSET : has_homsets HSET.
 Proof. intros a b; apply isaset_set_fun_space. Qed.
@@ -123,8 +129,13 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
   Canonical Structure hset_precategory. :-)
 *)
 
+End HSET_precategory.
+
+Notation HSET := hset_precategory.
 
 (** * The precategory of hSets is a category. *)
+
+Section HSET_category.
 
 (** ** Equivalence between isomorphisms and weak equivalences
        of two hsets.
@@ -133,7 +144,6 @@ Proof. intros a b; apply isaset_set_fun_space. Qed.
 (** Given an iso, we construct a weak equivalence.
    This is basically unpacking and packing again.
 *)
-
 
 Lemma hset_iso_is_equiv (A B : ob HSET)
    (f : iso A B) : isweq (pr1 f).
@@ -187,7 +197,7 @@ Proof.
   apply (gradth _ (hset_equiv_iso A B)).
   intro; apply eq_iso.
   - reflexivity.
-  - intro; apply total2_paths_isaprop.
+  - intro; apply subtypeEquality.
     + intro; apply isapropisweq.
     + reflexivity.
 Qed.
@@ -201,12 +211,12 @@ Defined.
 Lemma hset_equiv_iso_is_equiv (A B : ob HSET) : isweq (hset_equiv_iso A B).
 Proof.
   apply (gradth _ (hset_iso_equiv A B)).
-  intro f.
-  apply total2_paths_isaprop.
-    apply isapropisweq.
-    reflexivity.
+  { intro f.
+    apply subtypeEquality.
+    { intro; apply isapropisweq. }
+    reflexivity. }
   intro; apply eq_iso.
-  - reflexivity.
+  reflexivity.
 Qed.
 
 Definition hset_equiv_iso_weq (A B : ob HSET) :
@@ -261,35 +271,35 @@ Proof.
   - apply has_homsets_HSET.
 Defined.
 
-(** * colimits in HSET *)
-Require Import UniMath.CategoryTheory.colimits.colimits.
+End HSET_category.
 
+(** colimits in HSET *)
 Section colimits.
 
 Variable g : graph.
 Variable D : diagram g HSET.
 
-Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
+Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
 
 (* Theory about hprop is in UniMath.Foundations.Propositions *)
-Definition rel0 : hrel cobase := λ (ia jb : cobase),
-  hProppair (ishinh (Σ f : pr1 ia --> pr1 jb, dmor D f (pr2 ia) = pr2 jb))
+Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
+  hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
 
-Definition rel : hrel cobase := eqrel_from_hrel rel0.
+Local Definition rel : hrel cobase := eqrel_from_hrel rel0.
 
 Lemma iseqrel_rel : iseqrel rel.
 Proof.
 now apply iseqrel_eqrel_from_hrel.
 Qed.
 
-Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
+Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
 (* Defined in UniMath.Foundations.Sets *)
 Definition colimHSET : HSET :=
   hSetpair (setquot eqr) (isasetsetquot _).
 
-(*        
+(*
            (X,~)
             | \
             |   \
@@ -302,7 +312,7 @@ Definition colimHSET : HSET :=
            X/~ ----------> (Y,=)
 *)
 
-Definition injections j : dob D j --> colimHSET.
+Local Definition injections j : HSET ⟦dob D j, colimHSET⟧.
 Proof.
 intros Fj; apply (setquotpr _).
 exact (tpair _ j Fj).
@@ -311,21 +321,20 @@ Defined.
 (* Define the morphism out of the colimit *)
 Section from_colim.
 
-Variables (c : HSET) (fc : ∀ v : vertex g, HSET ⟦ dob D v, c ⟧).
-Variable (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u).
+Variables (c : HSET) (cc : cocone D c).
 
-Definition from_cobase : cobase -> pr1hSet c.
+Local Definition from_cobase : cobase -> pr1hSet c.
 Proof.
-now intro iA; apply (fc (pr1 iA) (pr2 iA)).
+now intro iA; apply (coconeIn cc (pr1 iA) (pr2 iA)).
 Defined.
-  
-Definition from_cobase_rel : hrel cobase.
+
+Local Definition from_cobase_rel : hrel cobase.
 Proof.
 intros x x'; exists (from_cobase x = from_cobase x').
 now apply setproperty.
 Defined.
 
-Definition from_cobase_eqrel : eqrel cobase.
+Local Definition from_cobase_eqrel : eqrel cobase.
 Proof.
 exists from_cobase_rel.
 repeat split.
@@ -339,7 +348,7 @@ Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
 apply Hab; clear Hab; intro H; simpl.
 destruct H as [f Hf].
-generalize (toforallpaths _ _ _ (Hc (pr1 a) (pr1 b) f) (pr2 a)).
+generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.
 now rewrite <- H, Hf.
 Qed.
@@ -354,52 +363,148 @@ Proof.
 now intros a b; apply rel_impl.
 Qed.
 
-Definition from_colim : colimHSET --> c.
+Definition from_colimHSET : HSET ⟦colimHSET, c⟧.
 Proof.
 now simpl; apply (setquotuniv _ _ from_cobase iscomprel_from_base).
 Defined.
 
 End from_colim.
 
-Definition colimCocone : Σ c : HSET, ∀ v : vertex g, HSET ⟦ dob D v, c ⟧ :=
-  tpair _ colimHSET injections.
-
-Definition colimCoconeCommutes (u v : vertex g) (e : edge u v) :
-  dmor D e ;; pr2 colimCocone v = pr2 colimCocone u.
+Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-apply funextfun; intros Fi; simpl.
-unfold compose, injections; simpl.
-apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl.
-now exists e.
+refine (mk_cocone _ _).
+- now apply injections.
+- abstract (intros u v e;
+            apply funextfun; intros Fi; simpl;
+            unfold compose, injections; simpl;
+            apply (weqpathsinsetquot eqr), (eqrelsymm eqr), eqrel_impl, hinhpr; simpl;
+            now exists e).
+Defined.
+
+Definition ColimHSETArrow (c : HSET) (cc : cocone D c) :
+  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = coconeIn cc v.
+Proof.
+exists (from_colimHSET _ cc).
+abstract (intro i; simpl; unfold injections, compose, from_colimHSET; simpl;
+          apply funextfun; intro Fi; now rewrite (setquotunivcomm eqr)).
+Defined.
+
+Definition ColimCoconeHSET : ColimCocone D.
+Proof.
+apply (mk_ColimCocone _ colimHSET colimCoconeHSET); intros c cc.
+exists (ColimHSETArrow _ cc).
+abstract (intro f; apply subtypeEquality;
+           [ intro; now apply impred; intro i; apply has_homsets_HSET
+           | apply funextfun; intro x; simpl;
+             apply (surjectionisepitosets (setquotpr eqr));
+               [now apply issurjsetquotpr | now apply pr2 | ];
+             intro y; destruct y as [u fu]; destruct f as [f Hf];
+             now apply (toforallpaths _ _ _ (Hf u) fu)]).
 Qed.
-
-Definition ColimHSETArrow (c : HSET) (fc : ∀ v : vertex g, HSET ⟦ dob D v, c ⟧)
-  (Hc : ∀ (u v : vertex g) (e : edge u v), dmor D e ;; fc v = fc u) :
-  Σ x : HSET ⟦ colimHSET, c ⟧, ∀ v : vertex g, injections v ;; x = fc v.
-Proof.
-exists (from_colim _ fc Hc); intro i; simpl.
-unfold injections, compose, from_colim; simpl.
-apply funextfun; intro Fi.
-now rewrite (setquotunivcomm eqr).
-Defined.
-
-Definition ColimCoconeHSET : ColimCocone HSET D.
-Proof.
-apply (mk_ColimCocone _ _ _ _ colimCoconeCommutes).
-unfold isColimCocone; intros c fc Hc.
-exists (ColimHSETArrow _ fc Hc); intro f.
-apply total2_paths_second_isaprop.
-- now apply impred; intro i; apply has_homsets_HSET.
-- apply funextfun; intro x; simpl.
-  apply (surjectionisepitosets (setquotpr eqr));
-    [now apply issurjsetquotpr | now apply pr2 | ].
-  intro y; destruct y as [u fu]; destruct f as [f Hf].
-  now apply (toforallpaths _ _ _ (Hf u) fu).
-Defined.
 
 End colimits.
 
 Lemma ColimsHSET : Colims HSET.
 Proof.
 now intros g d; apply ColimCoconeHSET.
+Qed.
+
+Lemma CoproductsHSET : Coproducts HSET.
+Proof.
+now apply Coproducts_from_Colims, ColimsHSET.
+Qed.
+
+Lemma InitialHSET : Initial HSET.
+Proof.
+now apply Initial_from_Colims, ColimsHSET.
+Qed.
+
+
+Section limits.
+
+Variable g : graph.
+Variable D : diagram g HSET^op.
+
+Definition limset_UU : UU :=
+  Σ (f : ∀ u : vertex g, pr1hSet (dob D u)),
+    ∀ u v (e : edge u v), dmor D e (f v) = f u.
+
+Definition limset : HSET.
+Proof.
+  exists limset_UU.
+  abstract (apply (isofhleveltotal2 2);
+            [ apply impred; intro; apply pr2 |
+              intro f; repeat (apply impred; intro);
+              apply isasetaprop;
+              apply (pr2 (dob D t))]).
+Defined.
+
+Lemma LimConeHSET : LimCone D.
+Proof.
+  refine (mk_LimCone _ _ _ _ ).
+  - apply limset.
+  - refine (mk_cone _ _ ).
+    + intro u. simpl.
+      intro f.
+      exact (pr1 f u).
+    + intros u v e; simpl.
+      apply funextfun.
+      intro f; simpl.
+      apply (pr2 f).
+  - intros X CC.
+    refine (tpair _ _ _ ).
+    + refine (tpair _ _ _ ).
+      * simpl.
+        intro x.
+        {
+          refine (tpair _ _ _ ).
+          - intro u.
+            apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
+          - intros u v e. simpl.
+            set (T := coconeInCommutes CC _ _ e).
+            apply (toforallpaths _ _ _ T).
+        }
+      * intro v. apply idpath.
+   + intro t.
+     apply subtypeEquality.
+     * intro; apply impred; intro.
+       apply isaset_set_fun_space.
+     * simpl.
+       destruct t as [t p]; simpl.
+       apply funextfun.
+       intro x; simpl.
+       unfold compose. simpl.
+       {
+         apply subtypeEquality.
+         - intro; repeat (apply impred; intro).
+           apply (setproperty (dob D t0)).
+         - simpl.
+           apply funextsec.
+           intro u.
+           simpl in p.
+           set (p' := toforallpaths _ _ _ (p u)).
+           apply p'.
+       }
+Qed.
+
+End limits.
+
+Lemma LimsHSET : Lims HSET.
+Proof.
+now intros g d; apply LimConeHSET.
+Qed.
+
+Lemma ProductsHSET : Products HSET.
+Proof.
+now apply Products_from_Lims, LimsHSET.
+Qed.
+
+Lemma TerminalHSET : Terminal HSET.
+Proof.
+now apply Terminal_from_Lims, LimsHSET.
+Qed.
+
+Lemma PullbacksHSET : Pullbacks HSET.
+Proof.
+now apply Pullbacks_from_Lims, LimsHSET.
 Qed.
