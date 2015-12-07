@@ -282,6 +282,15 @@ Proof.
   - apply (pr2 _ ).
 Defined.
 
+Lemma is_category_FunctorAlg : is_category (FunctorAlg (pr2 H)).
+Proof.
+  split.
+  - apply isweq_idtoiso_FunctorAlg.
+  - intros a b.
+    apply isaset_algebra_mor.
+    apply (pr2 H).
+Defined.
+
 End FunctorAlg_saturated.
 
 End Algebra_Definition.
@@ -314,7 +323,7 @@ assert (Ha'a : a' ;; a = identity A).
     eapply pathscomp0; [|eapply cancel_postcomposition; apply Ha'].
     now apply assoc.
   apply pathsinv0; set (X := tpair _ _ algMor_a'a).
-  now apply (maponpaths pr1 (InitialEndo_is_identity AaInitial X)).
+  now apply (maponpaths pr1 (InitialEndo_is_identity _ AaInitial X)).
 split; simpl; trivial.
 eapply pathscomp0; [apply Ha'|]; simpl.
 rewrite <- functor_comp.

@@ -358,7 +358,7 @@ End algebra.
 
 Lemma colimAlgIsInitial : isInitial (precategory_FunctorAlg F hsC) colimAlg.
 Proof.
-refine (mk_isInitial _ _).
+refine (mk_isInitial _ _ ).
 intros Aa.
 exists (adaggerMor Aa); simpl; intro Fa.
 apply (algebra_mor_eq _ hsC); simpl.
@@ -379,9 +379,10 @@ Definition colimAlgInitial : Initial (precategory_FunctorAlg F hsC) :=
   mk_Initial _ colimAlgIsInitial.
 
 End colim_initial_algebra.
-
+(*
 About Fcocone.
 Check unshift_cocone.
+*)
 (* WIP below of here *)
 Section lists.
 
@@ -398,11 +399,12 @@ Variable A : HSET.
 (* *)
 (* F(X) = A * X *)
 (* *)
+(*
 Definition streamFunctor : functor HSET HSET :=
   product_functor HSET HSET ProductsHSET
                   (constant_functor HSET HSET A)
                   (functor_identity HSET).
-
+*)
 
 (* Definition unitHSET : HSET. *)
 (* Proof. *)
@@ -413,10 +415,13 @@ Definition streamFunctor : functor HSET HSET :=
 (* Defined. *)
 
 (* F(X) = 1 + (A * X) *)
+
+(*
 Definition listFunctor : functor HSET HSET :=
   coproduct_functor HSET HSET CoproductsHSET
                     (constant_functor HSET HSET (TerminalObject TerminalHSET))
                     streamFunctor.
+*)
 
 (* Let ColimCoconeF F := ColimCocone *)
 (*          (Fdiagram F (InitialObject InitialHSET) *)
@@ -424,15 +429,16 @@ Definition listFunctor : functor HSET HSET :=
 
 (* Definition temp : ColimCoconeF listFunctor := ColimCoconeHSET _ _. *)
 
-
+(*
 Let good F := chain_cocontinuous has_homsets_HSET F
     (InitialObject InitialHSET) (InitialArrow InitialHSET _) (ColimCoconeHSET _ _).
+*)
 (* TODO: *)
 (* good(F), good(G) |- good(F * G) *)
 (* good(F), good(G) |- good(F + G) *)
 (*                  |- good(constant_functor A) *)
 (*                  |- good(identity_functor) *)
-
+(*
 Lemma goodIdentity : good (functor_identity _).
 Proof.
 (* unfold good, chain_cocontinuous. *)
@@ -484,17 +490,21 @@ Proof.
 (* simpl. *)
 (* simpl in *. *)
 Admitted.
-
+ *)
+(*
 Lemma goodConstant (B : HSET) : good (constant_functor _ _ B).
 Admitted.
-
+ *)
+(*
 Lemma goodProduct (F G : functor HSET HSET) :
   good F -> good G -> good (product_functor _ _ ProductsHSET F G).
 Admitted.
-
+*)
+(*
 Lemma goodCoproduct (F G : functor HSET HSET) :
   good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
 Admitted.
+
 
 Lemma listFunctor_chain_cocontinuous : good listFunctor.
 Proof.
@@ -511,6 +521,7 @@ refine (colimAlgInitial _ _ _ _ _ _).
 - apply ColimCoconeHSET.
 - apply listFunctor_chain_cocontinuous.
 Defined.
+ *)
 
 (* Get recursion/iteration scheme: *)
 

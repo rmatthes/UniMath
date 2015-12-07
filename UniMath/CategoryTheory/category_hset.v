@@ -35,10 +35,11 @@ Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.limits.initial.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.limits.limits.
+(*
 Require Import UniMath.CategoryTheory.limits.products.
 Require Import UniMath.CategoryTheory.limits.terminal.
 Require Import UniMath.CategoryTheory.limits.pullbacks.
-
+*)
 
 (*
 Local Notation "a --> b" :=
@@ -409,16 +410,19 @@ Proof.
 now intros g d; apply ColimCoconeHSET.
 Qed.
 
+(*
 Lemma CoproductsHSET : Coproducts HSET.
 Proof.
 now apply Coproducts_from_Colims, ColimsHSET.
 Qed.
+ *)
 
+(*
 Lemma InitialHSET : Initial HSET.
 Proof.
 now apply Initial_from_Colims, ColimsHSET.
 Qed.
-
+*)
 
 Section limits.
 
@@ -494,17 +498,23 @@ Proof.
 now intros g d; apply LimConeHSET.
 Qed.
 
+(*
 Lemma ProductsHSET : Products HSET.
 Proof.
 now apply Products_from_Lims, LimsHSET.
 Qed.
+*)
 
+(*
 Lemma TerminalHSET : Terminal HSET.
 Proof.
 now apply Terminal_from_Lims, LimsHSET.
 Qed.
+*)
 
+(*
 Lemma PullbacksHSET : Pullbacks HSET.
 Proof.
 now apply Pullbacks_from_Lims, LimsHSET.
 Qed.
+*)
