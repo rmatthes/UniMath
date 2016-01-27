@@ -2,7 +2,7 @@
 
 (** ** About nat *)
 
-Require Export UniMath.Foundations.NaturalNumbers.
+Require Export UniMath.Foundations.NumberSystems.NaturalNumbers.
 
 Lemma max_le_l : ∀ n m : nat, (n <= max n m)%nat.
 Proof.
@@ -23,7 +23,7 @@ Qed.
 
 (** ** for RationalNumbers.v *)
 
-Require Export UniMath.Foundations.RationalNumbers.
+Require Export UniMath.Foundations.NumberSystems.RationalNumbers.
 
 Open Scope hq_scope.
 
@@ -182,7 +182,13 @@ Ltac apply_pr2 T :=
         | refine (pr2 (T _ _) _)
         | refine (pr2 (T _ _ _) _)
         | refine (pr2 (T _ _ _ _) _)
-        | refine (pr2 (T _ _ _ _ _) _) ].
+        | refine (pr2 (T _ _ _ _ _) _)
+        | refine (pr2 (T))
+        | refine (pr2 (T _))
+        | refine (pr2 (T _ _))
+        | refine (pr2 (T _ _ _))
+        | refine (pr2 (T _ _ _ _))
+        | refine (pr2 (T _ _ _ _ _)) ].
 
 Ltac apply_pr2_in T H :=
   first [ apply (pr2 (T)) in H

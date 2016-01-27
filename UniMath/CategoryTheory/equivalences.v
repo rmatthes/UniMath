@@ -23,9 +23,9 @@ Contents :  Definition of adjunction
 ************************************************************)
 
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
@@ -207,10 +207,10 @@ Proof.
   destruct x as [a f].
   destruct x' as [a' f'].
   set (fminusf := iso_comp f (iso_inv_from_iso f')).
-  set (g := iso_from_fully_faithful_reflection HF _ _ fminusf).
+  set (g := iso_from_fully_faithful_reflection HF fminusf).
   apply (total2_paths2 (B:=fun a' => iso ((pr1 F) a') b) (isotoid _ HA g)).
   pathvia (iso_comp (iso_inv_from_iso
-    (functor_on_iso _ _ F _ _ (idtoiso (isotoid _ HA g)))) f).
+    (functor_on_iso F (idtoiso (isotoid _ HA g)))) f).
     generalize (isotoid _ HA g).
     intro p0; destruct p0.
     rewrite <- functor_on_iso_inv.
@@ -222,8 +222,8 @@ Proof.
   rewrite idtoiso_isotoid.
   unfold g; clear g.
   unfold fminusf; clear fminusf.
-  assert (HFg : functor_on_iso A B F a a'
-        (iso_from_fully_faithful_reflection HF a a'
+  assert (HFg : functor_on_iso F
+        (iso_from_fully_faithful_reflection HF
            (iso_comp f (iso_inv_from_iso f'))) =
            iso_comp f (iso_inv_from_iso f')).
     generalize (iso_comp f (iso_inv_from_iso f')).

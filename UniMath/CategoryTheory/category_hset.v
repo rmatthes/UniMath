@@ -21,10 +21,10 @@ Contents :
 
 ************************************************************)
 
-Require Import UniMath.Foundations.Basics.All.
-Require Import UniMath.Foundations.Propositions.
-Require Import UniMath.Foundations.Sets.
-Require Import UniMath.Foundations.FunctionalExtensionality.
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Propositions.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
@@ -69,10 +69,10 @@ Lemma iseqrel_eqrel_from_hrel : iseqrel eqrel_from_hrel.
 Proof.
 repeat split.
 - intros x y z H1 H2 R HR.
-  apply (eqreltrans R _ y); [ now apply H1 | now apply H2].
+  refine (eqreltrans R _ y _ _ _); [ now refine (H1 _ _) | now refine (H2 _ _) ].
 - now intros x R _; apply (eqrelrefl R).
 - intros x y H R H'.
-  now apply (eqrelsymm R), H.
+  apply (eqrelsymm R); now refine (H _ _).
 Qed.
 
 Lemma eqrel_impl a b : R0 a b -> eqrel_from_hrel a b.
@@ -84,7 +84,7 @@ Qed.
 Lemma minimal_eqrel_from_hrel (R : eqrel A) (H : ∀ a b, R0 a b -> R a b) :
   ∀ a b, eqrel_from_hrel a b -> R a b.
 Proof.
-now intros a b H'; apply H'.
+now intros a b H'; refine (H' _ _).
 Qed.
 
 End extras.
@@ -282,7 +282,7 @@ Variable D : diagram g HSET.
 
 Local Definition cobase : UU := Σ j : vertex g, pr1hSet (dob D j).
 
-(* Theory about hprop is in UniMath.Foundations.Propositions *)
+(* Theory about hprop is in UniMath.Foundations.Basics.Propositions *)
 Local Definition rel0 : hrel cobase := λ (ia jb : cobase),
   hProppair (ishinh (Σ f : edge (pr1 ia) (pr1 jb), dmor D f (pr2 ia) = pr2 jb))
             (isapropishinh _).
@@ -296,7 +296,7 @@ Qed.
 
 Local Definition eqr : eqrel cobase := eqrelpair _ iseqrel_rel.
 
-(* Defined in UniMath.Foundations.Sets *)
+(* Defined in UniMath.Foundations.Basics.Sets *)
 Definition colimHSET : HSET :=
   hSetpair (setquot eqr) (isasetsetquot _).
 
@@ -347,7 +347,7 @@ Defined.
 
 Lemma rel0_impl a b (Hab : rel0 a b) : from_cobase_eqrel a b.
 Proof.
-apply Hab; clear Hab; intro H; simpl.
+refine (Hab _ _); clear Hab; intro H; simpl.
 destruct H as [f Hf].
 generalize (toforallpaths _ _ _ (coconeInCommutes cc (pr1 a) (pr1 b) f) (pr2 a)).
 unfold compose, from_cobase; simpl; intro H.
@@ -373,7 +373,7 @@ End from_colim.
 
 Definition colimCoconeHSET : cocone D colimHSET.
 Proof.
-refine (mk_cocone _ _).
+simple refine (mk_cocone _ _).
 - now apply injections.
 - abstract (intros u v e;
             apply funextfun; intros Fi; simpl;
@@ -445,9 +445,9 @@ Defined.
 
 Lemma LimConeHSET : LimCone D.
 Proof.
-  refine (mk_LimCone _ _ _ _ ).
+  simple refine (mk_LimCone _ _ _ _ ).
   - apply limset.
-  - refine (mk_cone _ _ ).
+  - simple refine (mk_cone _ _ ).
     + intro u. simpl.
       intro f.
       exact (pr1 f u).
@@ -456,12 +456,12 @@ Proof.
       intro f; simpl.
       apply (pr2 f).
   - intros X CC.
-    refine (tpair _ _ _ ).
-    + refine (tpair _ _ _ ).
+    simple refine (tpair _ _ _ ).
+    + simple refine (tpair _ _ _ ).
       * simpl.
         intro x.
         {
-          refine (tpair _ _ _ ).
+          simple refine (tpair _ _ _ ).
           - intro u.
             apply (coconeIn CC u x). (* TODO : hide implementation of limits *)
           - intros u v e. simpl.
