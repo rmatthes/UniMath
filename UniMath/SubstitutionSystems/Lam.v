@@ -457,7 +457,7 @@ Proof.
       intro c.
       assert (HT := nat_trans_eq_pointwise H2 c).
       match goal with |[H2 : ?e = ?f |- _ ] =>
-                         assert (X: CoproductIn1 _ _ ;; e = CoproductIn1 _ _ ;; f) end.
+                         assert (X: CoproductIn1 _ _ ;; e = CoproductIn1 _ _ ;; f) end. (* RM: why H2 and not HT? *)
       { apply maponpaths . assumption. }
       clear HT. clear H2.
 
