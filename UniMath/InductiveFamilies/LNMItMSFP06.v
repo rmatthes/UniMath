@@ -28,6 +28,10 @@ Notation k0 := hSet.
 (** the type of all type transformations *)
 Definition k1 := k0 -> k0.
 
+(* why does the following not work instead?
+Notation k1 := hSet -> hSet.
+*)
+
 (** the type of all rank-2 type transformations *)
 Definition k2 := k1 -> k1.
 
@@ -123,6 +127,12 @@ Variable Fpefct : pefct F.
 Definition MItPretype (S:k1) : UU :=
   forall G : k1, (forall X : k1, X c_k1 G -> F X c_k1 G) -> S c_k1 G.
 (* will have to be shrunk down to hSet *)
+
+(* why does the following not typecheck? *)
+Lemma isaset_total2_hSet_k1 (X:hSet->hSet) (Y:X->hSet) : isaset (total2 (fun  x:X => Y x)).
+Proof.
+
+Defined.
 
 (** the following record used to be an inductive definition in the paper *)
 (* in the paper, inE is called In^+, mu2E is called mu^+F *)
