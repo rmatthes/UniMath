@@ -1,10 +1,10 @@
 (** needs impredicative Set *)
 
-(** Copyright 2006, Ralph Matthes, CNRS & IRIT UPS Toulouse *)
-(** This is companion material to the article "Verification of
+(** author: Ralph Matthes, CNRS & IRIT UPS Toulouse *)
+(** This is based on companion material to the article "Verification of
     programs on truly nested datatypes in intensional type theory", 
-    presented at the workshop MSFP 2006. Version number: 1.3 *) 
-(** It has been tested with Coq V8.0pl3 - coqide/coqtop/coqc -impredicative-set *)
+    presented at the workshop MSFP 2006.*) 
+(** It has been tested with Coq V8.5pl2 - coqide/coqtop/coqc -impredicative-set *)
 
 (** Logic for Natural Mendler Iteration of Rank 2 *)
 (** Natural is in the sense of category theory; the iterator yields
@@ -14,10 +14,15 @@
     that guarantees full naturality of the iteratively.
     The idea of its implementation in Coq is taken from Venanzio Capretta. *)
 
+Require Import UniMath.Foundations.Basics.PartD.
+Require Import UniMath.Foundations.Basics.Sets.
+Require Import UniMath.CategoryTheory.category_hset.
+
+
 Set Implicit Arguments.
 
 (** the universe of all monotypes *)
-Definition k0 := Set.
+Definition k0 := hSet.
 
 (** the type of all type transformations *)
 Definition k1 := k0 -> k0.
@@ -26,41 +31,50 @@ Definition k1 := k0 -> k0.
 Definition k2 := k1 -> k1.
 
 (** polymorphic identity *)
-Definition id : forall (A:Set), A -> A := fun A x => x.
+Definition id : forall (A:k0), hset_fun_space A A := fun A x => x.
 
 (** composition *)
-Definition comp (A B C:Set)(g:B->C)(f:A->B) : A->C := fun x => g (f x).
+Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
 
 Infix "o" := comp (at level 90).
 
 (** refined notion of less than on type transformations *)
-Definition less_k1 (X Y:k1) : Set := 
-      forall (A B:Set), (A->B) -> X A -> Y B.   
+Definition less_k1 (X Y:k1) : UU := 
+      forall (A B: k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (Y B)).   
 
 Infix "<_k1"  := less_k1 (at level 60).
 
 (** standard notion of less than on type transformations *)
-Definition sub_k1 (X Y:k1) : Set :=
-     forall A:Set, X A -> Y A.
+Definition sub_k1 (X Y:k1) : UU :=
+     forall (A:k0),hset_fun_space (X A) (Y A).
+
+(* maybe better
+Definition sub_k1 (X Y:k1) : hSet :=
+     forall_hSet (fun A:k0 => hset_fun_space (X A) (Y A)).
+*)
 
 Infix "c_k1" := sub_k1 (at level 60).
 
-Definition mon (X:k1) : Set := X <_k1 X.
+Definition mon (X:k1) : UU := X <_k1 X.
 
 Lemma monOk : forall X:k1, mon X = 
-  forall (A B:Set), (A -> B) -> X A -> X B.
+  forall (A B:k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (X B)).
 Proof.
   reflexivity.
 Qed.
 
 
 
-Definition ext (X Y:k1)(h: X <_k1 Y): Prop :=
-  forall (A B:Set)(f g:A -> B), 
+Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
+  forall (A B:k0)(f g:hset_fun_space A B), 
         (forall a, f a = g a) -> forall r, h _ _ f r = h _ _ g r.
 
-Definition fct1 (X:k1)(m: mon X) : Prop :=
-  forall (A:Set)(x:X A), m _ _ (id(A:=A)) x = x.
+
+(* the following definition does not compile! *)
+Definition fct1 (X:k1)(m: mon X) : UU :=
+  forall (A:k0)(x:X A), m _ _ (id(A:=A)) x = x.
+
+(* END OF WORK ON THE FILE *)
  
 Definition fct2 (X:k1)(m: mon X) : Prop :=
  forall (A B C:Set)(f:A -> B)(g:B -> C)(x:X A), 
