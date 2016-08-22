@@ -17,12 +17,13 @@
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.category_hset.
+Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 
 Set Implicit Arguments.
 
 (** the universe of all monotypes *)
-Definition k0 := hSet.
+Notation k0 := hSet.
 
 (** the type of all type transformations *)
 Definition k1 := k0 -> k0.
@@ -31,10 +32,15 @@ Definition k1 := k0 -> k0.
 Definition k2 := k1 -> k1.
 
 (** polymorphic identity *)
-Definition id : forall (A:k0), hset_fun_space A A := fun A x => x.
+Definition id : forall (A:HSET), A --> A := fun A x => x.
+
+(* Definition id : forall (A:k0), hset_fun_space A A := fun A x => x. *)
 
 (** composition *)
-Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
+Definition comp (A B C:HSET)(g:B --> C)(f:A --> B) : A --> C := fun x => g (f x).
+
+(* Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
+*)
 
 Infix "o" := comp (at level 90).
 
@@ -46,12 +52,17 @@ Infix "<_k1"  := less_k1 (at level 60).
 
 (** standard notion of less than on type transformations *)
 Definition sub_k1 (X Y:k1) : UU :=
-     forall (A:k0),hset_fun_space (X A) (Y A).
+     forall (A:k0), hset_fun_space (X A) (Y A).
 
 (* maybe better
 Definition sub_k1 (X Y:k1) : hSet :=
      forall_hSet (fun A:k0 => hset_fun_space (X A) (Y A)).
+rather
 *)
+
+Open Scope set.
+Definition sub_k1_hset (X Y:k1) : hSet :=
+     Π(A:k0), hset_fun_space (X A) (Y A).
 
 Infix "c_k1" := sub_k1 (at level 60).
 
@@ -70,33 +81,34 @@ Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
         (forall a, f a = g a) -> forall r, h _ _ f r = h _ _ g r.
 
 
-(* the following definition does not compile! *)
 Definition fct1 (X:k1)(m: mon X) : UU :=
-  forall (A:k0)(x:X A), m _ _ (id(A:=A)) x = x.
+  forall (A:k0)(x:X A), m _ _ (@id A) x = x.
 
-(* END OF WORK ON THE FILE *)
  
-Definition fct2 (X:k1)(m: mon X) : Prop :=
- forall (A B C:Set)(f:A -> B)(g:B -> C)(x:X A), 
+Definition fct2 (X:k1)(m: mon X) : UU :=
+ forall (A B C:k0)(f:hset_fun_space A B)(g:hset_fun_space B C)(x:X A), 
        m _ _ (g o f) x = m _ _ g (m _ _ f x).
 
+(* END OF PROPER WORK ON THE FILE *)
+
 (** pack up the good properties of the approximation *)
-Record efct (X:k1) : Set := mkefct
+Record efct (X:k1) : UU := mkefct
   { m : mon X;
      e : ext m;
      f1 : fct1 m;
      f2 : fct2 m }.
+(* will later be turned into Sigma type *)
 
-Definition pefct (F:k2) : Set :=
+Definition pefct (F:k2) : UU :=
   forall (X:k1), efct X -> efct (F X).
 
 
 (** natural transformations from (X,mX) to (Y,mY) *)
-Definition NAT(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : Prop :=
-  forall (A B:Set)(f:A->B)(t:X A), j B (mX A B f t) = mY _ _ f (j A t).
+Definition NAT(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : UU :=
+  forall (A B:k0)(f:hset_fun_space A B)(t:X A), j B (mX A B f t) = mY _ _ f (j A t).
 
 
-Module LNMIt.
+Section LNMIt.
 
 Section LNMItDef.
 (*  This definition is already the justification "Main Theorem" and the
@@ -108,12 +120,21 @@ Variable F:k2.
 Variable Fpefct : pefct F.
 
 (** the type of the iterator, parameterized over the source constructor *)
-Definition MItPretype (S:k1) : Set :=
+Definition MItPretype (S:k1) : UU :=
   forall G : k1, (forall X : k1, X c_k1 G -> F X c_k1 G) -> S c_k1 G.
+(* will have to be shrunk down to hSet *)
 
-
-(** the following inductive definition is only a record *)
+(** the following record used to be an inductive definition in the paper *)
 (* in the paper, inE is called In^+, mu2E is called mu^+F *)
+
+(* the following definition does not compile *)
+Definition mu2E (A: k0) : k0 :=
+  Σ (G:k1)(ef:efct G)(G':k1)(m':mon G')
+          (it:MItPretype G')(j: G c_k1 G')(n:NAT j (m ef) m'), F G A.
+(* total2_hSet does not apply here since G and G' range over k1 ! *)
+
+(* END OF ALL HOPES *)
+
 Inductive mu2E:Set -> Set :=
    inE : forall (G:k1)(ef:efct G)(G':k1)(m':mon G')
           (it:MItPretype G')(j: G c_k1 G'), NAT j (m ef) m' ->
