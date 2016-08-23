@@ -11,6 +11,6 @@ Ralph Matthes, [Verification of programs on truly nested datatypes in intensiona
 # Contents
 
 * *LNMItMSFP06.v* --- starting with the file available at https://www.irit.fr/~Ralph.Matthes/Coq/MSFP06/
-  * currently not integrated with UniMath library
+  * a fully impredicative justification of inductive families
   * does not yet conform to the coding standards of UniMath
- 
+  * does not even compile
