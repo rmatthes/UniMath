@@ -24,33 +24,34 @@ Set Implicit Arguments.
 
 (** the universe of all monotypes *)
 Notation k0 := hSet.
+(* taking a definition instead would sometimes not trigger subtyping, as remarked by Benedikt *)
 
 (** the type of all type transformations *)
-Definition k1 := k0 -> k0.
-
-(* why does the following not work instead?
-Notation k1 := hSet -> hSet.
-*)
+Notation k1 := (k0 -> k0).
+(* the parentheses are a suggestion by Benedikt *)
 
 (** the type of all rank-2 type transformations *)
-Definition k2 := k1 -> k1.
+Notation k2 := (k1 -> k1).
 
 (** polymorphic identity *)
 Definition id : forall (A:HSET), A --> A := fun A x => x.
 
-(* Definition id : forall (A:k0), hset_fun_space A A := fun A x => x. *)
+(* less readable
+Definition id : forall (A:k0), hset_fun_space A A := fun A x => x.
+*)
 
 (** composition *)
 Definition comp (A B C:HSET)(g:B --> C)(f:A --> B) : A --> C := fun x => g (f x).
 
-(* Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
+(* less readable
+Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
 *)
 
 Infix "o" := comp (at level 90).
 
 (** refined notion of less than on type transformations *)
 Definition less_k1 (X Y:k1) : UU := 
-      forall (A B: k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (Y B)).   
+      forall (A B: k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (Y B)).
 
 Infix "<_k1"  := less_k1 (at level 60).
 
@@ -64,9 +65,11 @@ Definition sub_k1 (X Y:k1) : hSet :=
 rather
 *)
 
-Open Scope set.
+(* Open Scope set. *)
+(*
 Definition sub_k1_hset (X Y:k1) : hSet :=
      Π(A:k0), hset_fun_space (X A) (Y A).
+*)
 
 Infix "c_k1" := sub_k1 (at level 60).
 
@@ -81,8 +84,8 @@ Qed.
 
 
 Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
-  forall (A B:k0)(f g:hset_fun_space A B), 
-        (forall a, f a = g a) -> forall r, h _ _ f r = h _ _ g r.
+  forall (A B:HSET)(f g: A --> B), 
+        (forall a, f a = g a) -> forall (r: X A), h _ _ f r = h _ _ g r.
 
 
 Definition fct1 (X:k1)(m: mon X) : UU :=
@@ -90,7 +93,7 @@ Definition fct1 (X:k1)(m: mon X) : UU :=
 
  
 Definition fct2 (X:k1)(m: mon X) : UU :=
- forall (A B C:k0)(f:hset_fun_space A B)(g:hset_fun_space B C)(x:X A), 
+ forall (A B C:HSET)(f:A --> B)(g:B --> C)(x:X A), 
        m _ _ (g o f) x = m _ _ g (m _ _ f x).
 
 (* END OF PROPER WORK ON THE FILE *)
@@ -128,20 +131,33 @@ Definition MItPretype (S:k1) : UU :=
   forall G : k1, (forall X : k1, X c_k1 G -> F X c_k1 G) -> S c_k1 G.
 (* will have to be shrunk down to hSet *)
 
-(* why does the following not typecheck? *)
+(* why does the following not typecheck? if X is replaced by nat in the type of Y and x, then it typechecks  *)
+(*
 Lemma isaset_total2_hSet_k1 (X:hSet->hSet) (Y:X->hSet) : isaset (total2 (fun  x:X => Y x)).
 Proof.
 
 Defined.
+*)
 
 (** the following record used to be an inductive definition in the paper *)
 (* in the paper, inE is called In^+, mu2E is called mu^+F *)
 
-(* the following definition does not compile *)
-Definition mu2E (A: k0) : k0 :=
-  Σ (G:k1)(ef:efct G)(G':k1)(m':mon G')
+(* the following definition does not yield type k0 instead of UU *)
+Definition mu2E (A: k0) : UU :=
+  Σ (G : k1)(ef:efct G)(G':k1)(m':mon G')
           (it:MItPretype G')(j: G c_k1 G')(n:NAT j (m ef) m'), F G A.
-(* total2_hSet does not apply here since G and G' range over k1 ! *)
+
+Lemma isaset_mu2E (A : k0) : isaset (mu2E A).
+Proof.
+  apply (isofhleveltotal2 2). (* without the argument "2" there is a weird error *)
+  - (* is wrong, as will be seen in a moment *)
+    apply impred.
+    intro Hyp.
+    (* according to Benedikt inconsistent with univalence *)
+Abort.
+
+
+(* total2_hSet does not apply here since G and G' range over k1, but k0 would be already bad enough *)
 
 (* END OF ALL HOPES *)
 
@@ -160,9 +176,9 @@ Definition mapmu2E : mon mu2E.
 Proof.
   red.
   intros A B f t.
-  destruct t. 
+  destruct t.
   apply (inE(A:=B) ef it j n).
-  exact (m (Fpefct ef) f f0). 
+  exact (m (Fpefct ef) f f0).
 Defined.
 
 Print mapmu2E.
@@ -173,7 +189,7 @@ Definition MItE : MItPretype mu2E.
 Proof.
   red.
   intros G s A t.
-  destruct t.  
+  destruct t.
   exact (s G0 (fun A => (it G s A) o (j A)) A f).
 Defined.
 
@@ -286,7 +302,7 @@ Proof.
   exact (pi1 (j A H)).
 Defined.
 
-Lemma pi1'pNAT : forall (G:k1)(m:mon G)(j: G c_k1 mu2), 
+Lemma pi1'pNAT : forall (G:k1)(m:mon G)(j: G c_k1 mu2),
   NAT j m mapmu2 -> NAT (pi1' j) m mapmu2E.
 Proof.
   red.
@@ -296,7 +312,7 @@ Proof.
   apply pi1mapmu2.
 Qed.  
 
-Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:Set)(t: G A), 
+Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:Set)(t: G A),
              mu2Echeck (pi1' j A t).
 Proof.
   intros.
@@ -328,7 +344,7 @@ Proof.
   unfold mapmu2.
   unfold mapmu2E.
 *)
-  reflexivity.  
+  reflexivity.
 Qed.
 
 Lemma MItRed : forall (G : k1)
@@ -397,7 +413,7 @@ Axiom UIP : forall (U:Type) (x y:U) (p1 p2:x = y), p1 = p2.
 
 (** does UIP imply uniqueness of naturality proofs? *)
 Lemma UNP0 : forall(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y)
-    (n1 n2: NAT j mX mY)(A B : Set) (f : A -> B) (t : X A), 
+    (n1 n2: NAT j mX mY)(A B : Set) (f : A -> B) (t : X A),
     n1 A B f t = n2 A B f t.
 Proof.
   intros.
@@ -426,10 +442,10 @@ Proof.
      P A (mu2cons (j A t) (m0 A t)))
   with (forall (A : Set) (t : G A), P A (j' A t)) in H.
   assert (n1 : NAT (Y:=mu2) j' (m ef) mapmu2).
-  red. 
-  clear A t. 
-  intros. 
-  assert (pi1n1 : pi1 (j' B (m ef f t)) =  pi1 (mapmu2 f (j' A t))). 
+  red.
+  clear A t.
+  intros.
+  assert (pi1n1 : pi1 (j' B (m ef f t)) =  pi1 (mapmu2 f (j' A t))).
   simpl.
   apply n.
 (** using pi1n1: *)
@@ -442,13 +458,13 @@ Proof.
                            (fun A B f t => n A B f t) t 
                   = pi1 (In ef n1 t)).
   simpl.
-  apply (f_equal (fun x : NAT (fun A t => j A t) (m ef) mapmu2E 
+  apply (f_equal (fun x : NAT (fun A t => j A t) (m ef) mapmu2E
                                => inE ef MItE _ x t)).
   apply UNP. (** equates n and pi1'pNAT n1 *)
 (** using pi1In: *)
   simpl.
   apply (eq_ind _ (fun r => P A r) p).
-  apply mu2pirr. 
+  apply mu2pirr.
   rewrite <- pi1In.
   reflexivity.
 Qed.
@@ -459,7 +475,7 @@ Print mu2Ind.
 
 Lemma mapmu2Id: fct1 mapmu2.
 Proof.
-  red.  
+  red.
   apply (mu2Ind (fun A r => mapmu2 (id(A:=A)) r = r)).
   intros.
   clear H (* the IH *).
@@ -476,7 +492,7 @@ Proof.
   generalize H; clear H.
   generalize f g; clear f g.
   generalize B; clear B.
-  generalize A r; clear A r.  
+  generalize A r; clear A r.
   apply (mu2Ind (fun A r => forall (B : Set) (f g : A -> B),
        (forall a : A, f a = g a) -> mapmu2 f r = mapmu2 g r)).
   intros.
@@ -509,7 +525,7 @@ Proof.
   exact mapmu2Id.
   exact mapmu2Comp.
 Defined.
-  
+
 
 (** the standard constructors for mu2 use mu2 as its own approximation *)
 
@@ -537,10 +553,10 @@ Proof.
   reflexivity.
 Qed.
 
-Lemma mapmu2RedCan : forall (A:Set)(B:Set)(f:A->B)(t: F mu2 A), 
+Lemma mapmu2RedCan : forall (A:Set)(B:Set)(f:A->B)(t: F mu2 A),
              mapmu2 f (InCan t) =InCan(m (Fpefct mapmu2efct) f t).
 Proof.
-  reflexivity.  
+  reflexivity.
 Qed.
 
 
@@ -562,11 +578,11 @@ Lemma MItUni: forall (G : k1)(s : forall X : k1, X c_k1 G -> F X c_k1 G)
        (aux: mu2 c_k1 G),
        (forall (X:k1), polyExtsub(s X)) ->
        (forall (A : Set)(X : k1)(ef: efct X)(j: X c_k1 mu2)(n:NAT j (m ef) mapmu2)(t:F X A),
-     aux A (In ef n t) = s X (fun A => (aux A) o (j A)) A t) -> 
+     aux A (In ef n t) = s X (fun A => (aux A) o (j A)) A t) ->
       forall (A:Set)(r: mu2 A), aux A r = MIt s r.
 Proof.
   intros G s aux sExt H.
-  apply (mu2Ind (fun A r => 
+  apply (mu2Ind (fun A r =>
    aux A r = MIt s r)).
   intros X ef j n IH A t.
   rewrite H.
@@ -574,8 +590,8 @@ Proof.
   apply sExt.
   clear A t.
   intros.
-  unfold comp. 
-  apply IH. 
+  unfold comp.
+  apply IH.
 Qed.
 
 Section MIt.
@@ -592,21 +608,21 @@ Lemma MItNAT : NAT (MIt s) mapmu2 mG.
 Proof.
   red.
   intros A B f r.
-  generalize B f; clear B f. 
+  generalize B f; clear B f.
   generalize A r; clear A r.
   apply (mu2Ind (fun A r => forall (B : Set) (f : A -> B),
    MIt s (mapmu2 f r) = mG f (MIt s r))).
   intros X ef j n IH A t B f.
-  rewrite mapmu2Red.  
+  rewrite mapmu2Red.
   do 2 rewrite MItRed.
   set (aux := fun A : Set => MIt s (A:=A) o j A).
   apply smGpNAT; try assumption.
   clear A t B f.
   red.
   intros.
-  unfold aux.  
-  unfold comp.  
-  rewrite n.  
+  unfold aux.
+  unfold comp.
+  rewrite n.
   apply IH.
 Qed.
 
@@ -634,9 +650,9 @@ Proof.
   elim r.
   intro.
   red. 
-  exact (inl _ a). 
+  exact (inl _ a).
   intros [a r'].
-  red.  
+  red.
   apply inr.
   split.
   exact (f a).
@@ -653,7 +669,7 @@ Proof.
   intros.
   exact (bshf3 m0).
 Defined.
-  
+
 
 Definition bshf3pefct : pefct BshF3.
 Proof.
@@ -667,11 +683,11 @@ Proof.
   reflexivity.
   destruct p.
   simpl.
-  rewrite H.  
-  apply (f_equal (fun x:X(X(X B)) => inr unit (g a, x))). 
+  rewrite H.
+  apply (f_equal (fun x:X(X(X B)) => inr unit (g a, x))).
   apply (e ef).
   intro.
-  apply (e ef). 
+  apply (e ef).
   intro.
   apply (e ef).
   assumption.
@@ -712,15 +728,15 @@ Focus 2.
   rewrite <- (f2 ef).
   apply (e ef).
   intro.
-  unfold comp at 2.  
+  unfold comp at 2.
   rewrite <- (f2 ef).
-  apply (e ef). 
+  apply (e ef).
   intro.
   rewrite (f2 ef).
   reflexivity.
 Defined.
 
-Definition Bsh3 := mu2 bshf3pefct. 
+Definition Bsh3 := mu2 bshf3pefct.
 
 Definition bnil3 : forall (A:Set), Bsh3 A:=
    fun A => InCan bshf3pefct _ (inl _ tt).
