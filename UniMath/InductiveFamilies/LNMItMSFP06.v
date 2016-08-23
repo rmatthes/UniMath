@@ -217,7 +217,7 @@ Defined.
 (** single out the good elements of mu2E A *)
 (* in the paper muEcheck is called chk_{mu^+F}, inEcheck is called Inchk *)
 (* the following inductive definition will have to be justified by other means *)
-Inductive mu2Echeck : forall (A:k0), mu2E A -> Prop :=
+Inductive mu2Echeck : forall (A:k0), mu2E A -> k0 :=
    inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E),
        (forall (A:k0)(t:G A), mu2Echeck (j A t)) ->
      forall (A:k0)(t:F G A),
@@ -226,8 +226,10 @@ Inductive mu2Echeck : forall (A:k0), mu2E A -> Prop :=
 Implicit Arguments inEcheck [G A].
 (* Check inEcheck. *)
 
+Scheme mu2Echeck_indk0 := Minimality for mu2Echeck Sort Type. (* Type should be replaced by k0, but this is illegal *)
+
 (* the induction principle that is mentioned right after the inductive definition in the paper *)
-Check mu2Echeck_ind : forall P : forall A : k0, mu2E A -> Prop,
+Check mu2Echeck_indk0 : forall P : forall A : k0, mu2E A -> k0,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
           (n : NAT j (m ef) mapmu2E),
         (forall (A : k0) (t : G A), mu2Echeck (j A t)) ->
@@ -237,12 +239,15 @@ Check mu2Echeck_ind : forall P : forall A : k0, mu2E A -> Prop,
           (inE ef MItE j n t)) ->
        forall (A : k0) (r : mu2E A), mu2Echeck r -> P A r.
 
+
+Definition mu2Echeck_p (A:k0)(r:mu2E A) : hProp := ∥mu2Echeck r∥.
+
 (* in the paper, mu2 is called mu F *)
-Definition mu2 (A:k0) : k0 := total2 (fun (r:mu2E A) => mu2Echeck r).
+Definition mu2 (A:k0) : k0 := total2 (fun (r:mu2E A) =>  mu2Echeck_p r).
 
 (* in the paper, mu2cons is called cons *)
-Definition mu2cons (A:k0)(r:mu2E A)(p:mu2Echeck r) : mu2 A :=
-  tpair (fun r : mu2E A => mu2Echeck r) r p.
+Definition mu2cons (A:k0)(r:mu2E A)(p:mu2Echeck_p r) : mu2 A :=
+  tpair (fun r : mu2E A => mu2Echeck_p r) r p.
 Implicit Arguments mu2cons [A].
 
 (* in the paper, mapmu2 is called map_{mu F} *)
@@ -253,11 +258,14 @@ Proof.
   set (r' := pr1 r).
   set (H := pr2 r).
   eexists (mapmu2E f r').
+(* STOPS HERE - HOW TO USE PROPOSITIONALLY TRUNCATED ELEMENTS?
   destruct H. (* inversion on mu2Echeck to be removed later *)
   simpl.
   apply inEcheck.
   assumption.
 Defined.
+*)
+Admitted.
 
 
 Definition pi1 : mu2 c_k1 mu2E.
@@ -265,6 +273,19 @@ Proof.
   intros A r.
   exact (pr1 r).
 Defined.
+
+(** benefit from propositional truncation *)
+Lemma mu2pirr : forall (A:k0)(r1 r2:mu2 A), pi1 r1 = pi1 r2 -> r1 = r2.
+Proof.
+  intros A r1 r2 H.
+  apply subtypeEquality.
+  red.
+  intro t.
+  unfold mu2Echeck_p.
+  apply isapropishinh.
+  assumption.
+Defined.
+
 
 Definition MIt : MItPretype mu2.
 Proof.
@@ -277,8 +298,7 @@ Defined.
       with eta. *)
 
 
-
-Lemma pi2 : forall(A:k0)(r:mu2 A), mu2Echeck (pi1 r).
+Lemma pi2 : forall(A:k0)(r:mu2 A), mu2Echeck_p (pi1 r).
 Proof.
   intros.
   exact (pr2 r).
@@ -288,8 +308,11 @@ Defined.
 Lemma pi1mapmu2 : forall (A B:k0)(f:A->B)(r:mu2 A),
   pi1 (mapmu2 f r) = mapmu2E f (pi1 r).
 Proof.
-  reflexivity. (* uses eta expansion for pairs *)
+(*
+  reflexivity. (* does this use eta expansion for pairs? *)
 Defined.
+*)
+Admitted.
 
 (** the type of the future datatype constructor In *)
 Definition InType : UU := 
@@ -312,7 +335,7 @@ Proof.
 Defined.
 
 Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:k0)(t: G A),
-             mu2Echeck (pi1' j A t).
+             mu2Echeck_p (pi1' j A t).
 Proof.
   intros.
   exact (pi2 (j A t)).
@@ -326,10 +349,17 @@ Proof.
   unfold pi1'.
   change   (fun (A0 : k0) (H : G A0) => pi1 (j A0 H)) with
   (fun A0 H => (fun A0 H => pi1 (j A0 H)) A0 H).
+  red. simpl.
+  apply hinhpr.
   apply inEcheck.
+  intros.
+(* BIG PROBLEM: the recursive call is to mu2Echeck and not to mu2Echeck_p
   exact (pi2' j).
 Defined.
+*)
+Admitted.
 
+(* currently deactivated
 (** the iterative behaviour of map comes from the definition of In *)
 Lemma mapmu2Red : forall (A:k0)(G:k1)(ef:efct G)(j: G c_k1 mu2)
     (n: NAT j (m ef) mapmu2)(t: F G A)(B:Set)(f:A->B), 
@@ -345,6 +375,7 @@ Lemma MItRed : forall (G : k1)
 Proof.
   reflexivity.
 Defined.
+*)
 
 (** our desired induction principle, first just as a proposition *)
 Definition mu2IndType : Prop :=
@@ -356,9 +387,9 @@ Definition mu2IndType : Prop :=
 
 (* this is the more refined induction principle that is used at the end of
    the proof of Theorem 3 in the paper *)
-Scheme mu2EcheckInd := Induction for mu2Echeck Sort Prop.
+Scheme mu2EcheckInd := Induction for mu2Echeck Sort Type. (* ought to be k0, but this is illegal *)
 Check mu2EcheckInd : 
-      forall P : forall (A : k0) (t : mu2E A), mu2Echeck t -> Prop,
+      forall P : forall (A : k0) (t : mu2E A), mu2Echeck t -> Type,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
           (n : NAT j (m ef) mapmu2E)
           (p : forall (A : k0) (t : G A), mu2Echeck (j A t)),
@@ -393,7 +424,7 @@ Proof.
   reflexivity.
 Qed.
 (* will fall away *)
-
+*)
 
 (** uniqueness of identity proofs from library Eqdep *)
 Axiom UIP : forall (U:Type) (x y:U) (p1 p2:x = y), p1 = p2.
@@ -407,6 +438,7 @@ Proof.
   apply UIP.
 Qed.
 
+(*
 (** uniqueness of naturality proofs is trivially a consequence of proof irrelevance *)
 Lemma UNP : forall(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y)
     (n1 n2: NAT j mX mY), n1 = n2.
@@ -422,7 +454,7 @@ Proof.
   intros P s A r.
   set (r' := pr1 r).
   set (H := pr2 r).
-  assert (P A (tpair (fun r: mu2E A => mu2Echeck r) r' H)).
+  assert (P A (tpair (fun r: mu2E A => mu2Echeck r) r' H)).  (* DOES NOT TYPECHECK *)
 Focus 2.
   (* now we are missing eta expansion for pairs but should come along with proof irrelevance *)
 Unfocus.
