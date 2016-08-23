@@ -22,9 +22,9 @@ Require Import UniMath.CategoryTheory.UnicodeNotations.
 
 Set Implicit Arguments.
 
-(** the universe of all monotypes *)
-Notation k0 := hSet.
-(* taking a definition instead would sometimes not trigger subtyping, as remarked by Benedikt *)
+(** the universe *)
+Notation k0 := UU.
+(* taking a definition instead might sometimes not be optimal, as remarked by Benedikt *)
 
 (** the type of all type transformations *)
 Notation k1 := (k0 -> k0).
@@ -34,58 +34,38 @@ Notation k1 := (k0 -> k0).
 Notation k2 := (k1 -> k1).
 
 (** polymorphic identity *)
-Definition id : forall (A:HSET), A --> A := fun A x => x.
-
-(* less readable
-Definition id : forall (A:k0), hset_fun_space A A := fun A x => x.
-*)
+Definition id : forall (A:k0), A -> A := fun A x => x.
 
 (** composition *)
-Definition comp (A B C:HSET)(g:B --> C)(f:A --> B) : A --> C := fun x => g (f x).
-
-(* less readable
-Definition comp (A B C:k0)(g:hset_fun_space B C)(f:hset_fun_space A B) : hset_fun_space A C := fun x => g (f x).
-*)
+Definition comp (A B C:k0)(g:B -> C)(f:A -> B) : A -> C := fun x => g (f x).
 
 Infix "o" := comp (at level 90).
 
 (** refined notion of less than on type transformations *)
 Definition less_k1 (X Y:k1) : UU := 
-      forall (A B: k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (Y B)).
+      forall (A B: k0), (A -> B) -> X A -> Y B.
 
 Infix "<_k1"  := less_k1 (at level 60).
 
 (** standard notion of less than on type transformations *)
 Definition sub_k1 (X Y:k1) : UU :=
-     forall (A:k0), hset_fun_space (X A) (Y A).
-
-(* maybe better
-Definition sub_k1 (X Y:k1) : hSet :=
-     forall_hSet (fun A:k0 => hset_fun_space (X A) (Y A)).
-rather
-*)
-
-(* Open Scope set. *)
-(*
-Definition sub_k1_hset (X Y:k1) : hSet :=
-     Π(A:k0), hset_fun_space (X A) (Y A).
-*)
+     forall (A:k0), X A -> Y A.
 
 Infix "c_k1" := sub_k1 (at level 60).
 
 Definition mon (X:k1) : UU := X <_k1 X.
 
 Lemma monOk : forall X:k1, mon X = 
-  forall (A B:k0), hset_fun_space (hset_fun_space A B) (hset_fun_space (X A) (X B)).
+  forall (A B:k0), (A -> B) -> X A -> X B.
 Proof.
   reflexivity.
-Qed.
+Defined.
 
 
 
 Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
-  forall (A B:HSET)(f g: A --> B), 
-        (forall a, f a = g a) -> forall (r: X A), h _ _ f r = h _ _ g r.
+  forall (A B:k0)(f g: A -> B), 
+        (forall (a:A), f a = g a) -> forall (r: X A), h _ _ f r = h _ _ g r.
 
 
 Definition fct1 (X:k1)(m: mon X) : UU :=
@@ -93,10 +73,9 @@ Definition fct1 (X:k1)(m: mon X) : UU :=
 
  
 Definition fct2 (X:k1)(m: mon X) : UU :=
- forall (A B C:HSET)(f:A --> B)(g:B --> C)(x:X A), 
+ forall (A B C:k0)(f:A -> B)(g:B -> C)(x:X A), 
        m _ _ (g o f) x = m _ _ g (m _ _ f x).
 
-(* END OF PROPER WORK ON THE FILE *)
 
 (** pack up the good properties of the approximation *)
 Record efct (X:k1) : UU := mkefct
@@ -104,7 +83,7 @@ Record efct (X:k1) : UU := mkefct
      e : ext m;
      f1 : fct1 m;
      f2 : fct2 m }.
-(* will later be turned into Sigma type *)
+(* will later be turned into a nested Sigma type *)
 
 Definition pefct (F:k2) : UU :=
   forall (X:k1), efct X -> efct (F X).
@@ -112,7 +91,7 @@ Definition pefct (F:k2) : UU :=
 
 (** natural transformations from (X,mX) to (Y,mY) *)
 Definition NAT(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : UU :=
-  forall (A B:k0)(f:hset_fun_space A B)(t:X A), j B (mX A B f t) = mY _ _ f (j A t).
+  forall (A B:k0)(f:A -> B)(t:X A), j B (mX A B f t) = mY _ _ f (j A t).
 
 
 Section LNMIt.
@@ -129,135 +108,162 @@ Variable Fpefct : pefct F.
 (** the type of the iterator, parameterized over the source constructor *)
 Definition MItPretype (S:k1) : UU :=
   forall G : k1, (forall X : k1, X c_k1 G -> F X c_k1 G) -> S c_k1 G.
-(* will have to be shrunk down to hSet *)
-
-(* why does the following not typecheck? if X is replaced by nat in the type of Y and x, then it typechecks  *)
-(*
-Lemma isaset_total2_hSet_k1 (X:hSet->hSet) (Y:X->hSet) : isaset (total2 (fun  x:X => Y x)).
-Proof.
-
-Defined.
-*)
 
 (** the following record used to be an inductive definition in the paper *)
 (* in the paper, inE is called In^+, mu2E is called mu^+F *)
-
-(* the following definition does not yield type k0 instead of UU *)
 Definition mu2E (A: k0) : UU :=
   Σ (G : k1)(ef:efct G)(G':k1)(m':mon G')
           (it:MItPretype G')(j: G c_k1 G')(n:NAT j (m ef) m'), F G A.
 
-Lemma isaset_mu2E (A : k0) : isaset (mu2E A).
-Proof.
-  apply (isofhleveltotal2 2). (* without the argument "2" there is a weird error *)
-  - (* is wrong, as will be seen in a moment *)
-    apply impred.
-    intro Hyp.
-    (* according to Benedikt inconsistent with univalence *)
-Abort.
-
-
-(* total2_hSet does not apply here since G and G' range over k1, but k0 would be already bad enough *)
-
-(* END OF ALL HOPES *)
-
-Inductive mu2E:Set -> Set :=
-   inE : forall (G:k1)(ef:efct G)(G':k1)(m':mon G')
+Definition inE : forall (G:k1)(ef:efct G)(G':k1)(m':mon G')
           (it:MItPretype G')(j: G c_k1 G'), NAT j (m ef) m' ->
           F G c_k1 mu2E.
 (** the intention is that we only want to use inE with G':=mu2,
      m':=mapmu2 and it:=MIt. *)
+Proof.
+  intros G ef G' m' it j n A t.
+  exists G.
+  exists ef.
+  exists G'.
+  exists m'.
+  exists it.
+  exists j.
+  exists n.
+  exact t.
+Defined.
 
-(** We do not want to have j as implicit argument due to eta-problems. *)
+(** We historically did not want to have j as implicit argument due to eta-problems. *)
 Implicit Arguments inE [G G' m' A].
+
+
+(** we need accessors to the 8 components of the record since we do not want to use destruct **)
+Definition mu2E_G (A:k0)(t: mu2E A): k1.
+Proof.
+  apply pr1 in t.
+  exact t.
+Defined.
+
+Definition mu2E_ef (A:k0)(t: mu2E A): efct (mu2E_G t).
+Proof.
+  exact (pr1 (pr2 t)).
+Defined.
+
+Definition mu2E_G' (A:k0)(t: mu2E A): k1.
+Proof.
+  exact (pr1 (pr2 (pr2 t))).
+Defined.
+
+Definition mu2E_m' (A:k0)(t: mu2E A): mon (mu2E_G' t).
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 t)))).
+Defined.
+
+Definition mu2E_it (A:k0)(t: mu2E A): MItPretype (mu2E_G' t).
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 t))))).
+Defined.
+
+Definition mu2E_j (A:k0)(t: mu2E A): (mu2E_G t) c_k1 (mu2E_G' t).
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 t)))))).
+Defined.
+
+Definition mu2E_n (A:k0)(t: mu2E A): NAT (mu2E_j t) (m (mu2E_ef t)) (mu2E_m' t).
+Proof.
+  exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 t))))))).
+Defined.
+
+Definition mu2E_t (A:k0)(t: mu2E A): F (mu2E_G t) A.
+Proof.
+  exact (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 t))))))).
+Defined.
+
 
 (* in the paper, mapmu2E is called map_{mu^+F} *)
 Definition mapmu2E : mon mu2E.
 Proof.
-  red.
   intros A B f t.
-  destruct t.
+  set (ef := mu2E_ef t).
+  set (it := mu2E_it t).
+  set (j := mu2E_j t).
+  set (n := mu2E_n t).
   apply (inE(A:=B) ef it j n).
-  exact (m (Fpefct ef) f f0).
+  set (t' := mu2E_t t).
+  exact (m (Fpefct ef) f t').
 Defined.
 
-Print mapmu2E.
+(* Print mapmu2E. *)
 
 (** the preliminary iterator with source mu2E does not iterate at all *)
 (* in the paper MItE is called MIt^+ *)
 Definition MItE : MItPretype mu2E.
 Proof.
-  red.
-  intros G s A t.
-  destruct t.
-  exact (s G0 (fun A => (it G s A) o (j A)) A f).
+  intros G' s A t.
+  set (G := mu2E_G t).
+  set (it := mu2E_it t).
+  set (j := mu2E_j t).
+  set (t' := mu2E_t t).
+  exact (s G (fun A => (it G' s A) o (j A)) A t').
 Defined.
 
-Lemma MItEok : forall (G:k1)(s:forall X : k1, X c_k1 G -> F X c_k1 G)(A:Set)
+Lemma MItEok : forall (G:k1)(s:forall X : k1, X c_k1 G -> F X c_k1 G)(A:k0)
   (X:k1)(ef:efct X)(G':k1)(m':mon G')(it:MItPretype G') 
    (j: X c_k1 G') n (t:F X A),
    MItE s (inE (m':=m') ef it j n t) = s X (fun A => (it G s A) o (j A)) A t.
 Proof.
   reflexivity.
-Qed.
+Defined.
 
 (** single out the good elements of mu2E A *)
 (* in the paper muEcheck is called chk_{mu^+F}, inEcheck is called Inchk *)
-Inductive mu2Echeck : forall (A:Set), mu2E A -> Prop :=
+(* the following inductive definition will have to be justified by other means *)
+Inductive mu2Echeck : forall (A:k0), mu2E A -> Prop :=
    inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E),
-       (forall (A:Set)(t:G A), mu2Echeck (j A t)) ->
-     forall (A: Set)(t:F G A),
-       mu2Echeck (inE ef MItE (fun A t=>j A t)(fun A B f t => n A B f t) t).
-(** this expansion of j will later be needed; the expansion of n is tentative *)
-Check mu2Echeck.
+       (forall (A:k0)(t:G A), mu2Echeck (j A t)) ->
+     forall (A:k0)(t:F G A),
+       mu2Echeck (inE ef MItE j n t).
+(* Check mu2Echeck. *)
 Implicit Arguments inEcheck [G A].
-Check inEcheck.
+(* Check inEcheck. *)
 
 (* the induction principle that is mentioned right after the inductive definition in the paper *)
-Check mu2Echeck_ind : forall P : forall A : Set, mu2E A -> Prop,
+Check mu2Echeck_ind : forall P : forall A : k0, mu2E A -> Prop,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
           (n : NAT j (m ef) mapmu2E),
-        (forall (A : Set) (t : G A), mu2Echeck (j A t)) ->
-        (forall (A : Set) (t : G A), P A (j A t)) ->
-        forall (A : Set) (t : F G A),
+        (forall (A : k0) (t : G A), mu2Echeck (j A t)) ->
+        (forall (A : k0) (t : G A), P A (j A t)) ->
+        forall (A : k0) (t : F G A),
         P A
-          (inE ef MItE (fun (A: Set) (t : G A) => j A t)
-             (fun (A B : Set) (f : A -> B) (t : G A) => n A B f t) t)) ->
-       forall (A : Set) (r : mu2E A), mu2Echeck r -> P A r.
+          (inE ef MItE j n t)) ->
+       forall (A : k0) (r : mu2E A), mu2Echeck r -> P A r.
 
 (* in the paper, mu2 is called mu F *)
-Definition mu2 (A:Set) := {r:mu2E A | mu2Echeck r}.
-(** this is a convenient form to write sig (mu2Echeck(A:=A)). *)
+Definition mu2 (A:k0) : k0 := total2 (fun (r:mu2E A) => mu2Echeck r).
 
 (* in the paper, mu2cons is called cons *)
-Definition mu2cons (A:Set)(r:mu2E A)(p:mu2Echeck r) : mu2 A :=
-  exist (fun r : mu2E A => mu2Echeck r) r p.
+Definition mu2cons (A:k0)(r:mu2E A)(p:mu2Echeck r) : mu2 A :=
+  tpair (fun r : mu2E A => mu2Echeck r) r p.
 Implicit Arguments mu2cons [A].
 
 (* in the paper, mapmu2 is called map_{mu F} *)
 (** a non-iterative definition of the monotonicity witness *)
 Definition mapmu2 : mon mu2.
 Proof.
-  red.
   intros A B f r.
-  destruct r as [r' H].
+  set (r' := pr1 r).
+  set (H := pr2 r).
   eexists (mapmu2E f r').
-  destruct H.
+  destruct H. (* inversion on mu2Echeck to be removed later *)
   simpl.
   apply inEcheck.
   assumption.
 Defined.
 
 
-(** the usual projections from a sig are proj1_sig and proj2_sig *)
 Definition pi1 : mu2 c_k1 mu2E.
 Proof.
-  red.
   intros A r.
-  exact (proj1_sig r).
-(* by hand, one would have done the following: 
-  destruct r as [r' H].
-  assumption. *)
+  exact (pr1 r).
 Defined.
 
 Definition MIt : MItPretype mu2.
@@ -272,131 +278,111 @@ Defined.
 
 
 
-Lemma pi2 : forall(A:Set)(r:mu2 A), mu2Echeck (pi1 r).
+Lemma pi2 : forall(A:k0)(r:mu2 A), mu2Echeck (pi1 r).
 Proof.
   intros.
-  exact (proj2_sig r).
-(* by hand, one would have done the following:
-  elim r.
-  trivial. *)
-Qed.
+  exact (pr2 r).
+Defined.
 
 (** first projection commutes with the maps *)
-Lemma pi1mapmu2 : forall (A B:Set)(f:A->B)(r:mu2 A),
+Lemma pi1mapmu2 : forall (A B:k0)(f:A->B)(r:mu2 A),
   pi1 (mapmu2 f r) = mapmu2E f (pi1 r).
 Proof.
-  intros.
-  destruct r.
-  reflexivity.
-Qed.
+  reflexivity. (* uses eta expansion for pairs *)
+Defined.
 
 (** the type of the future datatype constructor In *)
-Definition InType : Set := 
+Definition InType : UU := 
     forall (G:k1)(ef:efct G)(j: G c_k1 mu2), NAT j (m ef) mapmu2 ->
         F G c_k1 mu2.
 
 Definition pi1' (G:k1)(j: G c_k1 mu2): G c_k1 mu2E.
 Proof.
-  red.
-  intros.
+  intros A H.
   exact (pi1 (j A H)).
 Defined.
 
 Lemma pi1'pNAT : forall (G:k1)(m:mon G)(j: G c_k1 mu2),
   NAT j m mapmu2 -> NAT (pi1' j) m mapmu2E.
 Proof.
-  red.
-  intros.
+  intros G m j n A B f t.
   unfold pi1'.
-  rewrite H.
+  rewrite n.
   apply pi1mapmu2.
-Qed.  
+Defined.
 
-Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:Set)(t: G A),
+Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:k0)(t: G A),
              mu2Echeck (pi1' j A t).
 Proof.
   intros.
   exact (pi2 (j A t)).
-Qed.
+Defined.
 
 (** in is reserved for Coq, so the datatype constructor will be In *)
 Definition In : InType.
 Proof.
-  red.
-  red.
   intros G ef j n A t.
-  eexists (inE(A:=A)(m':=mapmu2E) ef MItE (pi1' j) (fun A B f t =>pi1'pNAT n f t) t).
+  eexists (inE(A:=A)(m':=mapmu2E) ef MItE (pi1' j) (fun A B f t => pi1'pNAT n f t) t).
   unfold pi1'.
-  change   (fun (A0 : Set) (H : G A0) => pi1 (j A0 H)) with
+  change   (fun (A0 : k0) (H : G A0) => pi1 (j A0 H)) with
   (fun A0 H => (fun A0 H => pi1 (j A0 H)) A0 H).
   apply inEcheck.
-  exact (pi2' j). 
+  exact (pi2' j).
 Defined.
 
 (** the iterative behaviour of map comes from the definition of In *)
-Lemma mapmu2Red : forall (A:Set)(G:k1)(ef:efct G)(j: G c_k1 mu2)
+Lemma mapmu2Red : forall (A:k0)(G:k1)(ef:efct G)(j: G c_k1 mu2)
     (n: NAT j (m ef) mapmu2)(t: F G A)(B:Set)(f:A->B), 
-             mapmu2 f (In ef n t) =In ef n (m (Fpefct ef) f t).
+             mapmu2 f (In ef n t) = In ef n (m (Fpefct ef) f t).
 Proof.
-(*
-  intros.
-  unfold In.
-  unfold mapmu2.
-  unfold mapmu2E.
-*)
   reflexivity.
-Qed.
+Defined.
 
 Lemma MItRed : forall (G : k1)
   (s : forall X : k1, X c_k1 G -> F X c_k1 G)(X : k1)(ef:efct X)(j: X c_k1 mu2)
       (n: NAT j (m ef) mapmu2)(A:Set)(t:F X A),
      MIt s (In ef n t) = s X (fun A => (MIt s (A:=A)) o (j A)) A t.
 Proof.
-(*
-  intros.
-  unfold MIt.
-  unfold pi1.
-  unfold In.
-  simpl.
-  unfold MItE.
-*)
   reflexivity.
-Qed.
+Defined.
 
 (** our desired induction principle, first just as a proposition *)
 Definition mu2IndType : Prop :=
-  forall P : (forall A : Set, mu2 A -> Prop),
+  forall P : (forall A : k0, mu2 A -> Prop),
        (forall (X : k1)(ef:efct X)(j : X c_k1 mu2)(n: NAT j (m ef) mapmu2),
-          (forall (A : Set) (x : X A), P A (j A x)) ->
-        forall (A:Set)(t : F X A), P A (In ef n t)) ->
-    forall (A : Set) (r : mu2 A), P A r.
+          (forall (A : k0) (x : X A), P A (j A x)) ->
+        forall (A:k0)(t : F X A), P A (In ef n t)) ->
+    forall (A : k0) (r : mu2 A), P A r.
 
 (* this is the more refined induction principle that is used at the end of
    the proof of Theorem 3 in the paper *)
 Scheme mu2EcheckInd := Induction for mu2Echeck Sort Prop.
 Check mu2EcheckInd : 
-      forall P : forall (A : Set) (t : mu2E A), mu2Echeck t -> Prop,
+      forall P : forall (A : k0) (t : mu2E A), mu2Echeck t -> Prop,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
           (n : NAT j (m ef) mapmu2E)
-          (p : forall (A : Set) (t : G A), mu2Echeck (j A t)),
-        (forall (A : Set) (t : G A), P A (j A t) (p A t)) ->
-        forall (A : Set) (t : F G A),
+          (p : forall (A : k0) (t : G A), mu2Echeck (j A t)),
+        (forall (A : k0) (t : G A), P A (j A t) (p A t)) ->
+        forall (A : k0) (t : F G A),
         P A
-          (inE ef MItE (fun (A0 : Set) (t0 : G A0) => j A0 t0)
-             (fun (A0 B : Set) (f : A0 -> B) (t0 : G A0) => n A0 B f t0) t)
+          (inE ef MItE j n t)
           (inEcheck ef j n p t)) ->
-       forall (A : Set) (t : mu2E A) (p : mu2Echeck t), P A t p.
+       forall (A : k0) (t : mu2E A) (p : mu2Echeck t), P A t p.
 
 
+(* END OF PROPER WORK ON THE FILE *)
+
+(*
 Definition proof_irrelevance := forall (A:Prop) (a1 a2:A), a1 = a2.
 
 (** this is the only axiom we need *)
 Axiom pirr :  proof_irrelevance.
+(* should not be needed any longer *)
 
 (** the consequence we typically use *)
-Lemma mu2pirr : forall (A:Set)(r1 r2:mu2 A), pi1 r1 = pi1 r2 -> r1 = r2.
+Lemma mu2pirr : forall (A:k0)(r1 r2:mu2 A), pi1 r1 = pi1 r2 -> r1 = r2.
 Proof.
-  intros.
+  intros A r1 r2 H.
   destruct r1 as [r1' H1].
   destruct r2 as [r2' H2].
   simpl in H.
@@ -406,14 +392,15 @@ Proof.
   rewrite (pirr H1 H2).
   reflexivity.
 Qed.
+(* will fall away *)
 
 
 (** uniqueness of identity proofs from library Eqdep *)
 Axiom UIP : forall (U:Type) (x y:U) (p1 p2:x = y), p1 = p2.
 
-(** does UIP imply uniqueness of naturality proofs? *)
+(** UIP implies uniqueness of naturality proofs *)
 Lemma UNP0 : forall(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y)
-    (n1 n2: NAT j mX mY)(A B : Set) (f : A -> B) (t : X A),
+    (n1 n2: NAT j mX mY)(A B : k0) (f : A -> B) (t : X A),
     n1 A B f t = n2 A B f t.
 Proof.
   intros.
@@ -427,23 +414,28 @@ Proof.
   intros.
   apply pirr.
 Qed.
+*)
 
 (* this is the justification of muFInd in the paper *)
 Lemma mu2Ind : mu2IndType.
 Proof.
-  red.
   intros P s A r.
-  destruct r as [r' H].
-  change (P A (exist (fun r : mu2E A => mu2Echeck r) r' H)) with 
+  set (r' := pr1 r).
+  set (H := pr2 r).
+  assert (P A (tpair (fun r: mu2E A => mu2Echeck r) r' H)).
+Focus 2.
+  (* now we are missing eta expansion for pairs but should come along with proof irrelevance *)
+Unfocus.
+  change (P A (tpair (fun r : mu2E A => mu2Echeck r) r' H)) with 
   (P A (mu2cons r' H)).
   induction H using mu2EcheckInd.
-  set (j':=fun (A : Set) (t : G A) => mu2cons(j A t)(m0 A t)).
-  change (forall (A : Set) (t : G A),
+  set (j':=fun (A : k0) (t : G A) => mu2cons(j A t)(m0 A t)).
+  change (forall (A : k0) (t : G A),
      P A (mu2cons (j A t) (m0 A t)))
-  with (forall (A : Set) (t : G A), P A (j' A t)) in H.
+  with (forall (A : k0) (t : G A), P A (j' A t)) in H.
   assert (n1 : NAT (Y:=mu2) j' (m ef) mapmu2).
   red.
-  clear A t.
+  clear A r t r'.
   intros.
   assert (pi1n1 : pi1 (j' B (m ef f t)) =  pi1 (mapmu2 f (j' A t))).
   simpl.
@@ -454,11 +446,10 @@ Proof.
   assert (p : P A (In ef n1 t)).
   exact (s G ef j' n1 H A t).
 (** using p: *)
-  assert (pi1In : inE ef MItE (fun A t => j A t) 
-                           (fun A B f t => n A B f t) t 
+  assert (pi1In : inE ef MItE j n t 
                   = pi1 (In ef n1 t)).
   simpl.
-  apply (f_equal (fun x : NAT (fun A t => j A t) (m ef) mapmu2E
+  apply (f_equal (fun x : NAT j (m ef) mapmu2E
                                => inE ef MItE _ x t)).
   apply UNP. (** equates n and pi1'pNAT n1 *)
 (** using pi1In: *)
