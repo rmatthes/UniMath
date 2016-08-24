@@ -243,6 +243,18 @@ Parameter mu2Echeck_indk0 : forall P : forall A : k0, mu2E A -> k0,
        forall (A : k0) (r : mu2E A), mu2Echeck r -> P A r.
 (* it should also come with a computation rule *)
 
+Parameter mu2Echeck_indk0_comp : forall (P : forall A : k0, mu2E A -> k0)
+  (s: forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
+          (n : NAT j (m ef) mapmu2E),
+        (forall (A : k0) (t : G A) (R: hProp), (mu2Echeck (j A t) -> P A (j A t) -> R) -> R) ->
+        forall (A : k0) (t : F G A),
+        P A
+          (inE ef MItE j n t))
+       (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E)
+       (rec: forall (A:k0)(t:G A), ishinh_UU (mu2Echeck (j A t)))(A:k0)(t:F G A),
+   (mu2Echeck_indk0 P s (inEcheck ef j n rec t) : P A (inE ef MItE j n t)) = mu2Echeck_indk0 P s (inEcheck ef j n rec t).
+(* the right-hand side of the equation is not yet formulated in Coq, currently this is reflexivity *)
+
 
 Definition mu2Echeck_p (A:k0)(r:mu2E A) : hProp := ∥mu2Echeck r∥.
 
