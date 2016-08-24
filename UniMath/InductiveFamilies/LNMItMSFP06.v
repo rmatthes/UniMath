@@ -71,7 +71,7 @@ Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
 Definition fct1 (X:k1)(m: mon X) : UU :=
   forall (A:k0)(x:X A), m _ _ (@id A) x = x.
 
- 
+
 Definition fct2 (X:k1)(m: mon X) : UU :=
  forall (A B C:k0)(f:A -> B)(g:B -> C)(x:X A), 
        m _ _ (g o f) x = m _ _ g (m _ _ f x).
@@ -216,28 +216,32 @@ Defined.
 
 (** single out the good elements of mu2E A *)
 (* in the paper muEcheck is called chk_{mu^+F}, inEcheck is called Inchk *)
-(* the following inductive definition will have to be justified by other means *)
-Inductive mu2Echeck : forall (A:k0), mu2E A -> k0 :=
-   inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E),
-       (forall (A:k0)(t:G A), mu2Echeck (j A t)) ->
+(* the following elements of a non-strictly positive inductive definition will have to be justified by other means *)
+Parameter mu2Echeck : forall (A:k0), mu2E A -> k0.
+
+Parameter inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E),
+       (forall (A:k0)(t:G A), ishinh_UU (mu2Echeck (j A t))) ->
      forall (A:k0)(t:F G A),
        mu2Echeck (inE ef MItE j n t).
+(* note that [ishinh_UU] appears freshly in this definition and is responsible for it being non-strictly positive *)
 (* Check mu2Echeck. *)
 Implicit Arguments inEcheck [G A].
 (* Check inEcheck. *)
 
+(* we obtained the induction scheme earlier in the following manner:
 Scheme mu2Echeck_indk0 := Minimality for mu2Echeck Sort Type. (* Type should be replaced by k0, but this is illegal *)
+*)
 
-(* the induction principle that is mentioned right after the inductive definition in the paper *)
-Check mu2Echeck_indk0 : forall P : forall A : k0, mu2E A -> k0,
+(* the induction principle that is mentioned right after the inductive definition in the paper - adapted to [ishinh_UU] *)
+Parameter mu2Echeck_indk0 : forall P : forall A : k0, mu2E A -> k0,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
           (n : NAT j (m ef) mapmu2E),
-        (forall (A : k0) (t : G A), mu2Echeck (j A t)) ->
-        (forall (A : k0) (t : G A), P A (j A t)) ->
+        (forall (A : k0) (t : G A) (R: hProp), (mu2Echeck (j A t) -> P A (j A t) -> R) -> R) ->
         forall (A : k0) (t : F G A),
         P A
           (inE ef MItE j n t)) ->
        forall (A : k0) (r : mu2E A), mu2Echeck r -> P A r.
+(* it should also come with a computation rule *)
 
 
 Definition mu2Echeck_p (A:k0)(r:mu2E A) : hProp := ∥mu2Echeck r∥.
@@ -258,15 +262,27 @@ Proof.
   set (r' := pr1 r).
   set (H := pr2 r).
   eexists (mapmu2E f r').
-(* STOPS HERE - HOW TO USE PROPOSITIONALLY TRUNCATED ELEMENTS?
-  destruct H. (* inversion on mu2Echeck to be removed later *)
-  simpl.
-  apply inEcheck.
+  simpl in H.
+  apply (hinhfun (X := mu2Echeck r')).
+Focus 2.
   assumption.
+Unfocused.
+  clear H.
+  generalize r'.
+  clear r r'.
+  intros r Hyp.
+  revert B f.
+  revert Hyp.
+  revert A r.
+  apply (mu2Echeck_indk0 (fun (A:k0)(r:mu2E A) => forall (B : k0) (f : A → B), mu2Echeck (mapmu2E f r))).
+  intros G ef j n IH A t B f.
+  apply inEcheck.
+  intros A' t' R Hyp.
+  apply (IH A' t').
+  intros H1 H2.
+  apply Hyp.
+  exact H1.
 Defined.
-*)
-Admitted.
-
 
 Definition pi1 : mu2 c_k1 mu2E.
 Proof.
@@ -308,11 +324,8 @@ Defined.
 Lemma pi1mapmu2 : forall (A B:k0)(f:A->B)(r:mu2 A),
   pi1 (mapmu2 f r) = mapmu2E f (pi1 r).
 Proof.
-(*
   reflexivity. (* does this use eta expansion for pairs? *)
 Defined.
-*)
-Admitted.
 
 (** the type of the future datatype constructor In *)
 Definition InType : UU := 
@@ -341,24 +354,24 @@ Proof.
   exact (pi2 (j A t)).
 Defined.
 
-(* replay the explicit definition in interactive mode *)
-Definition hinhfun_inter { X Y : UU } ( f : X -> Y ) : ∥ X ∥ -> ∥ Y ∥ .
-Proof.
-  intro isx.
-  intros P yp.
-  apply isx.
-  intro x.
-  apply yp.
-  apply f.
-  exact x.
-Defined.
 
-(* a tentative extension of [hinhfun_inter] *)
+(* an aside on prop. truncation *)
+Definition hinh_univ_elim {G:k1}{ X: forall (A:k0)(t:G A), UU }: ∥ forall (A:k0)(t:G A), X A t∥ -> forall (A:k0)(t:G A), ∥X A t∥.
+Proof.
+  intros Hyp A t P xp.
+  apply Hyp.
+  intro Hyp1.
+  apply xp.
+  apply Hyp1.
+Defined.
+(* no hope for the other direction! *)
+
+(* what I would have liked to prove before incorporating truncation into the definition of inEcheck
 Definition hinhfun_extended {G:k1}{ X: forall (A:k0)(t:G A), UU } { Y : UU }( f : (forall (A:k0)(t:G A), X A t) -> Y ) : (forall (A:k0)(t:G A), ∥X A t∥) -> ∥ Y ∥ .
 Proof.
   intro isx.
   intros P yp. (* I do not see anything to pursue the proof in structural ways *)
-Admitted.
+*)
 
 (** in is reserved for Coq, so the datatype constructor will be In *)
 Definition In : InType.
@@ -368,15 +381,13 @@ Proof.
   unfold pi1'.
   change   (fun (A0 : k0) (H : G A0) => pi1 (j A0 H)) with
   (fun A0 H => (fun A0 H => pi1 (j A0 H)) A0 H).
-  apply (hinhfun_extended (X:= fun (A:k0)(t: G A) => mu2Echeck (pi1' j A t))). (* using the very doubtful previous lemma *)
-  intro Hyp.
+  apply hinhpr.
   apply inEcheck.
-  exact Hyp.
   exact (pi2' j).
 Defined.
 
 
-(* currently deactivated
+(* currently deactivated since [mu2Echeck_indk0] does not come with computation rule
 (** the iterative behaviour of map comes from the definition of In *)
 Lemma mapmu2Red : forall (A:k0)(G:k1)(ef:efct G)(j: G c_k1 mu2)
     (n: NAT j (m ef) mapmu2)(t: F G A)(B:Set)(f:A->B), 
@@ -384,6 +395,7 @@ Lemma mapmu2Red : forall (A:k0)(G:k1)(ef:efct G)(j: G c_k1 mu2)
 Proof.
   reflexivity.
 Defined.
+*)
 
 Lemma MItRed : forall (G : k1)
   (s : forall X : k1, X c_k1 G -> F X c_k1 G)(X : k1)(ef:efct X)(j: X c_k1 mu2)
@@ -392,15 +404,20 @@ Lemma MItRed : forall (G : k1)
 Proof.
   reflexivity.
 Defined.
-*)
 
-(** our desired induction principle, first just as a proposition *)
-Definition mu2IndType : Prop :=
-  forall P : (forall A : k0, mu2 A -> Prop),
+
+(** our desired induction principle, now as a type *)
+Definition mu2IndType : k0 :=
+  forall P : (forall A : k0, mu2 A -> k0),
        (forall (X : k1)(ef:efct X)(j : X c_k1 mu2)(n: NAT j (m ef) mapmu2),
           (forall (A : k0) (x : X A), P A (j A x)) ->
         forall (A:k0)(t : F X A), P A (In ef n t)) ->
     forall (A : k0) (r : mu2 A), P A r.
+
+(* END OF PROPER WORK ON THE FILE *)
+
+(* DOES NOT COMPILE! *)
+
 
 (* this is the more refined induction principle that is used at the end of
    the proof of Theorem 3 in the paper *)
@@ -416,9 +433,6 @@ Check mu2EcheckInd :
           (inE ef MItE j n t)
           (inEcheck ef j n p t)) ->
        forall (A : k0) (t : mu2E A) (p : mu2Echeck t), P A t p.
-
-
-(* END OF PROPER WORK ON THE FILE *)
 
 (*
 Definition proof_irrelevance := forall (A:Prop) (a1 a2:A), a1 = a2.
