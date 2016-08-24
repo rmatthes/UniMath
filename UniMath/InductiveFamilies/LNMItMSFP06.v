@@ -341,6 +341,25 @@ Proof.
   exact (pi2 (j A t)).
 Defined.
 
+(* replay the explicit definition in interactive mode *)
+Definition hinhfun_inter { X Y : UU } ( f : X -> Y ) : ∥ X ∥ -> ∥ Y ∥ .
+Proof.
+  intro isx.
+  intros P yp.
+  apply isx.
+  intro x.
+  apply yp.
+  apply f.
+  exact x.
+Defined.
+
+(* a tentative extension of [hinhfun_inter] *)
+Definition hinhfun_extended {G:k1}{ X: forall (A:k0)(t:G A), UU } { Y : UU }( f : (forall (A:k0)(t:G A), X A t) -> Y ) : (forall (A:k0)(t:G A), ∥X A t∥) -> ∥ Y ∥ .
+Proof.
+  intro isx.
+  intros P yp. (* I do not see anything to pursue the proof in structural ways *)
+Admitted.
+
 (** in is reserved for Coq, so the datatype constructor will be In *)
 Definition In : InType.
 Proof.
@@ -349,15 +368,13 @@ Proof.
   unfold pi1'.
   change   (fun (A0 : k0) (H : G A0) => pi1 (j A0 H)) with
   (fun A0 H => (fun A0 H => pi1 (j A0 H)) A0 H).
-  red. simpl.
-  apply hinhpr.
+  apply (hinhfun_extended (X:= fun (A:k0)(t: G A) => mu2Echeck (pi1' j A t))). (* using the very doubtful previous lemma *)
+  intro Hyp.
   apply inEcheck.
-  intros.
-(* BIG PROBLEM: the recursive call is to mu2Echeck and not to mu2Echeck_p
+  exact Hyp.
   exact (pi2' j).
 Defined.
-*)
-Admitted.
+
 
 (* currently deactivated
 (** the iterative behaviour of map comes from the definition of In *)
