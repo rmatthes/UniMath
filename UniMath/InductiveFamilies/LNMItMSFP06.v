@@ -90,8 +90,10 @@ Definition pefct (F:k2) : UU :=
 
 
 (** natural transformations from (X,mX) to (Y,mY) *)
-Definition NAT(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : UU :=
+Definition NAT(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : k0 :=
   forall (A B:k0)(f:A -> B)(t:X A), j B (mX A B f t) = mY _ _ f (j A t).
+
+Definition NAT_p(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : hProp := ∥NAT j mX mY∥.
 
 
 Section LNMIt.
@@ -113,10 +115,10 @@ Definition MItPretype (S:k1) : UU :=
 (* in the paper, inE is called In^+, mu2E is called mu^+F *)
 Definition mu2E (A: k0) : UU :=
   Σ (G : k1)(ef:efct G)(G':k1)(m':mon G')
-          (it:MItPretype G')(j: G c_k1 G')(n:NAT j (m ef) m'), F G A.
+          (it:MItPretype G')(j: G c_k1 G')(n:NAT_p j (m ef) m'), F G A.
 
 Definition inE : forall (G:k1)(ef:efct G)(G':k1)(m':mon G')
-          (it:MItPretype G')(j: G c_k1 G'), NAT j (m ef) m' ->
+          (it:MItPretype G')(j: G c_k1 G'), NAT_p j (m ef) m' ->
           F G c_k1 mu2E.
 (** the intention is that we only want to use inE with G':=mu2,
      m':=mapmu2 and it:=MIt. *)
@@ -168,7 +170,7 @@ Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 t)))))).
 Defined.
 
-Definition mu2E_n (A:k0)(t: mu2E A): NAT (mu2E_j t) (m (mu2E_ef t)) (mu2E_m' t).
+Definition mu2E_n (A:k0)(t: mu2E A): NAT_p (mu2E_j t) (m (mu2E_ef t)) (mu2E_m' t).
 Proof.
   exact (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 t))))))).
 Defined.
@@ -219,7 +221,7 @@ Defined.
 (* the following elements of a non-strictly positive inductive definition will have to be justified by other means *)
 Parameter mu2Echeck : forall (A:k0), mu2E A -> k0.
 
-Parameter inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E),
+Parameter inEcheck : forall (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT_p j (m ef) mapmu2E),
        (forall (A:k0)(t:G A), ishinh_UU (mu2Echeck (j A t))) ->
      forall (A:k0)(t:F G A),
        mu2Echeck (inE ef MItE j n t).
@@ -235,25 +237,28 @@ Scheme mu2Echeck_indk0 := Minimality for mu2Echeck Sort Type. (* Type should be 
 (* the induction principle that is mentioned right after the inductive definition in the paper - adapted to [ishinh_UU] *)
 Parameter mu2Echeck_indk0 : forall P : forall A : k0, mu2E A -> k0,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
-          (n : NAT j (m ef) mapmu2E),
+          (n : NAT_p j (m ef) mapmu2E),
         (forall (A : k0) (t : G A) (R: hProp), (mu2Echeck (j A t) -> P A (j A t) -> R) -> R) ->
         forall (A : k0) (t : F G A),
         P A
           (inE ef MItE j n t)) ->
        forall (A : k0) (r : mu2E A), mu2Echeck r -> P A r.
-(* it should also come with a computation rule *)
 
+(* a computation rule - the main achievement is that the right-hand side has the same type as the left-hand side *)
 Parameter mu2Echeck_indk0_comp : forall (P : forall A : k0, mu2E A -> k0)
   (s: forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
-          (n : NAT j (m ef) mapmu2E),
+          (n : NAT_p j (m ef) mapmu2E),
         (forall (A : k0) (t : G A) (R: hProp), (mu2Echeck (j A t) -> P A (j A t) -> R) -> R) ->
         forall (A : k0) (t : F G A),
         P A
           (inE ef MItE j n t))
-       (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT j (m ef) mapmu2E)
+       (G:k1)(ef:efct G)(j: G c_k1 mu2E)(n: NAT_p j (m ef) mapmu2E)
        (rec: forall (A:k0)(t:G A), ishinh_UU (mu2Echeck (j A t)))(A:k0)(t:F G A),
-   (mu2Echeck_indk0 P s (inEcheck ef j n rec t) : P A (inE ef MItE j n t)) = mu2Echeck_indk0 P s (inEcheck ef j n rec t).
-(* the right-hand side of the equation is not yet formulated in Coq, currently this is reflexivity *)
+   (mu2Echeck_indk0 P s (inEcheck ef j n rec t) : P A (inE ef MItE j n t)) = 
+       s G ef j n
+       (fun (A':k0)(t':G A')(R: hProp)(Hyp: mu2Echeck (j A' t') -> P A' (j A' t') -> R) =>
+          rec A' t' R (fun z:mu2Echeck (j A' t') => Hyp z (mu2Echeck_indk0 P s z))) A t.
+(* this is a slightly polished instance of the generic rule for primitive recursion for arbitrary positive inductive families *)
 
 
 Definition mu2Echeck_p (A:k0)(r:mu2E A) : hProp := ∥mu2Echeck r∥.
@@ -341,7 +346,7 @@ Defined.
 
 (** the type of the future datatype constructor In *)
 Definition InType : UU := 
-    forall (G:k1)(ef:efct G)(j: G c_k1 mu2), NAT j (m ef) mapmu2 ->
+    forall (G:k1)(ef:efct G)(j: G c_k1 mu2), NAT_p j (m ef) mapmu2 ->
         F G c_k1 mu2.
 
 Definition pi1' (G:k1)(j: G c_k1 mu2): G c_k1 mu2E.
@@ -357,6 +362,14 @@ Proof.
   unfold pi1'.
   rewrite n.
   apply pi1mapmu2.
+Defined.
+
+Lemma pi1'pNAT_p : forall (G:k1)(m:mon G)(j: G c_k1 mu2),
+  NAT_p j m mapmu2 -> NAT_p (pi1' j) m mapmu2E.
+Proof.
+  intros G m' j.
+  apply hinhfun.
+  apply pi1'pNAT.
 Defined.
 
 Lemma pi2' : forall(G:k1)(j: G c_k1 mu2)(A:k0)(t: G A),
@@ -389,7 +402,7 @@ Proof.
 Definition In : InType.
 Proof.
   intros G ef j n A t.
-  eexists (inE(A:=A)(m':=mapmu2E) ef MItE (pi1' j) (fun A B f t => pi1'pNAT n f t) t).
+  eexists (inE(A:=A)(m':=mapmu2E) ef MItE (pi1' j) (pi1'pNAT_p n) t).
   unfold pi1'.
   change   (fun (A0 : k0) (H : G A0) => pi1 (j A0 H)) with
   (fun A0 H => (fun A0 H => pi1 (j A0 H)) A0 H).
@@ -399,19 +412,23 @@ Proof.
 Defined.
 
 
-(* currently deactivated since [mu2Echeck_indk0] does not come with computation rule
 (** the iterative behaviour of map comes from the definition of In *)
 Lemma mapmu2Red : forall (A:k0)(G:k1)(ef:efct G)(j: G c_k1 mu2)
-    (n: NAT j (m ef) mapmu2)(t: F G A)(B:Set)(f:A->B), 
+    (n: NAT_p j (m ef) mapmu2)(t: F G A)(B:k0)(f:A->B), 
              mapmu2 f (In ef n t) = In ef n (m (Fpefct ef) f t).
 Proof.
+(* we would have liked the following proof that worked in the MSFP'06 formulation: 
+  reflexivity.
+*)
+  intros A G ef j n t B f.
+  apply mu2pirr.
   reflexivity.
 Defined.
-*)
+
 
 Lemma MItRed : forall (G : k1)
   (s : forall X : k1, X c_k1 G -> F X c_k1 G)(X : k1)(ef:efct X)(j: X c_k1 mu2)
-      (n: NAT j (m ef) mapmu2)(A:Set)(t:F X A),
+      (n: NAT_p j (m ef) mapmu2)(A:k0)(t:F X A),
      MIt s (In ef n t) = s X (fun A => (MIt s (A:=A)) o (j A)) A t.
 Proof.
   reflexivity.
@@ -421,75 +438,43 @@ Defined.
 (** our desired induction principle, now as a type *)
 Definition mu2IndType : k0 :=
   forall P : (forall A : k0, mu2 A -> k0),
-       (forall (X : k1)(ef:efct X)(j : X c_k1 mu2)(n: NAT j (m ef) mapmu2),
+       (forall (X : k1)(ef:efct X)(j : X c_k1 mu2)(n: NAT_p j (m ef) mapmu2),
           (forall (A : k0) (x : X A), P A (j A x)) ->
         forall (A:k0)(t : F X A), P A (In ef n t)) ->
     forall (A : k0) (r : mu2 A), P A r.
 
-(* END OF PROPER WORK ON THE FILE *)
-
-(* DOES NOT COMPILE! *)
-
-
 (* this is the more refined induction principle that is used at the end of
    the proof of Theorem 3 in the paper *)
+(* we obtained the induction scheme earlier in the following manner:
 Scheme mu2EcheckInd := Induction for mu2Echeck Sort Type. (* ought to be k0, but this is illegal *)
-Check mu2EcheckInd : 
-      forall P : forall (A : k0) (t : mu2E A), mu2Echeck t -> Type,
+*)
+Parameter mu2EcheckInd : 
+      forall P : forall (A : k0) (t : mu2E A), mu2Echeck t -> k0,
        (forall (G : k1) (ef : efct G) (j : G c_k1 mu2E)
-          (n : NAT j (m ef) mapmu2E)
-          (p : forall (A : k0) (t : G A), mu2Echeck (j A t)),
+          (n : NAT_p j (m ef) mapmu2E)
+          (p : forall (A : k0) (t : G A), ishinh_UU (mu2Echeck (j A t))),
+(*
         (forall (A : k0) (t : G A), P A (j A t) (p A t)) ->
+*)
+          (forall (A : k0) (t : G A) (R: hProp), (forall p:mu2Echeck (j A t), P A (j A t) p -> R) -> R) ->
+
         forall (A : k0) (t : F G A),
         P A
           (inE ef MItE j n t)
           (inEcheck ef j n p t)) ->
        forall (A : k0) (t : mu2E A) (p : mu2Echeck t), P A t p.
+(* the principle has been edited by hand and may not be justified *)
 
-(*
-Definition proof_irrelevance := forall (A:Prop) (a1 a2:A), a1 = a2.
 
-(** this is the only axiom we need *)
-Axiom pirr :  proof_irrelevance.
-(* should not be needed any longer *)
-
-(** the consequence we typically use *)
-Lemma mu2pirr : forall (A:k0)(r1 r2:mu2 A), pi1 r1 = pi1 r2 -> r1 = r2.
-Proof.
-  intros A r1 r2 H.
-  destruct r1 as [r1' H1].
-  destruct r2 as [r2' H2].
-  simpl in H.
-  generalize H1 H2; clear H1 H2.
-  destruct H.
-  intros.
-  rewrite (pirr H1 H2).
-  reflexivity.
-Qed.
-(* will fall away *)
-*)
-
-(** uniqueness of identity proofs from library Eqdep *)
-Axiom UIP : forall (U:Type) (x y:U) (p1 p2:x = y), p1 = p2.
-
-(** UIP implies uniqueness of naturality proofs *)
-Lemma UNP0 : forall(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y)
-    (n1 n2: NAT j mX mY)(A B : k0) (f : A -> B) (t : X A),
-    n1 A B f t = n2 A B f t.
-Proof.
-  intros.
-  apply UIP.
-Qed.
-
-(*
-(** uniqueness of naturality proofs is trivially a consequence of proof irrelevance *)
+(** uniqueness of naturality proofs *)
 Lemma UNP : forall(X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y)
-    (n1 n2: NAT j mX mY), n1 = n2.
+    (n1 n2: NAT_p j mX mY), n1 = n2.
 Proof.
   intros.
-  apply pirr.
-Qed.
-*)
+  assert (H : isaprop (NAT_p j mX mY)).
+  apply isapropishinh.
+  apply H.
+Defined.
 
 (* this is the justification of muFInd in the paper *)
 Lemma mu2Ind : mu2IndType.
@@ -497,12 +482,17 @@ Proof.
   intros P s A r.
   set (r' := pr1 r).
   set (H := pr2 r).
-  assert (P A (tpair (fun r: mu2E A => mu2Echeck r) r' H)).  (* DOES NOT TYPECHECK *)
+  assert (P A (tpair (fun r: mu2E A => mu2Echeck_p r) r' H)).
 Focus 2.
   (* now we are missing eta expansion for pairs but should come along with proof irrelevance *)
 Unfocus.
-  change (P A (tpair (fun r : mu2E A => mu2Echeck r) r' H)) with 
+  change (P A (tpair (fun r : mu2E A => mu2Echeck_p r) r' H)) with 
   (P A (mu2cons r' H)).
+
+(* END OF PROPER WORK ON THE FILE *)
+
+(* DOES NOT COMPILE! *)
+
   induction H using mu2EcheckInd.
   set (j':=fun (A : k0) (t : G A) => mu2cons(j A t)(m0 A t)).
   change (forall (A : k0) (t : G A),
