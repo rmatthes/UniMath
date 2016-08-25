@@ -58,7 +58,8 @@ Definition mon (X:k1) : UU := X <_k1 X.
 Lemma monOk : forall X:k1, mon X = 
   forall (A B:k0), (A -> B) -> X A -> X B.
 Proof.
-  reflexivity.
+  intros. (* why do we need this line? *)
+  apply idpath.
 Defined.
 
 
@@ -213,7 +214,8 @@ Lemma MItEok : forall (G:k1)(s:forall X : k1, X c_k1 G -> F X c_k1 G)(A:k0)
    (j: X c_k1 G') n (t:F X A),
    MItE s (inE (m':=m') ef it j n t) = s X (fun A => (it G s A) o (j A)) A t.
 Proof.
-  reflexivity.
+  intros.
+  apply idpath.
 Defined.
 
 (** single out the good elements of mu2E A *)
@@ -337,11 +339,19 @@ Proof.
   exact (pr2 r).
 Defined.
 
+Lemma mu2pirr_cor : forall (A:k0)(r:mu2 A), r = pi1 r,,pi2 r.
+Proof.
+  intros.
+  apply mu2pirr.
+  apply idpath.
+Defined.
+
 (** first projection commutes with the maps *)
 Lemma pi1mapmu2 : forall (A B:k0)(f:A->B)(r:mu2 A),
   pi1 (mapmu2 f r) = mapmu2E f (pi1 r).
 Proof.
-  reflexivity. (* does this use eta expansion for pairs? *)
+  intros.
+  apply idpath. (* does this use eta expansion for pairs? *)
 Defined.
 
 (** the type of the future datatype constructor In *)
@@ -422,7 +432,7 @@ Proof.
 *)
   intros A G ef j n t B f.
   apply mu2pirr.
-  reflexivity.
+  apply idpath.
 Defined.
 
 
@@ -431,19 +441,20 @@ Lemma MItRed : forall (G : k1)
       (n: NAT_p j (m ef) mapmu2)(A:k0)(t:F X A),
      MIt s (In ef n t) = s X (fun A => (MIt s (A:=A)) o (j A)) A t.
 Proof.
-  reflexivity.
+  intros.
+  apply idpath.
 Defined.
 
 
-(** our desired induction principle, now as a type *)
+(** our desired induction principle, now into [hProp] *)
 Definition mu2IndType : k0 :=
-  forall P : (forall A : k0, mu2 A -> k0),
+  forall P : (forall A : k0, mu2 A -> hProp),
        (forall (X : k1)(ef:efct X)(j : X c_k1 mu2)(n: NAT_p j (m ef) mapmu2),
           (forall (A : k0) (x : X A), P A (j A x)) ->
         forall (A:k0)(t : F X A), P A (In ef n t)) ->
     forall (A : k0) (r : mu2 A), P A r.
 
-(* this is the more refined induction principle that is used at the end of
+(* now comes the more refined induction principle that is used at the end of
    the proof of Theorem 3 in the paper *)
 (* we obtained the induction scheme earlier in the following manner:
 Scheme mu2EcheckInd := Induction for mu2Echeck Sort Type. (* ought to be k0, but this is illegal *)
@@ -480,14 +491,19 @@ Defined.
 Lemma mu2Ind : mu2IndType.
 Proof.
   intros P s A r.
-  set (r' := pr1 r).
-  set (H := pr2 r).
-  assert (P A (tpair (fun r: mu2E A => mu2Echeck_p r) r' H)).
+  set (r' := pi1 r).
+  set (H := pi2 r).
+  rewrite (mu2pirr_cor r).
+  change (P A (mu2cons r' H)).
+  assert (new: forall (r':mu2E A)(H: mu2Echeck_p r'), P A (mu2cons r' H)).
+  (* is there no quicker way to deconnect r' and H from r? *)
 Focus 2.
-  (* now we are missing eta expansion for pairs but should come along with proof irrelevance *)
-Unfocus.
-  change (P A (tpair (fun r : mu2E A => mu2Echeck_p r) r' H)) with 
-  (P A (mu2cons r' H)).
+  apply new.
+Unfocused.
+  clear r r' H.
+  revert A.
+(* the idea is now that since P lives in hProp, it does not matter that H is only in the truncation *)
+
 
 (* END OF PROPER WORK ON THE FILE *)
 
