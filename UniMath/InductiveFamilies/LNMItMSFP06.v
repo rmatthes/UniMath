@@ -63,27 +63,36 @@ Proof.
 Defined.
 
 
-
+(*
 Definition ext (X Y:k1)(h: X <_k1 Y): UU :=
   forall (A B:k0)(f g: A -> B), 
         (forall (a:A), f a = g a) -> forall (r: X A), h _ _ f r = h _ _ g r.
+*)
 
 
 Definition fct1 (X:k1)(m: mon X) : UU :=
   forall (A:k0)(x:X A), m _ _ (@id A) x = x.
 
+Definition fct1_p (X:k1)(m: mon X) : UU :=
+  forall (A:k0)(x:X A), ∥m _ _ (@id A) x = x∥.
+
 
 Definition fct2 (X:k1)(m: mon X) : UU :=
- forall (A B C:k0)(f:A -> B)(g:B -> C)(x:X A), 
+ forall (A B C:k0)(f:A -> B)(g:B -> C)(x:X A),
        m _ _ (g o f) x = m _ _ g (m _ _ f x).
+
+Definition fct2_p (X:k1)(m: mon X) : UU :=
+ forall (A B C:k0)(f:A -> B)(g:B -> C)(x:X A),
+                 ∥m _ _ (g o f) x = m _ _ g (m _ _ f x)∥.
+
 
 
 (** pack up the good properties of the approximation *)
 Record efct (X:k1) : UU := mkefct
   { m : mon X;
-     e : ext m;
-     f1 : fct1 m;
-     f2 : fct2 m }.
+(*     e : ext m; *)
+     f1 : fct1_p m;
+     f2 : fct2_p m }.
 (* will later be turned into a nested Sigma type *)
 
 Definition pefct (F:k2) : UU :=
@@ -572,28 +581,28 @@ Unfocused.
 Defined.
 
 (* Search (∥ _∥). *)
-  
-
-
-(* END OF PROPER WORK ON THE FILE *)
-
-(* DOES NOT COMPILE! *)
 
 
 (* these constitute parts of the proof of Theorem 4 *)
 
-Lemma mapmu2Id: fct1 mapmu2.
+Lemma mapmu2Id: fct1_p mapmu2.
 Proof.
   red.
-  apply (mu2Ind (fun A r => mapmu2 (id(A:=A)) r = r)).
-  intros.
+  apply (mu2Ind (fun A r => ∥mapmu2 (id(A:=A)) r = r∥)).
+  intros G ef j n H A t.
   clear H (* the IH *).
+  set (f1_inst := f1 (Fpefct ef) A (x:=t)).
+  apply (hinhfun (X:=m (Fpefct ef) (id (A:=A)) t = t)).
+Focus 2.
+  exact f1_inst.
+Unfocused.
+  intro f1_inst_eq.
   rewrite mapmu2Red.
-  apply (f_equal (fun x=> In (A:=A) ef n x)).
-  apply (f1 (Fpefct ef) _ t).
-Qed.
+  rewrite f1_inst_eq.
+  apply idpath.
+Defined.
 
-
+(*
 Lemma mapmu2Ext : ext mapmu2.
 Proof.
   red.
@@ -610,30 +619,44 @@ Proof.
   apply (f_equal (fun x=> In (A:=B) ef n x)).
   apply (e (Fpefct ef)); assumption.
 Qed.
+*)
 
-Lemma mapmu2Comp : fct2 mapmu2.
+Lemma mapmu2Comp : fct2_p mapmu2.
 Proof.
   red.
   intros A B C f g r.
   generalize f g; clear f g.
   generalize B C; clear B C.
   generalize A r; clear A r.
-  apply (mu2Ind (fun A r => forall  (B C : Set) (f : A -> B) (g : B -> C),
-     mapmu2 (g o f) r = mapmu2 g (mapmu2 f r))).
-  intros.
+  apply (mu2Ind (fun A r => ∀(B C : k0) (f : A -> B) (g : B -> C),
+       ∥mapmu2 (g o f) r = mapmu2 g (mapmu2 f r)∥)).
+  intros G ef j n H A t B C f g.
   clear H (* the IH *).
   do 3 rewrite mapmu2Red.
-  apply (f_equal (fun x=>In (A:=C) ef n x)).
-  apply (f2 (Fpefct ef)); assumption.
-Qed.
+  set (f2_inst := f2 (Fpefct ef) f g t).
+  apply (hinhfun (X:=m (Fpefct ef) (g o f) t = m (Fpefct ef) g (m (Fpefct ef) f t))).
+Focus 2.
+  exact f2_inst.
+Unfocused.
+  intro f2_inst_eq.
+  rewrite f2_inst_eq.
+  apply idpath.
+Defined.
 
 Lemma mapmu2efct : efct mu2.
 Proof.
   eapply mkefct.
-  eexact mapmu2Ext.
+(*  eexact mapmu2Ext. *)
   exact mapmu2Id.
   exact mapmu2Comp.
 Defined.
+
+
+
+(* END OF PROPER WORK ON THE FILE *)
+
+(* DOES NOT COMPILE! *)
+
 
 
 (** the standard constructors for mu2 use mu2 as its own approximation *)
