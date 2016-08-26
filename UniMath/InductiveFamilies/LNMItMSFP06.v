@@ -487,6 +487,30 @@ Proof.
   apply H.
 Defined.
 
+(* a dependent version of hinhuniv *)
+Lemma hinhuniv_dep: forall (X:k0)(P:∥ X∥->hProp), (forall x:X, P(hinhpr x)) -> forall x:∥ X∥, P x.
+Proof.
+  intros X P Hyp x.
+  apply hinhunivcor1.
+  intros R xp.
+  apply x.
+  intro x'.
+  assert (Hyp_inst := Hyp x').
+  apply xp.
+  assert (H: x = hinhpr x').
+  apply isapropishinh.
+  rewrite H.
+  exact Hyp_inst.
+Defined.
+
+(* [hinhuniv] from the library is indeed a special instance of the dependent version *)
+Corollary hinhuniv_cor { X : UU } { P : hProp } ( f : X -> P ) ( wit : ∥ X ∥ ) : P.
+Proof.
+  apply (hinhuniv_dep (fun x:∥ X∥ => P)).
+  assumption.
+  assumption.
+Defined.
+
 (* this is the justification of muFInd in the paper *)
 Lemma mu2Ind : mu2IndType.
 Proof.
@@ -503,6 +527,20 @@ Unfocused.
   clear r r' H.
   revert A.
 (* the idea is now that since P lives in hProp, it does not matter that H is only in the truncation *)
+  assert (new: forall (A : k0) (r' : mu2E A) (H0 : mu2Echeck r') (f:mu2Echeck r' -> mu2Echeck_p r') , P A (mu2cons r' (f H0))).
+Focus 2.
+  intros A r'.
+  apply hinhuniv_dep.
+  intros H1.
+  apply (new A r' H1 (fun z => hinhpr z)).
+Unfocused.
+  apply (mu2EcheckInd (fun (A:k0)(r':mu2E A)(H0: mu2Echeck r') => forall (f: mu2Echeck r' → mu2Echeck_p r'), P A (mu2cons r' (f H0)))).
+  intros G ef j n p rec A t f.
+ 
+
+
+Search (∥ _∥).
+  
 
 
 (* END OF PROPER WORK ON THE FILE *)
