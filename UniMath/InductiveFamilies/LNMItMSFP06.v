@@ -527,21 +527,21 @@ Unfocused.
   clear r r' H.
   revert A.
 (* the idea is now that since P lives in hProp, it does not matter that H is only in the truncation *)
-  assert (new: forall (A : k0) (r' : mu2E A) (H0 : mu2Echeck r') (f:mu2Echeck r' -> mu2Echeck_p r') , P A (mu2cons r' (f H0))).
+  assert (new: forall (A : k0) (r' : mu2E A) (H0 : mu2Echeck r'), P A (mu2cons r' (hinhpr H0))).
 Focus 2.
   intros A r'.
   apply hinhuniv_dep.
   intros H1.
-  apply (new A r' H1 (fun z => hinhpr z)).
+  exact (new A r' H1).
 Unfocused.
-  apply (mu2EcheckInd (fun (A:k0)(r':mu2E A)(H0: mu2Echeck r') => forall (f: mu2Echeck r' → mu2Echeck_p r'), P A (mu2cons r' (f H0)))).
-  intros G ef j n p rec A t f.
+  apply (mu2EcheckInd (fun (A:k0)(r':mu2E A)(H0: mu2Echeck r') => P A (mu2cons r' (hinhpr H0)))).
+  intros G ef j n p rec A t.
   set (j':=fun (A : k0) (t : G A) => mu2cons(j A t)(p A t)).
   assert (n1 : NAT_p (Y:=mu2) j' (m ef) mapmu2).
   - apply (hinhfun (X:=NAT j (m ef) mapmu2E)).
     + intros n_NAT.
       red. 
-      clear A t f. 
+      clear A t. 
       intros.
       apply mu2pirr.
       simpl.
@@ -552,23 +552,22 @@ Unfocused.
     + intros A' x.
       apply (rec A' x).
       intros p0 H.
-      set (H_inst := H (hinhpr)).
       assert (Heq : j' A' x = mu2cons (j A' x) (hinhpr p0)).
       * apply mu2pirr.
         apply idpath.
       * rewrite Heq.
-        exact H_inst.
+        exact H.
     + set (s_inst2 := s_inst Hyp A t).
-      assert (Heq: mu2cons (inE ef MItE j n t) (f (inEcheck ef j n p t)) = In ef n1 t).
+      assert (Heq: mu2cons (inE ef MItE j n t) (hinhpr (inEcheck ef j n p t)) = In ef n1 t).
       * apply mu2pirr.
         simpl.
         (* assert (Heq1: j = pi1' j').
         --  apply idpath. *)
         assert (Heqn: n = pi1'pNAT_p n1).
         -- apply UNP.
-        -- rewrite Heqn. 
+        -- rewrite Heqn.
            apply idpath.
-      * rewrite Heq. 
+      * rewrite Heq.
         exact s_inst2.
 Defined.
 
