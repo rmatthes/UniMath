@@ -536,10 +536,43 @@ Focus 2.
 Unfocused.
   apply (mu2EcheckInd (fun (A:k0)(r':mu2E A)(H0: mu2Echeck r') => forall (f: mu2Echeck r' → mu2Echeck_p r'), P A (mu2cons r' (f H0)))).
   intros G ef j n p rec A t f.
- 
+  set (j':=fun (A : k0) (t : G A) => mu2cons(j A t)(p A t)).
+  assert (n1 : NAT_p (Y:=mu2) j' (m ef) mapmu2).
+  - apply (hinhfun (X:=NAT j (m ef) mapmu2E)).
+    + intros n_NAT.
+      red. 
+      clear A t f. 
+      intros.
+      apply mu2pirr.
+      simpl.
+      apply n_NAT.
+    + exact n.
+  - set (s_inst := s G ef j' n1).
+    assert (Hyp : forall (A:k0)(x:G A), P A (j' A x)).
+    + intros A' x.
+      apply (rec A' x).
+      intros p0 H.
+      set (H_inst := H (hinhpr)).
+      assert (Heq : j' A' x = mu2cons (j A' x) (hinhpr p0)).
+      * apply mu2pirr.
+        apply idpath.
+      * rewrite Heq.
+        exact H_inst.
+    + set (s_inst2 := s_inst Hyp A t).
+      assert (Heq: mu2cons (inE ef MItE j n t) (f (inEcheck ef j n p t)) = In ef n1 t).
+      * apply mu2pirr.
+        simpl.
+        (* assert (Heq1: j = pi1' j').
+        --  apply idpath. *)
+        assert (Heqn: n = pi1'pNAT_p n1).
+        -- apply UNP.
+        -- rewrite Heqn. 
+           apply idpath.
+      * rewrite Heq. 
+        exact s_inst2.
+Defined.
 
-
-Search (∥ _∥).
+(* Search (∥ _∥). *)
   
 
 
@@ -547,39 +580,6 @@ Search (∥ _∥).
 
 (* DOES NOT COMPILE! *)
 
-  induction H using mu2EcheckInd.
-  set (j':=fun (A : k0) (t : G A) => mu2cons(j A t)(m0 A t)).
-  change (forall (A : k0) (t : G A),
-     P A (mu2cons (j A t) (m0 A t)))
-  with (forall (A : k0) (t : G A), P A (j' A t)) in H.
-  assert (n1 : NAT (Y:=mu2) j' (m ef) mapmu2).
-  red.
-  clear A r t r'.
-  intros.
-  assert (pi1n1 : pi1 (j' B (m ef f t)) =  pi1 (mapmu2 f (j' A t))).
-  simpl.
-  apply n.
-(** using pi1n1: *)
-  exact (mu2pirr _ _ pi1n1).
-(** using n1: *)
-  assert (p : P A (In ef n1 t)).
-  exact (s G ef j' n1 H A t).
-(** using p: *)
-  assert (pi1In : inE ef MItE j n t 
-                  = pi1 (In ef n1 t)).
-  simpl.
-  apply (f_equal (fun x : NAT j (m ef) mapmu2E
-                               => inE ef MItE _ x t)).
-  apply UNP. (** equates n and pi1'pNAT n1 *)
-(** using pi1In: *)
-  simpl.
-  apply (eq_ind _ (fun r => P A r) p).
-  apply mu2pirr.
-  rewrite <- pi1In.
-  reflexivity.
-Qed.
-
-Print mu2Ind.
 
 (* these constitute parts of the proof of Theorem 4 *)
 
