@@ -651,44 +651,34 @@ Proof.
   exact mapmu2Comp.
 Defined.
 
-
-
-(* END OF PROPER WORK ON THE FILE *)
-
-(* DOES NOT COMPILE! *)
-
-
-
 (** the standard constructors for mu2 use mu2 as its own approximation *)
 
-Definition InCan : F mu2 c_k1 mu2 :=
-  fun A t => In mapmu2efct
-                  (j:= fun _ x => x)(fun _ _ _ _ => refl_equal _) t.
-
-(** the interactive way: *)
-Definition InCan_inter : F mu2 c_k1 mu2.
+Definition InCan : F mu2 c_k1 mu2.
 Proof.
   intros.
   apply (In mapmu2efct (j:= fun _ x => x)).
-  red.
-  intros.
-  reflexivity.
+  apply hinhpr.
+  red; intros.
+  apply idpath.
 Defined.
-
 
 
 (** the behaviour for canonical elements *)
 Lemma MItRedCan : forall (G:k1)(s:forall X:k1, X c_k1 G ->
-   F X c_k1 G)(A:Set)(t:F mu2 A),
+   F X c_k1 G)(A:UU)(t:F mu2 A),
    MIt s (InCan t) = s _ (MIt s) _ t.
 Proof.
-  reflexivity.
+  intros.
+  apply idpath.
 Qed.
 
-Lemma mapmu2RedCan : forall (A:Set)(B:Set)(f:A->B)(t: F mu2 A),
-             mapmu2 f (InCan t) =InCan(m (Fpefct mapmu2efct) f t).
+Lemma mapmu2RedCan : forall (A B:UU)(f:A->B)(t: F mu2 A),
+             mapmu2 f (InCan t) = InCan(m (Fpefct mapmu2efct) f t).
 Proof.
-  reflexivity.
+  intros.
+  unfold InCan at 1.
+  rewrite mapmu2Red.
+  apply idpath.
 Qed.
 
 
@@ -698,24 +688,23 @@ Qed.
 
 (* this here is a more general formulation of the extensionality property
    required in Theorem 2 in the paper; it is equivalent to that one in
-   the situation we study *)
-Definition polyExtsub (X1 X2 Y1 Y2:k1)(t: X1 c_k1 X2 -> Y1 c_k1 Y2) : Prop :=
-  forall(f g: X1 c_k1 X2)(A:Set)(y: Y1 A), 
-        (forall (A:Set)(x: X1 A), f A x = g A x) -> t f A y = t g A y.
+   the situation we study; beware: now with questionable truncations *)
 
+Definition polyExtsub (X1 X2 Y1 Y2:k1)(t: X1 c_k1 X2 -> Y1 c_k1 Y2) : UU :=
+  forall(f g: X1 c_k1 X2)(A:UU)(y: Y1 A), 
+        (forall (A:UU)(x: X1 A), ∥f A x = g A x∥) -> ∥t f A y = t g A y∥.
 
 (** MItRed already characterizes MIt s under an extensionality assumption
        for s: *)
 Lemma MItUni: forall (G : k1)(s : forall X : k1, X c_k1 G -> F X c_k1 G)
        (aux: mu2 c_k1 G),
        (forall (X:k1), polyExtsub(s X)) ->
-       (forall (A : Set)(X : k1)(ef: efct X)(j: X c_k1 mu2)(n:NAT j (m ef) mapmu2)(t:F X A),
+       (forall (A : UU)(X : k1)(ef: efct X)(j: X c_k1 mu2)(n:NAT_p j (m ef) mapmu2)(t:F X A),
      aux A (In ef n t) = s X (fun A => (aux A) o (j A)) A t) ->
-      forall (A:Set)(r: mu2 A), aux A r = MIt s r.
+      forall (A:UU)(r: mu2 A), ∥aux A r = MIt s r∥.
 Proof.
   intros G s aux sExt H.
-  apply (mu2Ind (fun A r =>
-   aux A r = MIt s r)).
+  apply (mu2Ind (fun A r => ∥aux A r = MIt s r∥)).
   intros X ef j n IH A t.
   rewrite H.
   rewrite MItRed.
@@ -724,7 +713,7 @@ Proof.
   intros.
   unfold comp.
   apply IH.
-Qed.
+Defined.
 
 Section MIt.
 
@@ -733,30 +722,37 @@ Section MIt.
 Variable G:k1.
 Variable s: forall X : k1, X c_k1 G -> F X c_k1 G.
 Variable mG: mon G.
-Variable smGpNAT : forall (X:k1)(h: X c_k1 G)(ef: efct X), 
-    NAT h (m ef) mG -> NAT (s h) (m (Fpefct ef)) mG.
 
-Lemma MItNAT : NAT (MIt s) mapmu2 mG.
+Definition NAT_p_weak (X Y:k1)(j:X c_k1 Y)(mX:mon X)(mY:mon Y) : k0 :=
+  forall (A B:k0)(f:A -> B)(t:X A), ∥j B (mX A B f t) = mY _ _ f (j A t)∥.
+
+Variable smGpNAT : forall (X:k1)(h: X c_k1 G)(ef: efct X), 
+    NAT_p_weak h (m ef) mG -> NAT_p_weak (s h) (m (Fpefct ef)) mG.
+
+Lemma MItNAT : NAT_p_weak (MIt s) mapmu2 mG.
 Proof.
   red.
   intros A B f r.
   generalize B f; clear B f.
   generalize A r; clear A r.
-  apply (mu2Ind (fun A r => forall (B : Set) (f : A -> B),
-   MIt s (mapmu2 f r) = mG f (MIt s r))).
+  apply (mu2Ind (fun A r => ∀ (B : UU) (f : A -> B),
+     ∥MIt s (mapmu2 f r) = mG f (MIt s r)∥ )).
   intros X ef j n IH A t B f.
   rewrite mapmu2Red.
   do 2 rewrite MItRed.
-  set (aux := fun A : Set => MIt s (A:=A) o j A).
+  set (aux := fun A : UU => MIt s (A:=A) o j A).
   apply smGpNAT; try assumption.
   clear A t B f.
   red.
   intros.
   unfold aux.
   unfold comp.
-  rewrite n.
+  revert n.
+  apply hinhuniv.
+  intro n_eq.
+  rewrite n_eq.
   apply IH.
-Qed.
+Defined.
 
 End MIt.
 
@@ -772,7 +768,7 @@ Section Bsh3.
 Definition BshF3 : k2 :=
    fun X A => (unit + A * (X (X (X A))))%type.
 
-Definition mon2 (F:k2) : Set :=
+Definition mon2 (F:k2) : UU :=
    forall (X Y:k1), X <_k1 Y -> F X <_k1 F Y.
 
 Definition bshf3 : mon2 BshF3.
@@ -781,8 +777,8 @@ Proof.
   intros X Y h A B f r.
   elim r.
   intro.
-  red. 
-  exact (inl _ a).
+  red.
+  exact (inl a).
   intros [a r'].
   red.
   apply inr.
@@ -802,12 +798,15 @@ Proof.
   exact (bshf3 m0).
 Defined.
 
+(* END OF PROPER WORK ON THE FILE *)
+
 
 Definition bshf3pefct : pefct BshF3.
 Proof.
   red.
   intros X ef.
   apply (mkefct (m:=bshf3_(m ef))).
+(*
 (** extensionality *)
   red.
   intros.
@@ -823,31 +822,46 @@ Proof.
   intro.
   apply (e ef).
   assumption.
+*)
 (** first functor law *)
   red.
   intros.
   unfold bshf3_.
   unfold bshf3.
   destruct x.
-  reflexivity.
+  apply hinhpr.
+  apply idpath.
   destruct p.
+  destruct ef as [m f1 f2].
   simpl.
-  apply (f_equal (fun x : X(X(X A))=> inr unit (a, x))).
-  replace (m ef (m ef (m ef (id (A:=A)))) x ) with
-   ( m ef (id (A:= X(X A))) x).
-Focus 2.
-  apply (e ef).
-  intro.
-  replace (m ef (m ef (id (A:=A))) a0)
-    with (m ef (id (A:=X A) )a0).
-  rewrite (f1 ef).
-  reflexivity.
-  apply (e ef).
-  intro.
-  rewrite (f1 ef).
-  reflexivity.
-(**  back *)
-  apply (f1 ef).
+  apply (hinhfun (X:=fct1 m)).
+  + intros f1_eq.
+    unfold id at 1.
+    assert (eq1 : m (X (X A)) (X (X A)) (m (X A) (X A) (m A A (id (A:=A)))) x = m _ _ (id (A:= X(X A))) x).
+    Focus 2.
+    rewrite eq1.
+    rewrite f1_eq.
+    apply idpath.
+
+    assert (eq2 : m (X A) (X A) (m A A (id (A:=A))) = id (A:=X (X A))).
+    Focus 2.
+    rewrite eq2.
+    apply idpath.
+
+    apply funextfun.
+    clear a x.
+    intros x.
+    assert (eq3 : m A A (id (A:=A)) = id (A:=X A)).
+    - apply funextfun.
+      clear x.
+      intro x.
+      apply f1_eq.
+    - rewrite eq3.
+      apply f1_eq.
+(* we now ought to prove ∥ fct1 m ∥ !! *)
+Admitted.
+
+(*
 (** second functor law *)
   red.
   intros.
@@ -867,31 +881,37 @@ Focus 2.
   rewrite (f2 ef).
   reflexivity.
 Defined.
+*)
 
-Definition Bsh3 := mu2 bshf3pefct.
+Definition Bsh3 := mu2 BshF3 (* bshf3pefct *).
 
-Definition bnil3 : forall (A:Set), Bsh3 A:=
-   fun A => InCan bshf3pefct _ (inl _ tt).
+Definition bnil3 : forall (A:UU), Bsh3 A:=
+   fun A => InCan bshf3pefct _ (inl tt).
 
-Definition bcons3 : forall (A:Set), A -> Bsh3(Bsh3(Bsh3 A)) -> Bsh3 A :=
-  fun A a b => InCan bshf3pefct _ (inr _ (a,b)).
+Definition bcons3 : forall (A:UU), A -> Bsh3(Bsh3(Bsh3 A)) -> Bsh3 A :=
+  fun A a b => InCan bshf3pefct _ (inr (a,b)).
 
-Definition mapBsh3 := mapmu2 (Fpefct:=bshf3pefct).
+Definition mapBsh3 := mapmu2 bshf3pefct.
 
 (** we now get the expected behaviour for mapBsh3 *)
 
-Lemma mapBsh3Nil : forall (A B:Set)(f:A -> B),
+Lemma mapBsh3Nil : forall (A B:UU)(f:A -> B),
     mapBsh3 f (bnil3 _)  = bnil3 _.
 Proof.
-  reflexivity.
-Qed.
+  intros.
+  unfold bnil3.
+  unfold mapBsh3.
+  rewrite mapmu2RedCan.
+  (* we are missing the definition of bshf3pefct *)
+Abort.
 
 
-Lemma mapBsh3Cons : forall (A B:Set)(f:A -> B)(a:A)(b:Bsh3(Bsh3(Bsh3 A))),
+Lemma mapBsh3Cons : forall (A B:UU)(f:A -> B)(a:A)(b:Bsh3(Bsh3(Bsh3 A))),
     mapBsh3 f (bcons3 a b) = bcons3 (f a) (mapBsh3 (mapBsh3 (mapBsh3 f)) b).
 Proof.
-  reflexivity.
-Qed.
+  (* we are missing the definition of bshf3pefct *)
+Abort.
+
 
 End Bsh3.
 
