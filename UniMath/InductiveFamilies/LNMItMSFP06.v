@@ -408,7 +408,7 @@ Proof.
   apply xp.
   apply Hyp1.
 Defined.
-(* no hope for the other direction! *)
+(* no hope for the other direction: see Lemma 3.8.5 in the HoTT book (fst ed. 2013) *)
 
 (* what I would have liked to prove before incorporating truncation into the definition of inEcheck
 Definition hinhfun_extended {G:k1}{ X: forall (A:k0)(t:G A), UU } { Y : UU }( f : (forall (A:k0)(t:G A), X A t) -> Y ) : (forall (A:k0)(t:G A), ∥X A t∥) -> ∥ Y ∥ .
@@ -496,7 +496,7 @@ Proof.
   apply H.
 Defined.
 
-(* a dependent version of hinhuniv *)
+(* a dependent version of hinhuniv (called induction principle in Exercise 3.17 in the HoTT book (fst ed. 2013) - according to p.147 l.7 "not especially useful" *)
 Lemma hinhuniv_dep: forall (X:k0)(P:∥ X∥->hProp), (forall x:X, P(hinhpr x)) -> forall x:∥ X∥, P x.
 Proof.
   intros X P Hyp x.
