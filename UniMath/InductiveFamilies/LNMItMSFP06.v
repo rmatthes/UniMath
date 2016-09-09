@@ -766,7 +766,7 @@ Section Bsh3.
    paper and which, together with the example, make another 1200 lines. *)
 
 Definition BshF3 : k2 :=
-   fun X A => (unit + A * (X (X (X A))))%type.
+   fun X A => coprod unit (A * (X (X (X A)))).
 
 Definition mon2 (F:k2) : UU :=
    forall (X Y:k1), X <_k1 Y -> F X <_k1 F Y.
@@ -776,7 +776,7 @@ Proof.
   do 2 red.
   intros X Y h A B f r.
   elim r.
-  intro.
+  intro a.
   red.
   exact (inl a).
   intros [a r'].
