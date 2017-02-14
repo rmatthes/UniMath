@@ -83,6 +83,7 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 (** * Construction of an endofunctor on [SET/sort,SET/sort] from a multisorted signature *)
 Section functor.
 
+(** identify the set of variables of a given sort, i.e,. project a typing environment to that set *)
 Local Definition proj_fun (s : sort) : SET / sort -> SET :=
   λ p, hfiber_hSet (pr2 p) s.
 
@@ -98,7 +99,7 @@ mkpair.
             intros x; apply setproperty).
 Defined.
 
-(** The left adjoint to the proj_functor *)
+(** build constant typing environments, yields a left adjoint to the proj_functor *)
 Local Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
@@ -116,6 +117,7 @@ exists (TerminalObject TerminalHSET); simpl.
 apply (λ x, s).
 Defined.
 
+(** add a sorted variable to a typing environment *)
 Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
   constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
 
