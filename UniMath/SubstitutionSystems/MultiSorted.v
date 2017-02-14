@@ -83,7 +83,7 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 (** * Construction of an endofunctor on [SET/sort,SET/sort] from a multisorted signature *)
 Section functor.
 
-(** identify the set of variables of a given sort, i.e,. project a typing environment to that set *)
+(** identify the set of variables of a given sort, i.e., project a typing environment to that set *)
 Local Definition proj_fun (s : sort) : SET / sort -> SET :=
   λ p, hfiber_hSet (pr2 p) s.
 
