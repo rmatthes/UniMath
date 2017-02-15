@@ -83,6 +83,7 @@ Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × so
 (** * Construction of an endofunctor on [SET/sort,SET/sort] from a multisorted signature *)
 Section functor.
 
+(** identify the set of variables of a given sort, i.e., project a typing environment to that set *)
 Local Definition proj_fun (s : sort) : SET / sort -> SET :=
   λ p, hfiber_hSet (pr2 p) s.
 
@@ -98,7 +99,7 @@ mkpair.
             intros x; apply setproperty).
 Defined.
 
-(** The left adjoint to the proj_functor *)
+(** build constant typing environments, yields a left adjoint to the proj_functor *)
 Local Definition hat_functor (t : sort) : functor SET (SET / sort).
 Proof.
 mkpair.
@@ -109,44 +110,23 @@ mkpair.
             apply subtypeEquality; try (intro x; apply has_homsets_HSET)).
 Defined.
 
-Local Definition option_fun : sort -> SET / sort -> SET / sort.
+(** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)
+Local Definition constHSET_slice (s : sort) : SET / sort.
 Proof.
-  simpl; intros s Xf.
-  mkpair.
-  + mkpair.
-    - exact (pr1 (pr1 Xf) ⨿ unit).
-    - apply isasetcoprod; [apply setproperty| apply isasetunit].
-  + exact (sumofmaps (pr2 Xf) (termfun s)).
+exists (TerminalObject TerminalHSET); simpl.
+apply (λ x, s).
 Defined.
 
-Local Definition option_functor_data (s : sort) : functor_data (SET / sort) (SET / sort).
-Proof.
-exists (option_fun s).
-intros X Y f.
-mkpair.
-- intros F.
-  induction F as [t|t]; [apply (ii1 (pr1 f t)) | apply (ii2 t)].
-- abstract (apply funextsec; intros [t|t]; trivial; apply (toforallpaths _ _ _ (pr2 f) t)).
-Defined.
+(** add a sorted variable to a typing environment *)
+Definition sorted_option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
+  constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
 
-Local Lemma is_functor_option_functor (s : sort) : is_functor (option_functor_data s).
-Proof.
-split; simpl.
-+ intros X; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
-  now induction t.
-+ intros X Y Z f g; apply (eq_mor_slicecat has_homsets_HSET), funextsec; intros t.
-  now induction t.
-Qed.
-
-Local Definition option_functor (s : sort) : functor (SET / sort) (SET / sort) :=
-  tpair _ _ (is_functor_option_functor s).
-
-(** option_functor for lists (also called option in the note) *)
+(** sorted option functor for lists (also called option in the note) *)
 Local Definition option_list (xs : list sort) : functor (SET / sort) (SET / sort).
 Proof.
 use (foldr _ _ xs).
 + intros s F.
-  apply (functor_composite (option_functor s) F).
+  apply (functor_composite (sorted_option_functor s) F).
 + apply functor_identity.
 Defined.
 
@@ -199,13 +179,6 @@ End functor.
 
 (** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)
 Section omega_cocont.
-
-(** The object (1,λ _,s) in SET/sort *)
-Local Definition constHSET_slice (s : sort) : SET / sort.
-Proof.
-exists (TerminalObject TerminalHSET); simpl.
-apply (λ x, s).
-Defined.
 
 (** The proj functor is naturally isomorphic to the following functor which is a left adjoint: *)
 Local Definition proj_functor' (s : sort) : functor (SET / sort) SET :=
