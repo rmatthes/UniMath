@@ -191,9 +191,17 @@ End A.
 Definition ishinh_UU@{i j} (X : Type@{i}) : Type@{j}           (* i < j *)
   := ∏ P : hProp@{i j}, ((X -> P) -> P).
 
+Local Definition ishinh_UU_mod@{i j} (X : Type@{i}) : Type@{i}       (* j < i *)
+  := ∏ P : Type@{j}, isaprop@{j} P -> ((X -> P) -> P).
+
 Lemma isapropishinh_UU@{i j} (X : Type@{i}) : isaprop@{j} (ishinh_UU@{i j} X).
 Proof.
   intro. apply impred. intros P. apply impred. intros _. apply propproperty.
+Qed.
+
+Local Lemma isapropishinh_UU_mod@{i j} (X : Type@{i}) : isaprop@{i} (ishinh_UU_mod@{i j} X).       (* j < i *)
+Proof.
+  intro. apply impred. intros P. apply impred. intros H. apply impred. intros _. apply H.
 Qed.
 
 Definition ishinh_resized@{i j} (X : Type@{i}) : Type@{i}           (* i < j *)
@@ -214,6 +222,10 @@ Notation "∥ A ∥" := (ishinh A) (at level 20) : type_scope.
 Definition hinhpr {X : UU} : X -> ∥ X ∥
   := fun x : X => fun P : hProp => fun f : X -> P => f x.
 
+Local Definition hinhpr_mod@{i j} {X : Type@{i}} : X -> ishinh_UU_mod@{i j} X
+  := fun x : X => fun P : Type@{j}  => fun  H : isaprop@{j} P => fun f : X -> P => f x.
+
+
 Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X ∥ -> ∥ Y ∥ :=
   fun isx : ∥ X ∥ => fun P : _ => fun yp : Y -> P => isx P (fun x : X => yp (f x)).
 
@@ -222,8 +234,32 @@ Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X ∥ -> ∥ Y ∥ :=
   placed in [hProp UU1]). The first place where RR1 is essentially required is
   in application of [hinhuniv] to a function [X -> ishinh Y] *)
 
-Definition hinhuniv {X : UU} {P : hProp} (f : X -> P) (wit : ∥ X ∥) : P
+Definition hinhuniv@{i j} {X : Type@{i}} {P : hProp@{i j}} (f : X -> P) (wit : ∥ X ∥) : P     (* i < j *)
   := wit P f.
+
+Local Definition hinhuniv_mod_naive@{i j} {X : Type@{i}} {P : Type@{j}} {H: isaprop@{j} P}  (f : X -> P) (wit : ishinh_UU_mod@{i j} X) : P   (* j < i *)
+  := wit P H f.
+
+Local Definition hinhuniv_mod_resized@{i j k} {X : Type@{i}} {P : Type@{k}} {H: isaprop@{k} P}  (f : X -> P) (wit : ishinh_UU_mod@{i j} X) : P.
+Proof.
+  intros.
+  set (P' := ResizeProp@{j k} P H).
+  apply (wit P').
+  + apply H.
+  + apply f.
+Defined.
+
+Local Definition functor_ishinh_UU_mod {A B : Type} (f : A -> B)
+    : ishinh_UU_mod A -> ishinh_UU_mod B.
+Proof.
+  intros ? ? ?.
+  refine (hinhuniv_mod_resized (fun a => hinhpr_mod (f a))).
+  apply isapropishinh_UU_mod.
+Defined.
+
+Local Definition typeofid (A: Type) := A -> A.
+
+Local Definition functor_ishinh_UU_mod_equalargs@{i j} {A : Type@{i}} (f : typeofid A) : typeofid (ishinh_UU_mod@{i j} A) := functor_ishinh_UU_mod f.   (* j < i *)
 
 Corollary factor_through_squash {X Q : UU} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
 Proof. intros ? ? i f h. exact (@hinhuniv X (Q,,i) f h). Defined.
