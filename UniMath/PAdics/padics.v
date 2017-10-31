@@ -224,7 +224,9 @@ Proof.
 (* [Defined.] now seems to run forever:
 Defined.
  *)
-Admitted.
+    Check (1%nat).
+Defined.
+    Check (1%nat).
 
 Close Scope hz_scope.
 
@@ -331,7 +333,10 @@ Proof.
   }
   apply ( funextfun _ _ f ).
 (* [Defined.] does not terminate *)
-Admitted.
+    Check (2%nat).
+Defined.
+    Check (2%nat).
+
 
 Lemma hzqrandcarryeq ( m : hz ) ( is : hzneq 0 m )
   ( a : fpscommrng hz ) ( n : nat ) :
@@ -402,7 +407,10 @@ Proof.
   }
   apply ( funextfun _ _ f ).
 (* [Defined.] does not terminate *)
-Admitted.
+
+    Check (3%nat).
+Defined.
+    Check (3%nat).
 
 Lemma carryandcarryequiv ( m : hz ) ( is : hzneq 0 m )
   ( a : fpscommrng hz ) :
@@ -496,7 +504,10 @@ Proof.
     rewrite <- ( hzremaindermodandplus m is ( precarry m is b ( S n ) ) _ ).
     apply idpath.
  (* [Defined.] does not terminate *)
-Admitted.
+
+    Check (4%nat).
+Defined.
+    Check (4%nat).
 
 
 Lemma carryandplus ( m : hz ) ( is : hzneq 0 m )
@@ -573,7 +584,10 @@ Proof.
   }
   apply ( funextfun _ _ f ).
  (* [Defined.] does not terminate *)
-Admitted.
+
+    Check (5%nat).
+Defined.
+    Check (5%nat).
 
 Definition quotientprecarry ( m : hz ) ( is : hzneq 0 m )
   ( a : fpscommrng hz ) : fpscommrng hz :=
@@ -849,7 +863,9 @@ Proof.
   }
   apply ( funextfun _ _ f ).
  (* [Defined.] does not terminate *)
-Admitted.
+    Check (6%nat).
+Defined.
+    Check (6%nat).
 
 Lemma carryandtimesr ( m : hz ) ( is : hzneq 0 m )
   ( a b : fpscommrng hz ) :
@@ -2344,7 +2360,10 @@ Proof.
     + apply two.
     + apply natlthnsn.
 (* [Defined.] does not terminate *)
-Admitted.
+
+    Check (7%nat).
+Defined.
+    Check (7%nat).
 
 
 Definition padicintegers ( p : hz ) ( is : isaprime p ) : aintdom.
