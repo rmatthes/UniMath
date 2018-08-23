@@ -220,7 +220,7 @@ End Kleisli_precat.
 (** Kleisli category associated to a relative monad *)
 Section Kleisli_cat.
 
-Lemma Kleisli_precat_has_homsets {C : precategory_data} {D : category} {J : functor_data C D} (R : RelMonad J)
+Lemma Kleisli_precat_has_homsets {C: precategory_data} {D: precategory} {J : functor_data C D} (R : RelMonad_data J)
       (hs : has_homsets D) : has_homsets (Kleisli_precat_data R).
 Proof.
   intros a b.
