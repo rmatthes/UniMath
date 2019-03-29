@@ -24,10 +24,10 @@ Section M_From_Nat.
 
   Definition Chain :=
     ∑ (X : nat -> Fam I),
-    ∏ n, X (1 + n) ->ⁱ X n.
+    ∏ n, X (1 + n) ->i X n.
   Opaque Chain.
 
-  Definition build_chain (X : nat -> Fam I) (π : ∏ n, X (1 + n) ->ⁱ X n) : Chain :=
+  Definition build_chain (X : nat -> Fam I) (π : ∏ n, X (1 + n) ->i X n) : Chain :=
     X,, π.
 
   Definition chain_types (chain : Chain) : nat -> Fam I :=
@@ -35,7 +35,7 @@ Section M_From_Nat.
 
   Definition chain_functions (chain : Chain) :
     let X := chain_types chain in
-    ∏ n, X (1 + n) ->ⁱ X n :=
+    ∏ n, X (1 + n) ->i X n :=
     pr2 chain.
 
 
@@ -51,10 +51,10 @@ Section M_From_Nat.
       ∏ n, π n i (x (1 + n)) = x n.
 
     Definition Cone (A : Fam I) :=
-      ∑ (f : ∏ n, A ->ⁱ X n),
-      ∏ n, π n ∘ⁱ f (1 + n) = f n.
+      ∑ (f : ∏ n, A ->i X n),
+      ∏ n, π n ∘i f (1 + n) = f n.
 
-    Definition to_cone {A : Fam I} (f : A ->ⁱ limit) : Cone A.
+    Definition to_cone {A : Fam I} (f : A ->i limit) : Cone A.
     Proof.
       exists (λ n i a, pr1 (f i a) n).
       intros n.
@@ -63,7 +63,7 @@ Section M_From_Nat.
       exact (pr2 (f i a) n).
     Defined.
 
-    Definition from_cone {A : Fam I} (cone : Cone A) : A ->ⁱ limit.
+    Definition from_cone {A : Fam I} (cone : Cone A) : A ->i limit.
     Proof.
       intros i a.
       exists (λ n, pr1 cone n i a).
@@ -74,9 +74,9 @@ Section M_From_Nat.
     Defined.
 
     Lemma universal_property_of_limit (A : Fam I) :
-      (A ->ⁱ limit) ≃ Cone A.
+      (A ->i limit) ≃ Cone A.
     Proof.
-      use (weqgradth to_cone from_cone).
+      use (weq_iso to_cone from_cone).
       - intros f.
         unfold from_cone, to_cone. cbn.
         apply funextsec; intros i.
@@ -125,7 +125,7 @@ Section M_From_Nat.
       exists (λ _, x).
       exact (λ _, idpath _).
     }
-    use weqgradth.
+    use weq_iso.
     - exact f.
     - exact g.
     - intros xp; induction xp as [x p]; cbn.
@@ -172,7 +172,7 @@ Section M_From_Nat.
       exists (nat_rect _ x l).
       exact (λ n, idpath _).
     }
-    use weqgradth.
+    use weq_iso.
     - exact f.
     - exact g.
     - cbn.
@@ -217,7 +217,7 @@ Section M_From_Nat.
                 (chain_functions chain ∘ S).
 
   Lemma weq_limit_shift (chain : Chain) :
-    limit (shift chain) ≃ⁱ limit chain.
+    limit (shift chain) ≃i limit chain.
   Proof.
     induction chain as [X π].
     intros i.
@@ -263,7 +263,7 @@ Section M_From_Nat.
 
   Lemma weq_polynomial_functor_on_limit
         (c : Container I I) (chain : Chain) :
-    ⟦c⟧.0 (limit chain) ≃ⁱ limit (apply_on_chain ⟦c⟧ chain).
+    ⟦c⟧.0 (limit chain) ≃i limit (apply_on_chain (⟦c⟧) chain).
   Proof.
     induction c as [A B].
     induction chain as [X π]; unfold apply_on_chain; cbn;
@@ -301,7 +301,7 @@ Section M_From_Nat.
     }
     intermediate_weq (∑ a,
                       ∑ x : ∏ n j, B i a j → X n j,
-                            ∏ n : nat, π n ∘ⁱ x (S n) = x n). {
+                            ∏ n : nat, π n ∘i x (S n) = x n). {
       apply weq_functor_total2_id; intros a.
       apply weq_functor_total2_id; intros x.
       apply weq_functor_sec_id; intros n.
@@ -317,7 +317,7 @@ Section M_From_Nat.
                                           ∏ n, transportf
                                                  (λ a, ∏ j, B i a j -> X n j)
                                                  (pr2 ap n)
-                                                 (π n ∘ⁱ x (1 + n))
+                                                 (π n ∘i x (1 + n))
                                                = x n). {
       use weq_functor_total2.
       - apply invweq.
@@ -331,7 +331,7 @@ Section M_From_Nat.
                                         ∏ n, transportf
                                                (λ a, ∏ j, B i a j -> X n j)
                                                (p n)
-                                               (π n ∘ⁱ x (1 + n))
+                                               (π n ∘i x (1 + n))
                                              = x n). {
       apply invweq.
       apply invweq.
@@ -343,7 +343,7 @@ Section M_From_Nat.
                                         ∏ n, transportf
                                                (λ a, ∏ j, B i a j -> X n j)
                                                (p n)
-                                               (π n ∘ⁱ x (1 + n))
+                                               (π n ∘i x (1 + n))
                                              = x n). {
       apply weq_functor_total2_id; intros a.
       apply total2_symmetry.
@@ -354,7 +354,7 @@ Section M_From_Nat.
                                              transportf
                                                (λ a, ∏ j, B i a j -> X n j)
                                                p
-                                               (π n ∘ⁱ x (1 + n))
+                                               (π n ∘i x (1 + n))
                                              = x n). {
       apply weq_functor_total2_id; intros a.
       apply weq_functor_total2_id; intros x.
@@ -365,7 +365,7 @@ Section M_From_Nat.
                             ∑ x : ∏ n j, B i (a n) j -> X n j,
                                   ∏ n, tpair (λ a, ∏ j, B i a j -> X n j)
                                              (a (1 + n))
-                                             (π n ∘ⁱ x (1 + n))
+                                             (π n ∘i x (1 + n))
                                        = tpair (λ a, ∏ j, B i a j -> X n j)
                                                (a n)
                                                (x n)). {
@@ -377,7 +377,7 @@ Section M_From_Nat.
     intermediate_weq (∑ x : ∑ a : nat -> A i, ∏ n j, B i (a n) j → X n j,
                                   ∏ n : nat, tpair (λ a, ∏ j, B i a j -> X n j)
                                                  (pr1 x (1 + n))
-                                                 (π n ∘ⁱ pr2 x (1 + n))
+                                                 (π n ∘i pr2 x (1 + n))
                                            = tpair (λ a, ∏ j, B i a j -> X n j)
                                                    (pr1 x n)
                                                    (pr2 x n)). {
@@ -404,7 +404,7 @@ Section M_From_Nat.
     - exact (P.0 IHn).
   Defined.
 
-  Definition π : ∏ n, W (1 + n) ->ⁱ W n.
+  Definition π : ∏ n, W (1 + n) ->i W n.
   Proof.
     intros n; induction n.
     - exact (λ _ _, tt).
@@ -415,12 +415,12 @@ Section M_From_Nat.
 
   Definition m0_type := limit chain.
 
-  Definition m0_in : P.0 m0_type ≃ⁱ m0_type :=
-    weqcompⁱ (weq_polynomial_functor_on_limit _ chain)
+  Definition m0_in : P.0 m0_type ≃i m0_type :=
+    weqcompi (weq_polynomial_functor_on_limit _ chain)
              (weq_limit_shift chain).
   Opaque m0_in.
 
-  Definition m0_out : coalgebra_structure P m0_type := invweqⁱ m0_in.
+  Definition m0_out : coalgebra_structure P m0_type := invweqi m0_in.
 
   Definition m0_coalgebra : coalgebra P := m0_type,, m0_out.
 
@@ -430,15 +430,15 @@ Section M_From_Nat.
     intros coalgebra; induction coalgebra as [C γ];
       unfold coalgebra_structure in γ.
     apply iscontrifweqtounit.
-    intermediate_weq (∑ f, m0_out ∘ⁱ f = P.1 f ∘ⁱ γ). {
+    intermediate_weq (∑ f, m0_out ∘i f = P.1 f ∘i γ). {
       apply idweq.
     }
-    intermediate_weq (∑ f, m0_in ∘ⁱ m0_out ∘ⁱ f = m0_in ∘ⁱ P.1 f ∘ⁱ γ). {
+    intermediate_weq (∑ f, m0_in ∘i m0_out ∘i f = m0_in ∘i P.1 f ∘i γ). {
       apply weq_functor_total2_id; intros f.
-      apply (weqonpaths (weq_comp_lⁱ _ _ _ m0_in)).
+      apply (weqonpaths (weq_comp_li _ _ _ m0_in)).
     }
-    set (Ψ f := m0_in ∘ⁱ P.1 f ∘ⁱ γ :
-                  C ->ⁱ m0_type).
+    set (Ψ f := m0_in ∘i P.1 f ∘i γ :
+                  C ->i m0_type).
     intermediate_weq (∑ f, f = Ψ f). {
       apply weq_functor_total2_id; intros f.
       apply weq_comp0_l.
@@ -449,7 +449,7 @@ Section M_From_Nat.
     }
     set (Cone := Cone chain C).
     set (e := invweq (universal_property_of_limit chain C) :
-                Cone ≃ (C ->ⁱ m0_type)).
+                Cone ≃ (C ->i m0_type)).
     intermediate_weq (∑ c : Cone, e c = Ψ (e c)). {
       apply invweq.
       use weq_functor_total2.
@@ -471,16 +471,16 @@ Section M_From_Nat.
       apply invweq.
       apply weqonpaths.
     }
-    set (Cone0' n := C ->ⁱ W n).
+    set (Cone0' n := C ->i W n).
     set (Cone0 := ∏ n, Cone0' n).
-    set (Cone1' (u : Cone0) n := π n ∘ⁱ u (1 + n) = u n).
+    set (Cone1' (u : Cone0) n := π n ∘i u (1 + n) = u n).
     set (Cone1 (u : Cone0) := ∏ n, Cone1' u n).
     assert (Cone = (∑ u : Cone0, Cone1 u)) by reflexivity.
     intermediate_weq (∑ u : Cone0, ∑ q : Cone1 u, u,, q = Φ (u,, q)). {
       apply total2_associativity.
     }
     transparent assert (Φ0' : (∏ n, Cone0' n -> Cone0' (S n))). {
-      exact (λ (n : nat) (un : Cone0' n), P.1 un ∘ⁱ γ).
+      exact (λ (n : nat) (un : Cone0' n), P.1 un ∘i γ).
     }
     transparent assert (Φ0 : (Cone0 -> Cone0)). {
       exact (λ u n i c,
@@ -491,12 +491,12 @@ Section M_From_Nat.
     }
     transparent assert (Φ1' : (∏ (u : Cone0) n,
                                Cone1' u n ->
-                               ∏ i c, (π (1 + n) ∘ⁱ Φ0 u (2 + n)) i c =
+                               ∏ i c, (π (1 + n) ∘i Φ0 u (2 + n)) i c =
                                       Φ0 u (1 + n) i c)). {
       exact (λ (u : Cone0) (n : nat) (pn : Cone1' u n) (i : I) (c : C i),
              @total2_paths_f _ _
-               ((P.1 (π n ∘ⁱ u (S n)) ∘ⁱ γ) i c)
-               ((P.1 (u n) ∘ⁱ γ) i c)
+               ((P.1 (π n ∘i u (S n)) ∘i γ) i c)
+               ((P.1 (u n) ∘i γ) i c)
                (idpath _)
                (funextsec _ _ _
                   (λ j, funextfun _ _
@@ -507,13 +507,13 @@ Section M_From_Nat.
     transparent assert (Φ1 : (∏ u : Cone0, Cone1 u -> Cone1 (Φ0 u))). {
       exact (λ (u : Cone0) (p : Cone1 u) (n : nat),
              funextsec _
-               (π n ∘ⁱ Φ0 u (1 + n))
+               (π n ∘i Φ0 u (1 + n))
                (Φ0 u n)
                (λ i : I,
                       funextfun _ _
                         (λ c : C i,
                                nat_rect
-                                 (λ n', (π n' ∘ⁱ Φ0' n' (u n')) i c =
+                                 (λ n', (π n' ∘i Φ0' n' (u n')) i c =
                                         Φ0 u n' i c)
                                  (idpath tt)
                                  (λ n' _, Φ1' u n' (p n') i c)
@@ -561,7 +561,7 @@ Section M_From_Nat.
           apply impred_isaprop; intros c.
           apply isapropunit.
         }
-        intermediate_weq (C ->ⁱ W 0). {
+        intermediate_weq (C ->i W 0). {
           unfold Φ0; cbn.
           apply (weq_cochain_limit Cone0' (λ n un, Φ0' n un)).
         }
@@ -620,7 +620,7 @@ Section M_From_Nat.
         intermediate_weq (Cone1' u 0). {
           unfold Φ1.
           apply (weq_cochain_limit
-                   (λ n, π n ∘ⁱ u (S n) = u n)
+                   (λ n, π n ∘i u (S n) = u n)
                    (λ n pn, transportb (λ u, Cone1' u (S n))
                               p
                               (funextsec _ _ _
@@ -645,8 +645,8 @@ Section M_From_Nat.
     m0_out i (m0_corec C c) =
     P.1 (@m0_corec C) i (coalgebra_to_coalgebra_str C i c).
   Proof.
-    change ((m0_out ∘ⁱ @m0_corec C) i c =
-            (P.1 (@m0_corec C) ∘ⁱ coalgebra_to_coalgebra_str C) i c).
+    change ((m0_out ∘i @m0_corec C) i c =
+            (P.1 (@m0_corec C) ∘i coalgebra_to_coalgebra_str C) i c).
     revert c; apply toforallpaths.
     revert i; apply toforallpaths.
     exact (pr2 (finality_morphism_coalgebra _ m0_coalgebra_is_final C)).
@@ -700,7 +700,7 @@ Section M_From_Nat.
                         (λ a, ∏ j, B i a j -> m0_type j)
                         p
                         (pr2 (m0_out i m)) =
-                      (λ _, pr1) ∘ⁱ f). {
+                      (λ _, pr1) ∘i f). {
         apply weq_functor_total2_id; intros f.
         apply invweq.
         assert (H : ∏ A B (x : ∑ a : A, B a), x = pr1 x,, pr2 x). {
@@ -712,13 +712,13 @@ Section M_From_Nat.
                          (λ a, ∏ j, B i a j → m0_type j)
                          p
                          (pr2 (m0_out i m)) =
-                       (λ _, pr1) ∘ⁱ f) ≃
+                       (λ _, pr1) ∘i f) ≃
                                         tpair (λ a, ∏ j, B i a j -> m0_type j)
                                         (pr1 (m0_out i m)) (pr2 (m0_out i m)) =
                          P.1 (λ _, pr1) i (a,, f)).
         apply (weq_total2_paths_f (A i) (λ a, ∏ j, B i a j -> m0_type j)
                                   (pr1 (m0_out i m)) a (pr2 (m0_out i m))
-                                  ((λ _, pr1) ∘ⁱ f)).
+                                  ((λ _, pr1) ∘i f)).
       }
       intermediate_weq (∑ p : pr1 (m0_out i m) = a,
                         ∑ f : ∏ j, B i a j → m_type j,
@@ -726,7 +726,7 @@ Section M_From_Nat.
                                 (λ a, ∏ j, B i a j → m0_type j)
                                 p
                                 (pr2 (m0_out i m)) =
-                              (λ _, pr1) ∘ⁱ f). {
+                              (λ _, pr1) ∘i f). {
         apply total2_symmetry.
       }
       apply weq_functor_total2_id; intros p.
@@ -858,9 +858,9 @@ Section M_From_Nat.
           apply isapropishinh.
   Qed.
 
-  Definition m_out : m_type ->ⁱ P.0 m_type.
+  Definition m_out : m_type ->i P.0 m_type.
   Proof.
-    cut (∑ m_out : m_type ->ⁱ (P.0 m_type),
+    cut (∑ m_out : m_type ->i (P.0 m_type),
                    ∏ i m, m0_out i (pr1 m) =
                           P.1 (λ _, pr1) i (m_out i m)). {
       exact pr1.
@@ -899,10 +899,10 @@ Section M_From_Nat.
     m_out.
 
 
-  Definition weq_m_m0 : m_type ≃ⁱ m0_type.
+  Definition weq_m_m0 : m_type ≃i m0_type.
   Proof.
     intros i.
-    use weqgradth.
+    use weq_iso.
     - exact pr1.
     - intros m.
       exists m.

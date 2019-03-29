@@ -1,7 +1,7 @@
 (** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
+(*Unset Automatic Introduction.
 
-Unset Kernel Term Sharing.
+Unset Kernel Term Sharing.*)
 
 (** Imports *)
 
@@ -9,12 +9,12 @@ Require Export UniMath.Inductives.functors.
 Require Export UniMath.Foundations.Propositions.
 
 
-  (* (** Algebras for a functor *) *)
+(** Algebras for a functor *)
+
   (* Section Algebras. *)
 
-  (*   Definition algebra_structure (F : prefunctor) (A : UU) := *)
-  (*     F.0 A -> A. *)
-
+  (* Definition algebra_structure (F : prefunctor) (A : UU) := *)
+  (* F.0 A -> A. *)
   (*   Definition algebra (F : prefunctor) : UU := *)
   (*     total2 (algebra_structure F). *)
 
@@ -182,7 +182,7 @@ Section CoAlgebras.
   Context {I : UU}.
 
   Definition coalgebra_structure (F : prefunctor I I) (A : Fam I) :=
-    A ->ⁱ F.0 A.
+    A ->i F.0 A.
 
   Definition coalgebra (F : prefunctor I I) : UU :=
     ∑ A, coalgebra_structure F A.
@@ -200,11 +200,11 @@ Section CoAlgebras.
   Open Scope coalgebra_scope.
 
   Definition coalgebra_morphism {F : functor I I} (A B : coalgebra F) : UU :=
-    ∑ f : A ->ⁱ B,
-          B.s ∘ⁱ f = F.1 f ∘ⁱ A.s.
+    ∑ f : A ->i B,
+          B.s ∘i f = F.1 f ∘i A.s.
 
   Definition coalgebra_morphism_to_function {F : functor I I} {A B : coalgebra F}
-             (f : coalgebra_morphism A B) : A ->ⁱ B :=
+             (f : coalgebra_morphism A B) : A ->i B :=
     pr1 f.
 
   Notation "f .f" :=
@@ -222,18 +222,18 @@ Section CoAlgebras.
              (f : coalgebra_morphism A B) (g : coalgebra_morphism B C) :
     coalgebra_morphism A C.
   Proof.
-    intros. exists (g.f ∘ⁱ f.f).
-    change (C.s ∘ⁱ g.f ∘ⁱ f.f = F.1 (g.f ∘ⁱ f.f) ∘ⁱ A.s).
-    intermediate_path (F.1 (g.f) ∘ⁱ B.s ∘ⁱ f.f). {
-      apply (maponpaths (λ h, h ∘ⁱ f.f : A ->ⁱ F.0 C)
+    intros. exists (g.f ∘i f.f).
+    change (C.s ∘i g.f ∘i f.f = F.1 (g.f ∘i f.f) ∘i A.s).
+    intermediate_path (F.1 (g.f) ∘i B.s ∘i f.f). {
+      apply (maponpaths (λ h, h ∘i f.f : A ->i F.0 C)
                         (pr2 g)).
     }
-    intermediate_path (F.1 (g.f) ∘ⁱ F.1 (f.f) ∘ⁱ A.s). {
-      apply (maponpaths (λ h, F.1 (g.f) ∘ⁱ h : A ->ⁱ F.0 C)
+    intermediate_path (F.1 (g.f) ∘i F.1 (f.f) ∘i A.s). {
+      apply (maponpaths (λ h, F.1 (g.f) ∘i h : A ->i F.0 C)
                         (pr2 f)).
     }
-    intermediate_path (F.1 (g.f ∘ⁱ f.f) ∘ⁱ A.s). {
-      apply (maponpaths (λ h, h ∘ⁱ A.s) (!functor_comp_to_comp F _ _ _ _ _)).
+    intermediate_path (F.1 (g.f ∘i f.f) ∘i A.s). {
+      apply (maponpaths (λ h, h ∘i A.s) (!functor_comp_to_comp F _ _ _ _ _)).
     }
     reflexivity.
   Defined.

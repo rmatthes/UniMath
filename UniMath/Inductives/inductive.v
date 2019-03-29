@@ -397,9 +397,10 @@ Section Wtypes.
     exists (f b).
     simpl in b.
     revert b.
-    apply wf_then_subtr_wf.
+    apply (wf_then_subtr_wf (supM (a,, f))).
 
     intros P step.
-    simpl in b.
+    (* apply step. *)
+  Abort.
 
 End Wtypes.

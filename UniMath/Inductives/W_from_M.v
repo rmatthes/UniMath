@@ -1,12 +1,13 @@
 (** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
+(*Unset Automatic Introduction.
 
-Unset Kernel Term Sharing.
+Unset Kernel Term Sharing.*)
 
 (** Imports *)
 
 Require Export UniMath.Inductives.addresses.
 Require Export UniMath.MoreFoundations.All.
+Require Import UniMath.Induction.PolynomialFunctors.
 
 (* Lemmas that should be elsewhere *)
 
@@ -63,7 +64,6 @@ Section Wtypes.
 
   Definition argM (m : M) : B (labelM m) -> M.
   Proof.
-    intros m.
     destruct m.
     exact (pr2 t).
   Defined.
@@ -75,7 +75,7 @@ Section Wtypes.
 
   Definition isprop_isWf (m : M) : isaprop (isWf m).
   Proof.
-    intros. apply impred.
+    apply impred.
     intro. apply impred.
     intro. exact (pr2 (t m)).
   Defined.
@@ -84,7 +84,6 @@ Section Wtypes.
 
   Definition sup (a : A) (f : B a -> W) : W.
   Proof.
-    intros.
     exists (supM (a ,, pr1 ∘ f)).
     intros P step.
     apply step.
@@ -92,6 +91,8 @@ Section Wtypes.
     apply (pr2 (f b)).
     exact step.
   Defined.
+
+  (** all commented by R.M. since algebra notions in [UniMath.Inductives.algebras] are all commented as well
 
   Definition W_is_algebra : algebra_structure (polynomial_functor A B) W :=
     fun t => sup (pr1 t) (pr2 t).
@@ -175,7 +176,7 @@ Section Wtypes.
                  (∏ b : B (label w), ∏ addr , P (subtree_addr w b addr)).
   Proof.
     intros w P.
-    use weqgradth.
+    use weq_iso.
       - exact (fun f => (f (root_addr _) ,, fun b addr' => f (subtree_addr _ b addr'))).
       - intros [root_case subtree_case] addr. revert w addr P root_case subtree_case.
         use addresses_induction.
@@ -225,7 +226,7 @@ Section Wtypes.
               (∏ b : B (label w), ∏ addr : Addr (arg w b),
                 step (label_at (arg w b) addr)
                      (fun b' => h b (extend_addr _ addr b')) = h b addr)).
-          use weqgradth.
+          use weq_iso.
             * exact (fun chP => (pr2 (pr1 chP) ,, pr2 (pr2 chP))).
             * intros. destruct X as [h P2].
               exists (step (label w) (fun b => h b (root_addr _)) ,, h).
@@ -244,7 +245,7 @@ Section Wtypes.
             * intros. reflexivity.
             (* *)
             * unfold LHom.
-              use weqgradth.
+              use weq_iso.
                 -- intros h b.
                    exists ((pr1 h) b).
                    exact ((pr2 h) b).
@@ -381,7 +382,7 @@ Section Wtypes.
 
   Definition FW_equiv_W : (polynomial_functor A B).0 W ≃ W.
   Proof.
-    use weqgradth.
+    use weq_iso.
       - exact W_is_algebra.
       - exact (fun w => (label w ,, arg w)).
       - intro af. use total2_paths_f.
@@ -419,9 +420,10 @@ Section Wtypes.
     exact iscontr_WHom'.
   Defined.
 
+*)
 End Wtypes.
 
-
+(*
 Definition W_is_initial_algebra (A : UU) (B : A -> UU) :
              is_initial (@W_as_algebra A B).
 Proof.
@@ -430,9 +432,9 @@ Proof.
   exact (iscontr_WHom (pr1 C) (pr2 C)).
 Defined.
 
+End of commenting by R.M. *)
 
-
-(* Testig computability *)
+(* Testing computability *)
 
   (*
 Definition B : bool -> UU.

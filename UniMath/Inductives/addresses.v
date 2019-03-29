@@ -1,7 +1,7 @@
 (** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
+(*Unset Automatic Introduction.
 
-Unset Kernel Term Sharing.
+Unset Kernel Term Sharing.*)
 
 (** Imports *)
 
@@ -18,7 +18,7 @@ Section Addresses.
 
   Definition Addr0 (n : nat) (t : T) : UU.
   Proof.
-    intros n.
+    revert t.
     induction n as [|n' Addr0'].
       - exact (fun _ => unit).
       - intro t. exact (total2 (fun b : B (label t) => Addr0' (arg t b))).
@@ -27,7 +27,7 @@ Section Addresses.
   (* the type of addresses of a tree *)
   Definition Addr (t : T) : UU.
   Proof.
-    intros. exact (total2 (fun n => Addr0 n t)).
+    exact (total2 (fun n => Addr0 n t)).
   Defined.
 
   (* constructors of addresses *)
@@ -47,7 +47,7 @@ Section Addresses.
                              P (arg t b) addr -> P t (subtree_addr t b addr))
                (n : nat) (t : T) (addr0 : Addr0 n t) : P t (n ,, addr0).
   Proof.
-    intros ? ? ? ?.
+    revert t addr0.
     induction n as [| n' ind'].
       - intros. destruct addr0. exact (base t).
       - intros. set (b := pr1 addr0). set (addr0' := pr2 addr0).
@@ -61,13 +61,14 @@ Section Addresses.
                              P (arg t b) addr -> P t (subtree_addr t b addr))
                (t : T) (addr : Addr t) : P t addr.
   Proof.
-    intros. set (n := pr1 addr). set (addr0 := pr2 addr).
+    set (n := pr1 addr). set (addr0 := pr2 addr).
     exact (addresses_induction' P base ind_case n t addr0).
   Defined.
 
   (* given an address and a tree, we get the tree at that address *)
   Definition subtree_at (t : T) (addr : Addr t) : T.
   Proof.
+    revert t addr.
     apply addresses_induction.
       - exact (idfun _).
       - exact (fun _ _ _ t' => t').
@@ -79,7 +80,8 @@ Section Addresses.
 
   Definition extend_addr (t : T) (addr : Addr t) (b : B (label_at t addr)) : Addr t.
   Proof.
-    apply (addresses_induction (fun t addr => B (label_at t addr) -> Addr t)).
+    revert t addr b.
+    use (addresses_induction (fun t addr => B (label_at t addr) -> Addr t)).
       - exact (fun t b => subtree_addr t b (root_addr _)).
       - intros t b addr' extend_addr' b'. exact (subtree_addr t b (extend_addr' b')).
   Defined.
@@ -88,6 +90,7 @@ Section Addresses.
         (addr : Addr t) :
     (subtree_at t) ∘ extend_addr t addr = arg ((subtree_at t) addr).
   Proof.
+    revert t addr.
     eapply addresses_induction.
     - reflexivity.
     - intros t b addr' IH.
