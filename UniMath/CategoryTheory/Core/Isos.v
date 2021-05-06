@@ -373,6 +373,32 @@ Definition iso_conjug_weq {C:precategory} {a b:C} (h:iso a b) :
  (a --> a) ≃ (b --> b) := weqcomp (iso_comp_left_weq h _ ) (iso_comp_right_weq (iso_inv_from_iso h) _ ).
 
 
+(** approach inspired by half adjoint equivalence *)
+Definition is_hainverse_in_precat {C : precategory} {a b : C} (f : a --> b) (g : b --> a) :=
+  ∑ (H1 : f · g = identity a) (H2 : g · f = identity b),
+  pathscomp0 (maponpaths (postcomp_with f) H1) (id_left f) =
+  pathscomp0 (assoc' f g f) (pathscomp0 (maponpaths (precomp_with f) H2) (id_right f)).
+
+Definition make_is_hainverse_in_precat {C : precategory} {a b : C} {f : a --> b} {g : b --> a}
+           (H1 : f · g = identity a) (H2 : g · f = identity b)
+           (H: pathscomp0 (maponpaths (postcomp_with f) H1) (id_left f) =
+               pathscomp0 (assoc' f g f) (pathscomp0 (maponpaths (precomp_with f) H2) (id_right f))):
+  is_hainverse_in_precat f g := (H1,,(H2,,H)).
+
+Definition is_haiso {C : precategory} {a b : C} (f : a --> b) :=
+  ∑(g : b --> a), is_hainverse_in_precat f g.
+
+Definition haiso {C: precategory}(a b : C) := ∑ (f : a --> b), is_haiso f.
+
+Definition is_hainverse_in_precat_identity {C : precategory} (c : C) :
+  is_hainverse_in_precat (identity c) (identity c).
+Proof.
+  use make_is_hainverse_in_precat.
+  - apply id_left.
+  - apply id_left.
+  -
+Abort.
+
 (** ** Equivalence relation identifying isomorphic objects *)
 
 Section are_isomorphic.
