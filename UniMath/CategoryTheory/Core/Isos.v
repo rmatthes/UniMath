@@ -399,6 +399,56 @@ Proof.
   -
 Abort.
 
+(** approach inspired by bi-invertible maps *)
+
+Definition is_biinverse_in_precat {C : precategory_data} {a b : C} (f : a --> b) (g h : b --> a) :=
+  f · g = identity a × h · f = identity b.
+Definition make_is_biinverse_in_precat {C : precategory_data} {a b : C} {f : a --> b} {g h : b --> a}
+           (H1 : f · g = identity a) (H2 : h · f = identity b): is_biinverse_in_precat f g h := (H1,, H2).
+Definition is_biiso {C : precategory_data} {a b : C} (f : a --> b) :=
+  ∑(g h : b --> a), is_biinverse_in_precat f g h.
+Definition biiso {C: precategory_data}(a b : C) := ∑ (f : a --> b), is_biiso f.
+
+Definition is_biiso' {C : precategory_data} {a b : C} (f : a --> b) :=
+  (∑(g: b --> a), f · g = identity a) × ∑(h : b --> a), h · f = identity b.
+
+(* should the following not be instance of general results about separation of sum operators ? *)
+Definition is_biiso_is_biiso'_weq {C : precategory_data} {a b : C} (f : a --> b): is_biiso f ≃ is_biiso' f.
+Proof.
+  transparent assert (to : (is_biiso f -> is_biiso' f)).
+  { intro Hyp. induction Hyp as [g Hyp1]. induction Hyp1 as [h Hyp2]. induction Hyp2 as [H1 H2]. use tpair.
+    - exists g. assumption.
+    - exists h. assumption.
+  }
+  transparent assert (from: (is_biiso' f -> is_biiso f)).
+  { intro Hyp. induction Hyp as [Hyp1 Hyp2]. induction Hyp1 as [g H1]. induction Hyp2 as [h H2].
+    exists g. exists h. use tpair; assumption.
+  }
+  apply (weq_iso to from).
+  - intro Hyp. induction Hyp as [g Hyp1]. induction Hyp1 as [h Hyp2]. induction Hyp2 as [H1 H2].
+    apply idpath.
+  - intro Hyp. induction Hyp as [Hyp1 Hyp2]. induction Hyp1 as [g H1]. induction Hyp2 as [h H2].
+    apply idpath.
+Defined.
+
+Lemma isaprop_is_biiso' {C : precategory_data}(a b : C) (f : a --> b) : isaprop (is_biiso' f).
+Proof.
+  apply isapropdirprod.
+  - apply invproofirrelevance. red.
+    intros Hyp1 Hyp2. induction Hyp1 as [g1 Hyp1']. induction Hyp2 as [g2 Hyp2'].
+    (* this is plainly impossible *)
+Abort.
+
+Definition is_biinverse_in_precat_identity {C : precategory} (c : C) :
+  is_biinverse_in_precat (identity c) (identity c) (identity c).
+Proof.
+  use make_is_biinverse_in_precat.
+  - apply id_left.
+  - apply id_left.
+Defined.
+
+
+
 (** ** Equivalence relation identifying isomorphic objects *)
 
 Section are_isomorphic.
