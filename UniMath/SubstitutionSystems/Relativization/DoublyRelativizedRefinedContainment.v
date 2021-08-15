@@ -24,11 +24,12 @@ Local Open Scope cat.
 
 Section drelrefcont_def.
 
-  Context {C D : precategory}.
-  Context (hs : has_homsets D).
-  Context (J Z X T : functor C D).
+  Context {C D E : precategory}.
+  Context (hs : has_homsets E).
+  Context (J Z : functor C D).
+  Context (X T : functor C E).
 
-  Definition drelrefcont_op : UU := ∏ (C1 C2: C), D⟦J C1, Z C2⟧ -> D⟦X C1, T C2⟧.
+  Definition drelrefcont_op : UU := ∏ (C1 C2: C), D⟦J C1, Z C2⟧ -> E⟦X C1, T C2⟧.
   Definition drelrefcont_natural (mbind: drelrefcont_op) : UU :=
     forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> Z C2),
       #X h1 · (mbind C1 C2 f) · #T h2 = mbind C1' C2' (#J h1 · f · #Z h2).
@@ -62,21 +63,22 @@ Section drelrefcont_def.
 
 End drelrefcont_def.
 
-Arguments drelrefcont_natural {_ _ _ _ _ _} _.
+Arguments drelrefcont_natural {_ _ _ _ _ _ _} _.
 
 Section drelrefcont_dependent_on_X.
 
-  Context {C D : precategory}.
-  Context (hs : has_homsets D).
-  Context (J Z T : functor C D).
+  Context {C D E : precategory}.
+  Context (hs : has_homsets E).
+  Context (J Z : functor C D).
+  Context (T : functor C E).
 
-  Definition drelrefcont_left_functor_on_morphism_op {X X': functor C D} (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T): drelrefcont_op J Z X' T.
+  Definition drelrefcont_left_functor_on_morphism_op {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T): drelrefcont_op J Z X' T.
   Proof.
     intros C1 C2 f.
     exact (α C1 · mbind C1 C2 f).
   Defined.
 
-  Lemma drelrefcont_left_functor_on_morphism_op_ok (X X': functor C D) (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T):
+  Lemma drelrefcont_left_functor_on_morphism_op_ok (X X': functor C E) (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T):
     drelrefcont_natural mbind -> drelrefcont_natural (drelrefcont_left_functor_on_morphism_op α mbind).
   Proof.
     intro Hyp.
@@ -89,7 +91,7 @@ Section drelrefcont_dependent_on_X.
     apply idpath.
   Qed.
 
-  Definition drelrefcont_left_functor_data: functor_data [C, D, hs]^op HSET.
+  Definition drelrefcont_left_functor_data: functor_data [C, E, hs]^op HSET.
   Proof.
     use make_functor_data.
     - intro X. apply (drelrefcont hs J Z X T).
@@ -120,7 +122,7 @@ Section drelrefcont_dependent_on_X.
       apply idpath.
   Qed.
 
-  Definition drelrefcont_left_functor: functor [C, D, hs]^op HSET.
+  Definition drelrefcont_left_functor: functor [C, E, hs]^op HSET.
   Proof.
     use make_functor.
     - exact drelrefcont_left_functor_data.
