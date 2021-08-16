@@ -100,8 +100,8 @@ Definition SpecializedRelativizedGMIt_stepterm_type (T : functor C D) (G : funct
 Definition SpecializedRelativizedGMIt_type (T : functor C D)
   (G : functor [C, D, hs] [C, D, hs]) (ρ : [C, D, hs] ⟦ G T, T ⟧)
   (ϕ : SpecializedRelativizedGMIt_stepterm_type T G) : UU :=
-  ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T, forall (C1 C2: C) (f: J C1 --> pr1 Ze C2),
-      pr1(alg_map J_H InitAlg) C1 · (pr1 gbind C1 C2 f) = pr1 (pr1 ϕ (alg_carrier _ InitAlg) gbind) C1 C2 f · pr1 ρ C2.
+  ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T, forall (c1 c2: C) (f: J c1 --> pr1 Ze c2),
+      pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ (alg_carrier _ InitAlg) gbind) c1 c2 f · pr1 ρ c2.
 
 (* A J_H algebra is a protomonad *)
 
@@ -137,15 +137,15 @@ Local Definition ρ : [C, D, hs] ⟦ G `InitAlg, `InitAlg ⟧ :=
 Local Definition ϕ_op_op (X: C ⟶ D) (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
    drelrefcont_op J (pr1 Ze) (functor_opp J_H X) (G `InitAlg).
 Proof.
-  intros C1 C2 f.
+  intros c1 c2 f.
   (* unfold J_H, functor_opp. cbn. unfold BinCoproduct_of_functors_ob. *)
-  exact (@BinCoproductOfArrows D _ _ (CP _ _) _ _ (CP _ _) f (pr1 (lift `InitAlg X mbind) C1 C2 f)).
+  exact (@BinCoproductOfArrows D _ _ (CP _ _) _ _ (CP _ _) f (pr1 (lift `InitAlg X mbind) c1 c2 f)).
 Defined.
 
 Local Lemma ϕ_op_ok (X: C ⟶ D) (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
   drelrefcont_natural (ϕ_op_op X mbind).
 Proof.
-  intros C1 C1' C2 C2' h1 h2 f.
+  intros c1 c1' c2 c2' h1 h2 f.
   unfold functor_opp, J_H.
   eapply pathscomp0.
   { cbn. unfold BinCoproduct_of_functors_mor. apply cancel_postcomposition.
@@ -173,7 +173,7 @@ Local Lemma ϕ_op_is_nat_trans: is_nat_trans _ _ ϕ_op.
 Proof.
   intros X X' α.
   apply funextfun; intro mbind.
-  apply (drelrefcont_type_eq hs); intros C1 C2 f.
+  apply (drelrefcont_type_eq hs); intros c1 c2 f.
   eapply pathscomp0.
   2: { cbn.
        unfold ϕ_op_op.
@@ -182,7 +182,7 @@ Proof.
        cbn. unfold coproduct_nat_trans_data.
        change (nat_trans_id (pr1 J)) with (identity(C:=[C,D,hs]) J).
        (* show_id_type. *)
-       set (RHS := BinCoproductOfArrows D (CP (J C1) (pr1(H X') C1)) (CP (J C1) (pr1(H X) C1)) (identity (J C1)) (pr1(# H α) C1)).
+       set (RHS := BinCoproductOfArrows D (CP (J c1) (pr1(H X') c1)) (CP (J c1) (pr1(H X) c1)) (identity (J c1)) (pr1(# H α) c1)).
        match goal with |- @paths _ _ ?ID => change ID with RHS end.
        apply idpath.
   }
@@ -192,7 +192,7 @@ Proof.
   { cbn. unfold drelrefcont_left_functor_on_morphism_op, ϕ_op_op. apply idpath. }
   rewrite id_left.
   apply maponpaths.
-  set (LHS := pr1 (lift `InitAlg X' (#(drelrefcont_left_functor hs J (pr1 Ze) `InitAlg) α mbind)) C1 C2 f).
+  set (LHS := pr1 (lift `InitAlg X' (#(drelrefcont_left_functor hs J (pr1 Ze) `InitAlg) α mbind)) c1 c2 f).
   match goal with |- @paths _ ?ID _ => change ID with LHS end.
   apply pointwise_naturality_of_lifting.
 Qed.
@@ -207,15 +207,15 @@ Definition gbindWithLaw: drelrefcont_type J (pr1 Ze) `InitAlg `InitAlg := pr1 (p
 
 Definition gbind: drelrefcont_op J (pr1 Ze) `InitAlg `InitAlg := pr1 gbindWithLaw.
 Definition gbind_natural:
-  forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> pr1 Ze C2),
-    #(pr1 `InitAlg) h1 · (gbind C1 C2 f) · #(pr1 `InitAlg) h2 =
-    gbind C1' C2' (#J h1 · f · #(pr1 Ze) h2) :=
+  forall (c1 c1' c2 c2': C) (h1: c1' --> c1) (h2: c2 --> c2') (f: J c1 --> pr1 Ze c2),
+    #(pr1 `InitAlg) h1 · (gbind c1 c2 f) · #(pr1 `InitAlg) h2 =
+    gbind c1' c2' (#J h1 · f · #(pr1 Ze) h2) :=
   pr2 gbindWithLaw.
 
-Lemma gbind_laws (C1 C2: C) (f: J C1 --> pr1 Ze C2):
-  pr1(alg_map J_H InitAlg) C1 · gbind C1 C2 f =
-  BinCoproductArrow D (CP (J C1) (pr1(H `InitAlg) C1)) (f · pr1 k C2)
-                    (pr1(lift `InitAlg `InitAlg gbindWithLaw) C1 C2 f · pr1(τ InitAlg) C2).
+Lemma gbind_laws (c1 c2: C) (f: J c1 --> pr1 Ze c2):
+  pr1(alg_map J_H InitAlg) c1 · gbind c1 c2 f =
+  BinCoproductArrow D (CP (J c1) (pr1(H `InitAlg) c1)) (f · pr1 k c2)
+                    (pr1(lift `InitAlg `InitAlg gbindWithLaw) c1 c2 f · pr1(τ InitAlg) c2).
 Proof.
   eapply pathscomp0.
   apply (pr2 (pr1 SRGMIt)).
@@ -223,8 +223,8 @@ Proof.
   apply precompWithBinCoproductArrow.
 Qed.
 
-Corollary gbind_law1 (C1 C2: C) (f: J C1 --> pr1 Ze C2):
-  pr1(η InitAlg) C1 · gbind C1 C2 f = f · pr1 k C2.
+Corollary gbind_law1 (c1 c2: C) (f: J c1 --> pr1 Ze c2):
+  pr1(η InitAlg) c1 · gbind c1 c2 f = f · pr1 k c2.
 Proof.
   unfold eta_from_alg.
   cbn.
@@ -236,8 +236,8 @@ Proof.
   apply BinCoproductIn1Commutes.
 Qed.
 
-Corollary gbind_law2 (C1 C2: C) (f: J C1 --> pr1 Ze C2):
-  pr1(τ InitAlg) C1 · gbind C1 C2 f = pr1(lift `InitAlg `InitAlg gbindWithLaw) C1 C2 f · pr1(τ InitAlg) C2.
+Corollary gbind_law2 (c1 c2: C) (f: J c1 --> pr1 Ze c2):
+  pr1(τ InitAlg) c1 · gbind c1 c2 f = pr1(lift `InitAlg `InitAlg gbindWithLaw) c1 c2 f · pr1(τ InitAlg) c2.
 Proof.
   unfold tau_from_alg.
   cbn.
@@ -265,24 +265,24 @@ Section instantiation_for_term_protomonad.
   Definition gbindiWithLaw: drelrefcont_type  J `InitAlg `InitAlg `InitAlg := gbindWithLaw Ze lifti k SRGMIti.
   Definition gbindi: drelrefcont_op J `InitAlg `InitAlg `InitAlg := gbind Ze lifti k SRGMIti.
 
-  Definition gbindi_natural: forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> pr1 `InitAlg C2),
-      #(pr1 `InitAlg) h1 · (gbindi C1 C2 f) · #(pr1 `InitAlg) h2 = gbindi C1' C2' (#J h1 · f · #(pr1 `InitAlg) h2)
+  Definition gbindi_natural: forall (c1 c1' c2 c2': C) (h1: c1' --> c1) (h2: c2 --> c2') (f: J c1 --> pr1 `InitAlg c2),
+      #(pr1 `InitAlg) h1 · (gbindi c1 c2 f) · #(pr1 `InitAlg) h2 = gbindi c1' c2' (#J h1 · f · #(pr1 `InitAlg) h2)
     := gbind_natural Ze lifti k SRGMIti.
 
-  Lemma gbindi_law1 (C1 C2: C) (f: J C1 --> pr1 `InitAlg C2):
-    pr1(eta_from_alg InitAlg) C1 · gbindi C1 C2 f = f.
+  Lemma gbindi_law1 (c1 c2: C) (f: J c1 --> pr1 `InitAlg c2):
+    pr1(eta_from_alg InitAlg) c1 · gbindi c1 c2 f = f.
   Proof.
     eapply pathscomp0.
     { apply gbind_law1. }
     apply id_right.
   Qed.
 
-  Lemma gbindi_law2 (C1 C2: C) (f: J C1 --> pr1 `InitAlg C2):
-    pr1(tau_from_alg InitAlg) C1 · gbindi C1 C2 f = pr1(lifti `InitAlg `InitAlg gbindiWithLaw) C1 C2 f · pr1(tau_from_alg InitAlg) C2.
+  Lemma gbindi_law2 (c1 c2: C) (f: J c1 --> pr1 `InitAlg c2):
+    pr1(tau_from_alg InitAlg) c1 · gbindi c1 c2 f = pr1(lifti `InitAlg `InitAlg gbindiWithLaw) c1 c2 f · pr1(tau_from_alg InitAlg) c2.
     apply gbind_law2.
   Qed.
 
-  Lemma gbindi_law3 (C1: C): gbindi C1 C1 (pr1(eta_from_alg InitAlg) C1) = identity (pr1 `InitAlg C1).
+  Lemma gbindi_law3 (c: C): gbindi c c (pr1(eta_from_alg InitAlg) c) = identity (pr1 `InitAlg c).
   Proof.
   Abort.
 

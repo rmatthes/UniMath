@@ -51,13 +51,13 @@ Let homsetsCE : has_homsets [C, E, hs] := functor_category_has_homsets _ _ hs.
 
   Lemma pointwise_naturality_of_lifting (lift: lifting_of_relativized_containment) (T: functor C E)
         (X X' : [C, E, hs]^op) (α : [C, E, hs]^op ⟦ X, X' ⟧)
-        (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) T X)) (C1 C2 : C) (f : D ⟦ J C1, pr1 Ze C2 ⟧):
-          pr1 (pr1 (lift T) X' (# (drelrefcont_left_functor hs J (pr1 Ze) T) α mbind)) C1 C2 f =
-          drelrefcont_left_functor_on_morphism_op J (pr1 Ze) (H T) (# H α) (pr1 (pr1 (lift T) X mbind)) C1 C2 f.
+        (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) T X)) (c1 c2 : C) (f : D ⟦ J c1, pr1 Ze c2 ⟧):
+          pr1 (pr1 (lift T) X' (# (drelrefcont_left_functor hs J (pr1 Ze) T) α mbind)) c1 c2 f =
+          drelrefcont_left_functor_on_morphism_op J (pr1 Ze) (H T) (# H α) (pr1 (pr1 (lift T) X mbind)) c1 c2 f.
   Proof.
     generalize f. apply toforallpaths. clear f.
-    generalize C2. apply toforallpaths. clear C2.
-    generalize C1. apply toforallpaths. clear C1.
+    generalize c2. apply toforallpaths. clear c2.
+    generalize c1. apply toforallpaths. clear c1.
     assert (aux :=  pr2 (lift T) X X' α).
     apply toforallpaths in aux.
     assert (auxinst := maponpaths pr1 (aux mbind)).
@@ -80,14 +80,14 @@ Section Examples.
   Definition lifting_of_flat_op_op (X T: functor C C) (mbind: drelrefcont_type (functor_identity C) (pr1 Ze) X T) :
     drelrefcont_op (functor_identity C) (pr1 Ze) (Flat_H C hs X) (Flat_H C hs T).
   Proof.
-    intros C1 C2 f.
-    exact (pr1 mbind (X C1) (T C2) (pr1 mbind C1 C2 f · (pr2 Ze) (T C2))). (** we need protomonads! *)
+    intros c1 c2 f.
+    exact (pr1 mbind (X c1) (T c2) (pr1 mbind c1 c2 f · (pr2 Ze) (T c2))). (** we need protomonads! *)
   Defined.
 
   Lemma lifting_of_flat_op_ok (X T: functor C C) (mbind: drelrefcont_type (functor_identity C) (pr1 Ze) X T) :
     drelrefcont_natural (lifting_of_flat_op_op X T mbind).
   Proof.
-    intros C1 C1' C2 C2' h1 h2 f.
+    intros c1 c1' c2 c2' h1 h2 f.
     cbn.
     eapply pathscomp0.
     { apply (pr2 mbind). }
@@ -131,14 +131,14 @@ Section Examples.
       (* show_id_type. *)
       apply funextfun. intro mbind.
       apply (drelrefcont_type_eq hs).
-      intros C1 C2 f.
+      intros c1 c2 f.
       cbn.
       unfold drelrefcont_left_functor_on_morphism_op, lifting_of_flat_op_op, Flat_H_mor, HorizontalComposition.horcomp.
       cbn.
       repeat rewrite <- assoc.
       apply maponpaths.
       cbn in mbind.
-      assert (aux := pr2 mbind _ _ _ _ (α C1) (identity (T C2)) (pr1 mbind C1 C2 f · pr2 Ze (T C2))).
+      assert (aux := pr2 mbind _ _ _ _ (α c1) (identity (T c2)) (pr1 mbind c1 c2 f · pr2 Ze (T c2))).
       rewrite functor_id in aux.
       rewrite id_right in aux.
       eapply pathscomp0.

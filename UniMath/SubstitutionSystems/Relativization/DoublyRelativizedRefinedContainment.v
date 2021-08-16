@@ -29,10 +29,10 @@ Section drelrefcont_def.
   Context (J Z : functor C D).
   Context (X T : functor C E).
 
-  Definition drelrefcont_op : UU := ∏ (C1 C2: C), D⟦J C1, Z C2⟧ -> E⟦X C1, T C2⟧.
+  Definition drelrefcont_op : UU := ∏ (c1 c2: C), D⟦J c1, Z c2⟧ -> E⟦X c1, T c2⟧.
   Definition drelrefcont_natural (mbind: drelrefcont_op) : UU :=
-    forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> Z C2),
-      #X h1 · (mbind C1 C2 f) · #T h2 = mbind C1' C2' (#J h1 · f · #Z h2).
+    forall (c1 c1' c2 c2': C) (h1: c1' --> c1) (h2: c2 --> c2') (f: J c1 --> Z c2),
+      #X h1 · (mbind c1 c2 f) · #T h2 = mbind c1' c2' (#J h1 · f · #Z h2).
 
   Lemma isaprop_drelrefcont_natural (mbind: drelrefcont_op): isaprop (drelrefcont_natural mbind).
   Proof.
@@ -42,11 +42,11 @@ Section drelrefcont_def.
 
   Definition drelrefcont_type : UU := ∑ (mbind: drelrefcont_op), drelrefcont_natural mbind.
 
-  Lemma drelrefcont_type_eq (mbind mbind': drelrefcont_type): (forall (C1 C2: C) (f: J C1 --> Z C2), pr1 mbind C1 C2 f = pr1 mbind' C1 C2 f) -> mbind = mbind'.
+  Lemma drelrefcont_type_eq (mbind mbind': drelrefcont_type): (forall (c1 c2: C) (f: J c1 --> Z c2), pr1 mbind c1 c2 f = pr1 mbind' c1 c2 f) -> mbind = mbind'.
   Proof.
     intro Hyp.
     assert (Hyp' : pr1 mbind = pr1 mbind').
-    { apply funextsec; intro C1. apply funextsec; intro C2. apply funextsec; intro f.
+    { apply funextsec; intro c1. apply funextsec; intro c2. apply funextsec; intro f.
       apply Hyp.
     }
     apply (total2_paths_f Hyp'), proofirrelevance, isaprop_drelrefcont_natural.
@@ -55,7 +55,7 @@ Section drelrefcont_def.
   Lemma isaset_drelrefcont_type: isaset drelrefcont_type.
   Proof.
     apply (isofhleveltotal2 2).
-    - apply impred; intro C1. apply impred; intro C2. apply impred; intro f. apply hs.
+    - apply impred; intro c1. apply impred; intro c2. apply impred; intro f. apply hs.
     - intro mbind. apply isasetaprop, isaprop_drelrefcont_natural.
   Qed.
 
@@ -74,15 +74,15 @@ Section drelrefcont_dependent_on_X.
 
   Definition drelrefcont_left_functor_on_morphism_op {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T): drelrefcont_op J Z X' T.
   Proof.
-    intros C1 C2 f.
-    exact (α C1 · mbind C1 C2 f).
+    intros c1 c2 f.
+    exact (α c1 · mbind c1 c2 f).
   Defined.
 
   Lemma drelrefcont_left_functor_on_morphism_op_ok (X X': functor C E) (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T):
     drelrefcont_natural mbind -> drelrefcont_natural (drelrefcont_left_functor_on_morphism_op α mbind).
   Proof.
     intro Hyp.
-    intros C1 C1' C2 C2' h1 h2 f.
+    intros c1 c1' c2 c2' h1 h2 f.
     unfold drelrefcont_left_functor_on_morphism_op.
     rewrite assoc.
     rewrite nat_trans_ax.
@@ -108,14 +108,14 @@ Section drelrefcont_dependent_on_X.
       apply funextfun. intro mbind.
       (* show_id_type. *)
       apply (drelrefcont_type_eq hs).
-      intros C1 C2 f.
+      intros c1 c2 f.
       cbn.
       unfold drelrefcont_left_functor_on_morphism_op.
       apply id_left.
     - intros X X' X'' α α'.
       apply funextfun. intro mbind.
       apply (drelrefcont_type_eq hs).
-      intros C1 C2 f.
+      intros c1 c2 f.
       cbn.
       unfold drelrefcont_left_functor_on_morphism_op.
       rewrite assoc.
