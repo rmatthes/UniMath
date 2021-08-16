@@ -46,16 +46,12 @@ Local Open Scope cat.
 
 Local Coercion alg_carrier : algebra_ob >-> ob.
 
-Section category_Algebra.
+Section construction.
 
   Context (C D : precategory) (hs : has_homsets D) (J: functor C D) (CP : BinCoproducts D).
 
   Context (ID : Initial D) (CC : Colims_of_shape nat_graph D).
   Context (H : functor [C, D, hs] [C, D, hs]) (HH : is_omega_cocont H).
-
-  Context (Ze : precategory_Ptm hs J).
-  Context (lift : lifting_of_relativized_containment hs hs Ze H).
-
 
 Let hsCD : has_homsets [C, D, hs] := functor_category_has_homsets C D hs.
 Let CPCD : BinCoproducts [C, D, hs] := BinCoproducts_functor_precat _ _ CP hs.
@@ -89,6 +85,13 @@ Defined.
 
 Definition InitAlg : Alg :=
   InitialObject (colimAlgInitial hsCD InitialCD is_omega_cocont_J_H (Colims_of_shape_nat_graph_CD _)).
+
+
+Section construction_for_unknown_protomonad.
+
+  Context (Ze : precategory_Ptm hs J).
+  Context (lift : lifting_of_relativized_containment hs hs Ze H).
+
 
 Definition SpecializedRelativizedGMIt_stepterm_type (T : functor C D) (G : functor [C, D, hs] [C, D, hs]): UU :=
   drelrefcont_left_functor hs J (pr1 Ze) T ⟹
@@ -129,17 +132,17 @@ Local Definition G : functor [C, D, hs] [C, D, hs]
   := Const_plus_H (pr1 Ze).
 
 Local Definition ρ : [C, D, hs] ⟦ G `InitAlg, `InitAlg ⟧ :=
-  @BinCoproductArrow [C, D, hs] _ _ (CPCD (pr1 Ze) (H `InitAlg)) _  (pr1 k) (tau_from_alg InitAlg).
+  @BinCoproductArrow [C, D, hs] _ _ (CPCD (pr1 Ze) (H `InitAlg)) _  (pr1 k) (τ InitAlg).
 
-Local Definition ϕ_op_op (X: C ⟶ D)(mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
-  drelrefcont_op J (pr1 Ze) (functor_opp J_H X) (G `InitAlg).
+Local Definition ϕ_op_op (X: C ⟶ D) (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
+   drelrefcont_op J (pr1 Ze) (functor_opp J_H X) (G `InitAlg).
 Proof.
   intros C1 C2 f.
   (* unfold J_H, functor_opp. cbn. unfold BinCoproduct_of_functors_ob. *)
   exact (@BinCoproductOfArrows D _ _ (CP _ _) _ _ (CP _ _) f (pr1 (lift `InitAlg X mbind) C1 C2 f)).
 Defined.
 
-Local Lemma ϕ_op_ok (X: C ⟶ D)(mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
+Local Lemma ϕ_op_ok (X: C ⟶ D) (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) `InitAlg X)):
   drelrefcont_natural (ϕ_op_op X mbind).
 Proof.
   intros C1 C1' C2 C2' h1 h2 f.
@@ -194,12 +197,95 @@ Proof.
   apply pointwise_naturality_of_lifting.
 Qed.
 
-Local Definition ϕ : SpecializedRelativizedGMIt_stepterm_type `InitAlg G := ϕ_op ,, ϕ_op_is_nat_trans.
+Local Definition ϕ: SpecializedRelativizedGMIt_stepterm_type `InitAlg G := ϕ_op ,, ϕ_op_is_nat_trans.
 
 Context (SRGMIt: SpecializedRelativizedGMIt_type `InitAlg G ρ ϕ).
 (** of course, this should be constructed somewhere *)
 
 (* now exploit this operation *)
+Definition gbindWithLaw: drelrefcont_type J (pr1 Ze) `InitAlg `InitAlg := pr1 (pr1 SRGMIt).
 
+Definition gbind: drelrefcont_op J (pr1 Ze) `InitAlg `InitAlg := pr1 gbindWithLaw.
+Definition gbind_natural:
+  forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> pr1 Ze C2),
+    #(pr1 `InitAlg) h1 · (gbind C1 C2 f) · #(pr1 `InitAlg) h2 =
+    gbind C1' C2' (#J h1 · f · #(pr1 Ze) h2) :=
+  pr2 gbindWithLaw.
 
-End category_Algebra.
+Lemma gbind_laws (C1 C2: C) (f: J C1 --> pr1 Ze C2):
+  pr1(alg_map J_H InitAlg) C1 · gbind C1 C2 f =
+  BinCoproductArrow D (CP (J C1) (pr1(H `InitAlg) C1)) (f · pr1 k C2)
+                    (pr1(lift `InitAlg `InitAlg gbindWithLaw) C1 C2 f · pr1(τ InitAlg) C2).
+Proof.
+  eapply pathscomp0.
+  apply (pr2 (pr1 SRGMIt)).
+  unfold ϕ. unfold ϕ_op. cbn. unfold ϕ_op_op. cbn. unfold coproduct_nat_trans_data.
+  apply precompWithBinCoproductArrow.
+Qed.
+
+Corollary gbind_law1 (C1 C2: C) (f: J C1 --> pr1 Ze C2):
+  pr1(η InitAlg) C1 · gbind C1 C2 f = f · pr1 k C2.
+Proof.
+  unfold eta_from_alg.
+  cbn.
+  rewrite <- assoc.
+  eapply pathscomp0.
+  { apply maponpaths.
+    apply gbind_laws.
+  }
+  apply BinCoproductIn1Commutes.
+Qed.
+
+Corollary gbind_law2 (C1 C2: C) (f: J C1 --> pr1 Ze C2):
+  pr1(τ InitAlg) C1 · gbind C1 C2 f = pr1(lift `InitAlg `InitAlg gbindWithLaw) C1 C2 f · pr1(τ InitAlg) C2.
+Proof.
+  unfold tau_from_alg.
+  cbn.
+  rewrite <- assoc.
+  eapply pathscomp0.
+  { apply maponpaths.
+    apply gbind_laws.
+  }
+  apply BinCoproductIn2Commutes.
+Qed.
+
+End construction_for_unknown_protomonad.
+
+Section instantiation_for_term_protomonad.
+
+  Local Definition Ze : precategory_Ptm hs J := ptm_from_alg InitAlg.
+
+  Context (lifti: lifting_of_relativized_containment hs hs Ze H).
+  (** assume it just for this specific [Ze], but would normally be constructed uniformly in [Ze] *)
+
+  Local Definition k : Ze --> ptm_from_alg InitAlg := identity Ze.
+
+  Context (SRGMIti: SpecializedRelativizedGMIt_type Ze `InitAlg (G Ze) (ρ Ze k) (ϕ Ze lifti)).
+
+  Definition gbindiWithLaw: drelrefcont_type  J `InitAlg `InitAlg `InitAlg := gbindWithLaw Ze lifti k SRGMIti.
+  Definition gbindi: drelrefcont_op J `InitAlg `InitAlg `InitAlg := gbind Ze lifti k SRGMIti.
+
+  Definition gbindi_natural: forall (C1 C1' C2 C2': C) (h1: C1' --> C1) (h2: C2 --> C2') (f: J C1 --> pr1 `InitAlg C2),
+      #(pr1 `InitAlg) h1 · (gbindi C1 C2 f) · #(pr1 `InitAlg) h2 = gbindi C1' C2' (#J h1 · f · #(pr1 `InitAlg) h2)
+    := gbind_natural Ze lifti k SRGMIti.
+
+  Lemma gbindi_law1 (C1 C2: C) (f: J C1 --> pr1 `InitAlg C2):
+    pr1(eta_from_alg InitAlg) C1 · gbindi C1 C2 f = f.
+  Proof.
+    eapply pathscomp0.
+    { apply gbind_law1. }
+    apply id_right.
+  Qed.
+
+  Lemma gbindi_law2 (C1 C2: C) (f: J C1 --> pr1 `InitAlg C2):
+    pr1(tau_from_alg InitAlg) C1 · gbindi C1 C2 f = pr1(lifti `InitAlg `InitAlg gbindiWithLaw) C1 C2 f · pr1(tau_from_alg InitAlg) C2.
+    apply gbind_law2.
+  Qed.
+
+  Lemma gbindi_law3 (C1: C): gbindi C1 C1 (pr1(eta_from_alg InitAlg) C1) = identity (pr1 `InitAlg C1).
+  Proof.
+  Abort.
+
+End instantiation_for_term_protomonad.
+
+End construction.
