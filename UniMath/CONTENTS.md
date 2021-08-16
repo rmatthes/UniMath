@@ -479,6 +479,7 @@ The packages and files are listed here in logical order: each file depends only 
    - [Relativization/Protomonads.v](SubstitutionSystems/Relativization/Protomonads.v)
    - [Relativization/DoublyRelativizedRefinedContainment.v](SubstitutionSystems/Relativization/DoublyRelativizedRefinedContainment.v)
    - [Relativization/LiftingRelativizedContainment.v](SubstitutionSystems/Relativization/LiftingRelativizedContainment.v)
+   - [Relativization/GbindFromInitial.v](SubstitutionSystems/Relativization/GbindFromInitial.v)
    - [Notation.v](SubstitutionSystems/Notation.v)
    - [Signatures.v](SubstitutionSystems/Signatures.v)
    - [BinSumOfSignatures.v](SubstitutionSystems/BinSumOfSignatures.v)

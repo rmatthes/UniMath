@@ -1,6 +1,7 @@
 Relativization/Protomonads.v
 Relativization/DoublyRelativizedRefinedContainment.v
 Relativization/LiftingRelativizedContainment.v
+Relativization/GbindFromInitial.v
 
 Notation.v
 Signatures.v

@@ -49,6 +49,21 @@ Let homsetsCE : has_homsets [C, E, hs] := functor_category_has_homsets _ _ hs.
     exact (lift T X mbind).
   Defined.
 
+  Lemma pointwise_naturality_of_lifting (lift: lifting_of_relativized_containment) (T: functor C E)
+        (X X' : [C, E, hs]^op) (α : [C, E, hs]^op ⟦ X, X' ⟧)
+        (mbind : pr1 (drelrefcont_left_functor hs J (pr1 Ze) T X)) (C1 C2 : C) (f : D ⟦ J C1, pr1 Ze C2 ⟧):
+          pr1 (pr1 (lift T) X' (# (drelrefcont_left_functor hs J (pr1 Ze) T) α mbind)) C1 C2 f =
+          drelrefcont_left_functor_on_morphism_op J (pr1 Ze) (H T) (# H α) (pr1 (pr1 (lift T) X mbind)) C1 C2 f.
+  Proof.
+    generalize f. apply toforallpaths. clear f.
+    generalize C2. apply toforallpaths. clear C2.
+    generalize C1. apply toforallpaths. clear C1.
+    assert (aux :=  pr2 (lift T) X X' α).
+    apply toforallpaths in aux.
+    assert (auxinst := maponpaths pr1 (aux mbind)).
+    exact auxinst.
+Qed.
+
 End lifting_def.
 
 Section Examples.
