@@ -1,7 +1,5 @@
 Relativization/Protomonads.v
 Relativization/DoublyRelativizedRefinedContainment.v
-Relativization/LiftingRelativizedContainment.v
-Relativization/GbindFromInitial.v
 
 Notation.v
 Signatures.v
@@ -16,6 +14,10 @@ LiftingInitial.v
 LiftingInitial_alt.v
 ModulesFromSignatures.v
 LamSignature.v
+
+Relativization/LiftingRelativizedContainment.v
+Relativization/GbindFromInitial.v
+
 Lam.v
 SignatureExamples.v
 SignatureCategory.v
