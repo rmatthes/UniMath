@@ -35,9 +35,9 @@ Let homsetsCE : has_homsets [C, E, hs] := functor_category_has_homsets _ _ hs.
   Context (H : functor [C, E, hs] [C, E, hs]).
 
   Definition lifting_of_relativized_containment : UU :=
-    ∏ (T: functor C E), functor_composite (functor_opp (pair_functor (functor_ptm_forget hsD J) (functor_identity _)))
+    ∏ (T: functor C E), functor_composite (pair_functor (functor_opp (functor_ptm_forget hsD J)) (functor_identity _))
                                           (drelrefcont_functor hs J hsD T) ⟹
-                       functor_composite (functor_opp (pair_functor (functor_ptm_forget hsD J) H))
+                       functor_composite (pair_functor (functor_opp (functor_ptm_forget hsD J)) (functor_opp H))
                                           (drelrefcont_functor hs J hsD (H T)).
 
   Definition lifting_of_relativized_containment_op_type : UU := ∏ (Ze: precategory_Ptm hsD J) (X T: functor C E),
@@ -55,7 +55,7 @@ Let homsetsCE : has_homsets [C, E, hs] := functor_category_has_homsets _ _ hs.
         {X X' : [C, E, hs]^op} (α : [C, E, hs]^op ⟦ X, X' ⟧)
         (mbind : pr1 (drelrefcont_functor hs J hsD T (pr1 Ze,,X))) (c1 c2 : C) (f : D ⟦ J c1, pr1 Ze' c2 ⟧):
     pr1 (pr1 (lift T) (Ze',,X') (# (drelrefcont_functor hs J hsD T)
-                                   ((pr1 π,,α):(([C, D, hsD] ⊠ [C, E, hs])^op)⟦(pr1 Ze,,X),(pr1 Ze',,X')⟧) mbind)) c1 c2 f =
+                ((pr1 π,,α):(([C, D, hsD]^op ⊠ [C, E, hs]^op))⟦(pr1 Ze,,X),(pr1 Ze',,X')⟧) mbind)) c1 c2 f =
     drelrefcont_functor_on_morphism_op J  (H T) (pr1 π) (# H α) (pr1 (pr1 (lift T) (Ze,,X) mbind)) c1 c2 f.
   Proof.
     generalize f. apply toforallpaths. clear f.

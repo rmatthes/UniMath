@@ -171,7 +171,7 @@ Section drelrefcont_dependent_on_Z_and_X.
     apply nat_trans_ax.
   Qed.
 
-  Definition drelrefcont_functor_data: functor_data ([C, D, hsD] ⊠ [C, E, hs])^op HSET.
+  Definition drelrefcont_functor_data: functor_data ([C, D, hsD]^op ⊠ [C, E, hs]^op) HSET.
   Proof.
     use make_functor_data.
     - intro ZX. apply (drelrefcont hs J (pr1 ZX) (pr2 ZX) T).
@@ -205,7 +205,7 @@ Section drelrefcont_dependent_on_Z_and_X.
       apply idpath.
   Qed.
 
-  Definition drelrefcont_functor: functor ([C, D, hsD] ⊠ [C, E, hs])^op HSET.
+  Definition drelrefcont_functor: functor ([C, D, hsD]^op ⊠ [C, E, hs]^op) HSET.
   Proof.
     use make_functor.
     - exact drelrefcont_functor_data.
