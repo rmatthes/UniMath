@@ -71,12 +71,8 @@ Section drelrefcont_def.
 
   Context {C D E : precategory}.
   Context (hs : has_homsets E).
-  Context (J : functor C D).
-  Context (hsD : has_homsets D).
-  Context (Ze : precategory_Ptm hsD J).
+  Context (J Z : functor C D).
   Context (X T : functor C E).
-
-  Let Z : functor C D := pr1 Ze.
 
   Definition drelrefcont_op : UU := ∏ (c1 c2: C), D⟦J c1, Z c2⟧ -> E⟦X c1, T c2⟧.
   Definition drelrefcont_natural (mbind: drelrefcont_op) : UU :=
@@ -110,7 +106,21 @@ Section drelrefcont_def.
 
   Definition drelrefcont: hSet := drelrefcont_type ,, isaset_drelrefcont_type.
 
-  Definition leq_from_mbind (mbind: drelrefcont_type): containment_type X T.
+End drelrefcont_def.
+
+Arguments drelrefcont_natural {_ _ _ _ _ _ _ } _.
+
+Section leq_from_mbind.
+
+  Context {C D E : precategory}.
+  Context (hs : has_homsets E).
+  Context (J : functor C D).
+  Context (hsD : has_homsets D).
+  Context (Ze : precategory_Ptm hsD J).
+  Context (X T : functor C E).
+
+
+  Definition leq_from_mbind (mbind: drelrefcont_type J (pr1 Ze) X T): containment_type X T.
   Proof.
     use tpair.
     - intros c1 c2 f.
@@ -125,15 +135,10 @@ Section drelrefcont_def.
       apply pathsinv0.
       apply nat_trans_ax.
   Defined.
-  (** comment: this is the only construction that exploits that we have a protomonad; it could have
-      been done under this extra assumption, but for the extensions to come, it looked more natural to
-      have it generally *)
 
-End drelrefcont_def.
+End leq_from_mbind.
 
-Arguments drelrefcont_natural {_ _ _ _ _ _ _ _} _.
-
-Section drelrefcont_dependent_on_Ze_and_X.
+Section drelrefcont_dependent_on_Z_and_X.
 
   Context {C D E : precategory}.
   Context (hs : has_homsets E).
@@ -141,15 +146,15 @@ Section drelrefcont_dependent_on_Ze_and_X.
   Context (hsD : has_homsets D).
   Context (T : functor C E).
 
-  Definition drelrefcont_functor_on_morphism_op {Ze Ze': precategory_Ptm hsD J} (π: Ze' --> Ze)
-             {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J hsD Ze X T): drelrefcont_op J hsD Ze' X' T.
+  Definition drelrefcont_functor_on_morphism_op {Z Z': functor C D} (π: Z' ⟹ Z)
+             {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T): drelrefcont_op J Z' X' T.
   Proof.
     intros c1 c2 f.
-    exact (α c1 · mbind c1 c2 (f · pr1 π c2)).
+    exact (α c1 · mbind c1 c2 (f · π c2)).
   Defined.
 
-  Lemma drelrefcont_functor_on_morphism_op_ok {Ze Ze': precategory_Ptm hsD J} (π: Ze' --> Ze)
-        {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J hsD Ze X T):
+  Lemma drelrefcont_functor_on_morphism_op_ok {Z Z': functor C D} (π: Z' ⟹ Z)
+        {X X': functor C E} (α: X' ⟹ X) (mbind: drelrefcont_op J Z X T):
     drelrefcont_natural mbind -> drelrefcont_natural (drelrefcont_functor_on_morphism_op π α mbind).
   Proof.
     intro Hyp.
@@ -166,11 +171,11 @@ Section drelrefcont_dependent_on_Ze_and_X.
     apply nat_trans_ax.
   Qed.
 
-  Definition drelrefcont_functor_data: functor_data (precategory_Ptm hsD J ⊠ [C, E, hs])^op HSET.
+  Definition drelrefcont_functor_data: functor_data ([C, D, hsD] ⊠ [C, E, hs])^op HSET.
   Proof.
     use make_functor_data.
-    - intro ZeX. apply (drelrefcont hs J hsD (pr1 ZeX) (pr2 ZeX) T).
-    - intros ZeX ZeX' πα mbind. induction ZeX as [Ze X]. induction ZeX' as [Ze' X']. induction πα as [π α]. cbn in π, α.
+    - intro ZX. apply (drelrefcont hs J (pr1 ZX) (pr2 ZX) T).
+    - intros ZX ZX' πα mbind. induction ZX as [Z X]. induction ZX' as [Z' X']. induction πα as [π α]. cbn in π, α.
       exists (drelrefcont_functor_on_morphism_op π α (pr1 mbind)).
       apply drelrefcont_functor_on_morphism_op_ok.
       exact (pr2 mbind).
@@ -179,7 +184,7 @@ Section drelrefcont_dependent_on_Ze_and_X.
   Lemma is_functor_drelrefcont_functor_data: is_functor drelrefcont_functor_data.
   Proof.
     split.
-    - intro ZeX. induction ZeX as [Ze X].
+    - intro ZX. induction ZX as [Z X].
       apply funextfun. intro mbind.
       (* show_id_type. *)
       apply (drelrefcont_type_eq hs).
@@ -188,7 +193,7 @@ Section drelrefcont_dependent_on_Ze_and_X.
       unfold drelrefcont_functor_on_morphism_op.
       rewrite id_right.
       apply id_left.
-    - intros ZeX ZeX' ZeX'' πα πα'.
+    - intros ZX ZX' ZX'' πα πα'.
       apply funextfun. intro mbind.
       apply (drelrefcont_type_eq hs).
       intros c1 c2 f.
@@ -200,13 +205,11 @@ Section drelrefcont_dependent_on_Ze_and_X.
       apply idpath.
   Qed.
 
-  Definition drelrefcont_functor: functor (precategory_Ptm hsD J ⊠ [C, E, hs])^op HSET.
+  Definition drelrefcont_functor: functor ([C, D, hsD] ⊠ [C, E, hs])^op HSET.
   Proof.
     use make_functor.
     - exact drelrefcont_functor_data.
     - exact is_functor_drelrefcont_functor_data.
   Defined.
 
-  (** pointedness does not enter this construction *)
-
-End drelrefcont_dependent_on_Ze_and_X.
+End drelrefcont_dependent_on_Z_and_X.
