@@ -90,6 +90,19 @@ Section construction_for_unknown_protomonad.
 
   Local Definition drelrefcont_functor_with_fixed_protomonad (T : functor C D) := functor_fix_fst_arg _ _ _ (drelrefcont_functor hs J hs T) (pr1 Ze).
 
+Definition RelativizedGMIt_stepterm_type (T : functor C D): UU :=
+  drelrefcont_functor_with_fixed_protomonad T ⟹
+  functor_composite (functor_opp J_H) (drelrefcont_functor_with_fixed_protomonad T).
+
+Definition RelativizedGMIt_property {T : functor C D} (ϕ : RelativizedGMIt_stepterm_type T)
+  (gbind: drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) : UU :=
+  pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ (alg_carrier _ InitAlg) gbind) c1 c2 f.
+
+Definition RelativizedGMIt_type (T : functor C D)
+  (ϕ : RelativizedGMIt_stepterm_type T) : UU :=
+  ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T,
+             forall (c1 c2: C) (f: J c1 --> pr1 Ze c2), RelativizedGMIt_property ϕ gbind f.
+
 Definition SpecializedRelativizedGMIt_stepterm_type (T : functor C D) (G : functor [C, D, hs] [C, D, hs]): UU :=
   drelrefcont_functor_with_fixed_protomonad T ⟹
   functor_composite (functor_opp J_H) (drelrefcont_functor_with_fixed_protomonad (G T)).
@@ -104,6 +117,82 @@ Definition SpecializedRelativizedGMIt_type (T : functor C D)
   (ϕ : SpecializedRelativizedGMIt_stepterm_type T G) : UU :=
   ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T,
              forall (c1 c2: C) (f: J c1 --> pr1 Ze c2), SpecializedRelativizedGMIt_property ρ ϕ gbind f.
+
+Section Specialization.
+
+  Context {T : functor C D} {G : functor [C, D, hs] [C, D, hs]} (ρ : [C, D, hs] ⟦ G T, T ⟧)
+          (ϕ : SpecializedRelativizedGMIt_stepterm_type T G).
+
+  Definition generalϕ_op_op {X : [C, D, hs]^op} (mbind : drelrefcont_type J (pr1 Ze) X T):
+    drelrefcont_op J (pr1 Ze) (functor_opp J_H X) T.
+  Proof.
+    intros c1 c2 f.
+    exact (pr1(pr1 ϕ X mbind) c1 c2 f · pr1 ρ c2).
+  Defined.
+
+  Lemma generalϕ_op_ok {X : [C, D, hs]^op} (mbind : drelrefcont_type J (pr1 Ze) X T):
+    drelrefcont_natural (generalϕ_op_op mbind).
+  Proof.
+    intros c1 c1' c2 c2' h1 h2 f.
+    unfold generalϕ_op_op. cbn.
+    eapply pathscomp0.
+    2: { apply cancel_postcomposition.
+         apply (pr2 (pr1 ϕ X mbind)).
+    }
+    repeat rewrite <- assoc.
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    apply nat_trans_ax.
+  Qed.
+
+  Definition generalϕ_op: nat_trans_data (drelrefcont_functor_with_fixed_protomonad T)
+                                         (functor_opp J_H ∙ drelrefcont_functor_with_fixed_protomonad T).
+  Proof.
+    intros X mbind.
+    use tpair.
+    - exact (generalϕ_op_op mbind).
+    - exact (generalϕ_op_ok mbind).
+  Defined.
+
+  Lemma generalϕ_op_is_nat_trans: is_nat_trans _ _ generalϕ_op.
+  Proof.
+    intros X X' α.
+    apply funextfun; intro mbind.
+    apply (drelrefcont_type_eq hs); intros c1 c2 f.
+    cbn.
+    unfold generalϕ_op_op.
+    cbn.
+    assert (aux := pr2 ϕ).
+    assert (auxinst := aux X X' α).
+    apply toforallpaths in auxinst.
+    assert (auxinst1 := maponpaths pr1 (auxinst mbind)).
+    apply toforallpaths in auxinst1.
+    assert (auxinst2 := auxinst1 c1).
+    apply toforallpaths in auxinst2.
+    assert (auxinst3 := auxinst2 c2).
+    apply toforallpaths in auxinst3.
+    assert (auxinst4 := auxinst3 f).
+    clear aux auxinst auxinst1 auxinst2 auxinst3.
+    cbn in auxinst4.
+    eapply pathscomp0.
+    { apply cancel_postcomposition.
+      exact auxinst4. }
+    clear auxinst4.
+    unfold drelrefcont_functor_on_morphism_op.
+    rewrite <- assoc.
+    apply idpath.
+  Qed.
+
+  Definition generalϕ : RelativizedGMIt_stepterm_type T := generalϕ_op ,, generalϕ_op_is_nat_trans.
+
+  Lemma property_for_generalϕ_is_the_specialized_property
+        (gbind: drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) :
+    RelativizedGMIt_property generalϕ gbind f = SpecializedRelativizedGMIt_property ρ ϕ gbind f.
+  Proof.
+    apply idpath.
+  Qed.
+
+End Specialization.
 
 (* A J_H algebra is a protomonad *)
 
