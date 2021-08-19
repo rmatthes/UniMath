@@ -650,12 +650,14 @@ Section base_change_for_term_substitution.
 
   Context {Ze1 Ze2 : precategory_Ptm hs J}.
   Context (π: Ze2 --> Ze1).
-  Context (k: Ze1 --> ptm_from_alg InitAlg).
-  Context (SRGMIt1: SpecializedRelativizedGMIt_type Ze1 `InitAlg (G Ze1) (ρ Ze1 k) (ϕ Ze1)).
-  Context (SRGMIt2: SpecializedRelativizedGMIt_type Ze2 `InitAlg (G Ze2) (ρ Ze2 (π · k)) (ϕ Ze2)).
+  Context (k1: Ze1 --> ptm_from_alg InitAlg).
+  Context (k2: Ze2 --> ptm_from_alg InitAlg).
+  Context (k2_ok: k2 = π · k1).
+  Context (SRGMIt1: SpecializedRelativizedGMIt_type Ze1 `InitAlg (G Ze1) (ρ Ze1 k1) (ϕ Ze1)).
+  Context (SRGMIt2: SpecializedRelativizedGMIt_type Ze2 `InitAlg (G Ze2) (ρ Ze2 k2) (ϕ Ze2)).
 
-  Let gbindWithLaw1 : drelrefcont_type J (pr1 Ze1) `InitAlg `InitAlg := gbindWithLaw Ze1 k SRGMIt1.
-  Let gbindWithLaw2 : drelrefcont_type J (pr1 Ze2) `InitAlg `InitAlg := gbindWithLaw Ze2 (π · k) SRGMIt2.
+  Let gbindWithLaw1 : drelrefcont_type J (pr1 Ze1) `InitAlg `InitAlg := gbindWithLaw Ze1 k1 SRGMIt1.
+  Let gbindWithLaw2 : drelrefcont_type J (pr1 Ze2) `InitAlg `InitAlg := gbindWithLaw Ze2 k2 SRGMIt2.
 
   Lemma gbind_base_change: pr1 (mbind_base_change Ze1 Ze2 `InitAlg `InitAlg π (nat_trans_id _)) `InitAlg gbindWithLaw1 =
                            gbindWithLaw2.
@@ -675,6 +677,7 @@ Section base_change_for_term_substitution.
     2: { apply pathsinv0.
          apply precompWithBinCoproductArrow. }
     rewrite <- assoc.
+    rewrite k2_ok.
     apply maponpaths.
     apply cancel_postcomposition.
     change (ColimFunctor hs (initChain InitialCD J_H) (λ a : C, CC (diagram_pointwise hs (initChain InitialCD J_H) a))) with `InitAlg.
@@ -715,6 +718,21 @@ Section base_change_for_term_substitution.
   Qed.
 
 End base_change_for_term_substitution.
+
+Section application_to_the_two_instances.
+
+  Context (SRGMIt1: SpecializedRelativizedGMIt_type Ze1 `InitAlg (G Ze1) (ρ Ze1 k1) (ϕ Ze1)).
+  Context (SRGMIt0: SpecializedRelativizedGMIt_type Ze0 `InitAlg (G Ze0) (ρ Ze0 k0) (ϕ Ze0)).
+
+  Lemma gbind0_vs_gbind1: pr1 (mbind_base_change Ze1 Ze0 `InitAlg `InitAlg k0 (nat_trans_id _)) `InitAlg (gbind1WithLaw SRGMIt1) =
+                          gbind0WithLaw SRGMIt0.
+  Proof.
+    apply gbind_base_change.
+    apply pathsinv0.
+    apply id_right.
+  Qed.
+
+End application_to_the_two_instances.
 
 
 End construction.
