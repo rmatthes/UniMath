@@ -505,6 +505,8 @@ Section different_protomonads.
   Definition stepterm_transformer_type: UU :=
     drelrefcont_functor_with_fixed_protomonad Ze1 T1 ⟹ drelrefcont_functor_with_fixed_protomonad Ze2 T2.
 
+  Section fusion_law.
+
   Context (ψ: stepterm_transformer_type).
   Context (ϕ1: RelativizedGMIt_stepterm_type Ze1 T1) (ϕ2: RelativizedGMIt_stepterm_type Ze2 T2).
 
@@ -562,6 +564,130 @@ Section different_protomonads.
     apply (pr2 (pr1 RGMIt1)).
   Qed.
 
+  End fusion_law.
+
+  Section specialized_fusion_law.
+
+    Context (ψ: stepterm_transformer_type).
+
+    Context {G1 : functor [C, D, hs] [C, D, hs]} (ρ1 : [C, D, hs] ⟦ G1 T1, T1 ⟧).
+    Context {G2 : functor [C, D, hs] [C, D, hs]} (ρ2 : [C, D, hs] ⟦ G2 T2, T2 ⟧).
+
+    Context (ϕ1: SpecializedRelativizedGMIt_stepterm_type Ze1 T1 G1) (ϕ2: SpecializedRelativizedGMIt_stepterm_type Ze2 T2 G2).
+    Context (SRGMIt1: SpecializedRelativizedGMIt_type Ze1 T1 G1 ρ1 ϕ1) (SRGMIt2: SpecializedRelativizedGMIt_type Ze2 T2 G2 ρ2 ϕ2).
+
+  Let gbind1: drelrefcont_type J (pr1 Ze1) `InitAlg T1 := pr1 (pr1 SRGMIt1).
+  Let gbind2: drelrefcont_type J (pr1 Ze2) `InitAlg T2 := pr1 (pr1 SRGMIt2).
+
+  Corollary specialized_relativized_fusion_law: is_stepterm_transformer ψ (generalϕ Ze1 ρ1 ϕ1) (generalϕ Ze2 ρ2 ϕ2) -> pr1 ψ `InitAlg gbind1 = gbind2.
+  Proof.
+    apply relativized_fusion_law.
+  Qed.
+
+  End specialized_fusion_law.
+
+
+  Section base_change.
+
+  Context (π: Ze2 --> Ze1) (γ: T1 ⟹ T2).
+
+  Definition mbind_base_change_op_op {X : [C, D, hs]^op} (mbind : drelrefcont_type J (pr1 Ze1) X T1):
+    drelrefcont_op J (pr1 Ze2) X T2.
+  Proof.
+    intros c1 c2 f.
+    exact (pr1 mbind c1 c2 (f · pr1 π c2) · γ c2).
+  Defined.
+
+  Lemma mbind_base_change_op_ok {X : [C, D, hs]^op} (mbind : drelrefcont_type J (pr1 Ze1) X T1):
+    drelrefcont_natural (mbind_base_change_op_op mbind).
+  Proof.
+    intros c1 c1' c2 c2' h1 h2 f.
+    unfold mbind_base_change_op_op.
+    eapply pathscomp0.
+    2: { rewrite <- assoc.
+         rewrite nat_trans_ax.
+         rewrite assoc.
+         rewrite <- (assoc (# J h1)).
+         apply cancel_postcomposition.
+         apply (pr2 mbind).
+    }
+    repeat rewrite <- assoc.
+    do 2 apply maponpaths.
+    apply pathsinv0.
+    apply nat_trans_ax.
+  Qed.
+
+  Definition mbind_base_change_op: nat_trans_data (drelrefcont_functor_with_fixed_protomonad Ze1 T1)
+                                                   (drelrefcont_functor_with_fixed_protomonad Ze2 T2).
+  Proof.
+    intros X mbind. cbn in mbind.
+    use tpair.
+      - exact (mbind_base_change_op_op mbind).
+      - exact (mbind_base_change_op_ok mbind).
+  Defined.
+
+  Lemma mbind_base_change_op_is_nat_trans: is_nat_trans _ _ mbind_base_change_op.
+  Proof.
+    intros X X' α.
+    apply funextfun; intro mbind.
+    apply (drelrefcont_type_eq hs); intros c1 c2 f.
+    cbn.
+    unfold mbind_base_change_op_op, drelrefcont_functor_on_morphism_op.
+    cbn.
+    rewrite <- assoc.
+    apply maponpaths.
+    do 2 rewrite id_right.
+    apply idpath.
+  Qed.
+
+  Definition mbind_base_change: stepterm_transformer_type := mbind_base_change_op ,, mbind_base_change_op_is_nat_trans.
+
+  End base_change.
+
 End different_protomonads.
+
+Section base_change_for_term_substitution.
+
+  Context {Ze1 Ze2 : precategory_Ptm hs J}.
+  Context (π: Ze2 --> Ze1).
+  Context (k: Ze1 --> ptm_from_alg InitAlg).
+  Context (SRGMIt1: SpecializedRelativizedGMIt_type Ze1 `InitAlg (G Ze1) (ρ Ze1 k) (ϕ Ze1)).
+  Context (SRGMIt2: SpecializedRelativizedGMIt_type Ze2 `InitAlg (G Ze2) (ρ Ze2 (π · k)) (ϕ Ze2)).
+
+  Let gbindWithLaw1 : drelrefcont_type J (pr1 Ze1) `InitAlg `InitAlg := gbindWithLaw Ze1 k SRGMIt1.
+  Let gbindWithLaw2 : drelrefcont_type J (pr1 Ze2) `InitAlg `InitAlg := gbindWithLaw Ze2 (π · k) SRGMIt2.
+
+  Lemma gbind_base_change: pr1 (mbind_base_change Ze1 Ze2 `InitAlg `InitAlg π (nat_trans_id _)) `InitAlg gbindWithLaw1 =
+                           gbindWithLaw2.
+  Proof.
+    apply specialized_relativized_fusion_law.
+    intro mbind.
+    apply (drelrefcont_type_eq hs); intros c1 c2 f.
+    cbn.
+    unfold mbind_base_change_op_op, generalϕ_op, generalϕ_op_op, ϕ_op_op.
+    cbn.
+    unfold ϕ_op_op.
+    cbn.
+    rewrite id_right.
+    eapply pathscomp0.
+    { apply precompWithBinCoproductArrow. }
+    eapply pathscomp0.
+    2: { apply pathsinv0.
+         apply precompWithBinCoproductArrow. }
+    rewrite <- assoc.
+    apply maponpaths.
+    apply cancel_postcomposition.
+    change (ColimFunctor hs (initChain InitialCD J_H) (λ a : C, CC (diagram_pointwise hs (initChain InitialCD J_H) a))) with `InitAlg.
+    change (pr1 (lift `InitAlg (Ze1,, `InitAlg)
+                      mbind)
+                c1 c2 (f · pr1 π c2) =
+            pr1 (lift `InitAlg (Ze2,, `InitAlg)
+                      (mbind_base_change_op Ze1 Ze2 `InitAlg `InitAlg π (nat_trans_id (pr1 `InitAlg)) `InitAlg mbind))
+                c1 c2 f).
+    (* what do we need to know about lift?? *)
+    Abort.
+
+End base_change_for_term_substitution.
+
 
 End construction.
