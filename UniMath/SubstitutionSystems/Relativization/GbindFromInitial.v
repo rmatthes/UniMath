@@ -684,8 +684,35 @@ Section base_change_for_term_substitution.
             pr1 (lift `InitAlg (Ze2,, `InitAlg)
                       (mbind_base_change_op Ze1 Ze2 `InitAlg `InitAlg π (nat_trans_id (pr1 `InitAlg)) `InitAlg mbind))
                 c1 c2 f).
-    (* what do we need to know about lift?? *)
-    Abort.
+    assert (aux := pr2 (lift `InitAlg) _ _ ((π,,nat_trans_id (pr1 `InitAlg)): (precategory_Ptm hs J)^op ⊠ [C, D, hs]^op ⟦ (Ze1,,`InitAlg), (Ze2,,`InitAlg) ⟧)).
+    apply toforallpaths in aux.
+    assert (aux1 := aux mbind).
+    assert (aux2 := maponpaths pr1 aux1).
+    apply toforallpaths in aux2.
+    assert (aux3 := aux2 c1).
+    apply toforallpaths in aux3.
+    assert (aux4 := aux3 c2).
+    apply toforallpaths in aux4.
+    assert (aux5 := aux4 f).
+    clear aux aux1 aux2 aux3 aux4.
+    cbn in aux5.
+    unfold drelrefcont_functor_on_morphism_op in aux5.
+    rewrite (functor_id H) in aux5.
+    rewrite id_left in aux5.
+    eapply pathscomp0.
+    { apply pathsinv0.
+      exact aux5. }
+    clear aux5.
+    eapply (maponpaths (fun x => pr1 (lift `InitAlg (Ze2,, `InitAlg) x) c1 c2 f)).
+    clear c1 c2 f.
+    apply (drelrefcont_type_eq hs).
+    intros c1 c2 f.
+    cbn.
+    rewrite id_left.
+    unfold mbind_base_change_op_op.
+    apply pathsinv0.
+    apply id_right.
+  Qed.
 
 End base_change_for_term_substitution.
 
