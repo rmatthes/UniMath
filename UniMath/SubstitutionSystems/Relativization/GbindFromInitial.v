@@ -500,16 +500,16 @@ Section different_protomonads.
 
   Context (Ze1 Ze2 : precategory_Ptm hs J).
 
-  Context (T: functor C D).
+  Context (T1 T2: functor C D).
 
   Definition stepterm_transformer_type: UU :=
-    drelrefcont_functor_with_fixed_protomonad Ze1 T ⟹ drelrefcont_functor_with_fixed_protomonad Ze2 T.
+    drelrefcont_functor_with_fixed_protomonad Ze1 T1 ⟹ drelrefcont_functor_with_fixed_protomonad Ze2 T2.
 
   Context (ψ: stepterm_transformer_type).
-  Context (ϕ1: RelativizedGMIt_stepterm_type Ze1 T) (ϕ2: RelativizedGMIt_stepterm_type Ze2 T).
+  Context (ϕ1: RelativizedGMIt_stepterm_type Ze1 T1) (ϕ2: RelativizedGMIt_stepterm_type Ze2 T2).
 
   Definition is_stepterm_transformer: UU :=
-    forall (mbind : drelrefcont_type J (pr1 Ze1) `InitAlg T),
+    forall (mbind : drelrefcont_type J (pr1 Ze1) `InitAlg T1),
       pr1 ψ (J_H `InitAlg) (pr1 ϕ1 `InitAlg mbind)  = pr1 ϕ2 `InitAlg (pr1 ψ `InitAlg mbind).
 
   Lemma isaprop_is_stepterm_transformer: isaprop is_stepterm_transformer.
@@ -518,10 +518,10 @@ Section different_protomonads.
     apply (isaset_drelrefcont_type hs).
   Qed.
 
-  Context (RGMIt1: RelativizedGMIt_type Ze1 T ϕ1) (RGMIt2: RelativizedGMIt_type Ze2 T ϕ2).
+  Context (RGMIt1: RelativizedGMIt_type Ze1 T1 ϕ1) (RGMIt2: RelativizedGMIt_type Ze2 T2 ϕ2).
 
-  Let gbind1: drelrefcont_type J (pr1 Ze1) `InitAlg T := pr1 (pr1 RGMIt1).
-  Let gbind2: drelrefcont_type J (pr1 Ze2) `InitAlg T := pr1 (pr1 RGMIt2).
+  Let gbind1: drelrefcont_type J (pr1 Ze1) `InitAlg T1 := pr1 (pr1 RGMIt1).
+  Let gbind2: drelrefcont_type J (pr1 Ze2) `InitAlg T2 := pr1 (pr1 RGMIt2).
 
   Theorem relativized_fusion_law: is_stepterm_transformer -> pr1 ψ `InitAlg gbind1 = gbind2.
   Proof.
@@ -531,7 +531,7 @@ Section different_protomonads.
     red.
     assert (issttinst1 := maponpaths pr1 (isstt gbind1)).
     eapply pathscomp0.
-    2: { eapply (maponpaths (fun x: drelrefcont_op J (pr1 Ze2) (functor_opp J_H `InitAlg) T => x c1 c2 f)).
+    2: { eapply (maponpaths (fun x: drelrefcont_op J (pr1 Ze2) (functor_opp J_H `InitAlg) T2 => x c1 c2 f)).
          exact issttinst1. }
     clear issttinst1.
     assert (ψnatinst := nat_trans_ax ψ _ _ (alg_map J_H InitAlg)).
