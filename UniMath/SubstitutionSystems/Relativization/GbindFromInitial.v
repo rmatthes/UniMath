@@ -95,12 +95,12 @@ Definition RelativizedGMIt_stepterm_type (T : functor C D): UU :=
   functor_composite (functor_opp J_H) (drelrefcont_functor_with_fixed_protomonad T).
 
 Definition RelativizedGMIt_property {T : functor C D} (ϕ : RelativizedGMIt_stepterm_type T)
-  (gbind: drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) : UU :=
-  pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ (alg_carrier _ InitAlg) gbind) c1 c2 f.
+  (gbind: drelrefcont_type J (pr1 Ze) `InitAlg T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) : UU :=
+  pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ `InitAlg gbind) c1 c2 f.
 
 Definition RelativizedGMIt_type (T : functor C D)
   (ϕ : RelativizedGMIt_stepterm_type T) : UU :=
-  ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T,
+  ∃! gbind : drelrefcont_type J (pr1 Ze) `InitAlg T,
              forall (c1 c2: C) (f: J c1 --> pr1 Ze c2), RelativizedGMIt_property ϕ gbind f.
 
 Definition SpecializedRelativizedGMIt_stepterm_type (T : functor C D) (G : functor [C, D, hs] [C, D, hs]): UU :=
@@ -109,13 +109,13 @@ Definition SpecializedRelativizedGMIt_stepterm_type (T : functor C D) (G : funct
 
 Definition SpecializedRelativizedGMIt_property {T : functor C D} {G : functor [C, D, hs] [C, D, hs]} (ρ : [C, D, hs] ⟦ G T, T ⟧)
   (ϕ : SpecializedRelativizedGMIt_stepterm_type T G)
-  (gbind: drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) : UU :=
-  pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ (alg_carrier _ InitAlg) gbind) c1 c2 f · pr1 ρ c2.
+  (gbind: drelrefcont_type J (pr1 Ze) `InitAlg T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) : UU :=
+  pr1(alg_map J_H InitAlg) c1 · (pr1 gbind c1 c2 f) = pr1 (pr1 ϕ `InitAlg gbind) c1 c2 f · pr1 ρ c2.
 
 Definition SpecializedRelativizedGMIt_type (T : functor C D)
   (G : functor [C, D, hs] [C, D, hs]) (ρ : [C, D, hs] ⟦ G T, T ⟧)
   (ϕ : SpecializedRelativizedGMIt_stepterm_type T G) : UU :=
-  ∃! gbind : drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T,
+  ∃! gbind : drelrefcont_type J (pr1 Ze) `InitAlg T,
              forall (c1 c2: C) (f: J c1 --> pr1 Ze c2), SpecializedRelativizedGMIt_property ρ ϕ gbind f.
 
 Section Specialization.
@@ -186,7 +186,7 @@ Section Specialization.
   Definition generalϕ : RelativizedGMIt_stepterm_type T := generalϕ_op ,, generalϕ_op_is_nat_trans.
 
   Lemma property_for_generalϕ_is_the_specialized_property
-        (gbind: drelrefcont_type J (pr1 Ze) (alg_carrier _ InitAlg) T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) :
+        (gbind: drelrefcont_type J (pr1 Ze) `InitAlg T) {c1 c2: C} (f: J c1 --> pr1 Ze c2) :
     RelativizedGMIt_property generalϕ gbind f = SpecializedRelativizedGMIt_property ρ ϕ gbind f.
   Proof.
     apply idpath.
@@ -426,6 +426,7 @@ Abort.
 
 End construction_for_unknown_protomonad.
 
+
 Section instantiation_for_trivial_protomonad.
 
   Local Definition Ze0 : precategory_Ptm hs J := J_Ptm hs J.
@@ -494,5 +495,73 @@ Section instantiation_for_term_protomonad.
 *)
 
 End instantiation_for_term_protomonad.
+
+Section different_protomonads.
+
+  Context (Ze1 Ze2 : precategory_Ptm hs J).
+
+  Context (T: functor C D).
+
+  Definition stepterm_transformer_type: UU :=
+    drelrefcont_functor_with_fixed_protomonad Ze1 T ⟹ drelrefcont_functor_with_fixed_protomonad Ze2 T.
+
+  Context (ψ: stepterm_transformer_type).
+  Context (ϕ1: RelativizedGMIt_stepterm_type Ze1 T) (ϕ2: RelativizedGMIt_stepterm_type Ze2 T).
+
+  Definition is_stepterm_transformer: UU :=
+    forall (mbind : drelrefcont_type J (pr1 Ze1) `InitAlg T),
+      pr1 ψ (J_H `InitAlg) (pr1 ϕ1 `InitAlg mbind)  = pr1 ϕ2 `InitAlg (pr1 ψ `InitAlg mbind).
+
+  Lemma isaprop_is_stepterm_transformer: isaprop is_stepterm_transformer.
+  Proof.
+    apply impred; intros.
+    apply (isaset_drelrefcont_type hs).
+  Qed.
+
+  Context (RGMIt1: RelativizedGMIt_type Ze1 T ϕ1) (RGMIt2: RelativizedGMIt_type Ze2 T ϕ2).
+
+  Let gbind1: drelrefcont_type J (pr1 Ze1) `InitAlg T := pr1 (pr1 RGMIt1).
+  Let gbind2: drelrefcont_type J (pr1 Ze2) `InitAlg T := pr1 (pr1 RGMIt2).
+
+  Theorem relativized_fusion_law: is_stepterm_transformer -> pr1 ψ `InitAlg gbind1 = gbind2.
+  Proof.
+    intro isstt.
+    apply path_to_ctr.
+    intros c1 c2 f.
+    red.
+    assert (issttinst1 := maponpaths pr1 (isstt gbind1)).
+    eapply pathscomp0.
+    2: { eapply (maponpaths (fun x: drelrefcont_op J (pr1 Ze2) (functor_opp J_H `InitAlg) T => x c1 c2 f)).
+         exact issttinst1. }
+    clear issttinst1.
+    assert (ψnatinst := nat_trans_ax ψ _ _ (alg_map J_H InitAlg)).
+    apply toforallpaths in ψnatinst.
+    assert (ψnatinst1 := ψnatinst gbind1).
+    assert (ψnatinst2 := maponpaths pr1 ψnatinst1).
+    apply toforallpaths in ψnatinst2.
+    assert (ψnatinst3 := ψnatinst2 c1).
+    apply toforallpaths in ψnatinst3.
+    assert (ψnatinst4 := ψnatinst3 c2).
+    apply toforallpaths in ψnatinst4.
+    assert (ψnatinst5 := ψnatinst4 f).
+    clear ψnatinst ψnatinst1 ψnatinst2 ψnatinst3 ψnatinst4.
+    cbn in ψnatinst5.
+    unfold drelrefcont_functor_on_morphism_op in ψnatinst5.
+    rewrite id_right in ψnatinst5.
+    apply pathsinv0.
+    eapply pathscomp0.
+    2: { exact ψnatinst5. }
+    clear ψnatinst5.
+    eapply (maponpaths (fun x => pr1 (pr1 ψ (J_H `InitAlg) x) c1 c2 f)).
+    clear c1 c2 f.
+    apply (drelrefcont_type_eq hs).
+    intros c1 c2 f.
+    cbn.
+    rewrite id_right.
+    apply pathsinv0.
+    apply (pr2 (pr1 RGMIt1)).
+  Qed.
+
+End different_protomonads.
 
 End construction.
