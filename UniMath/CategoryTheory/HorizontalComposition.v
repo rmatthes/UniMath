@@ -70,47 +70,40 @@ Proof.
 Qed.
 
 Definition functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
-  functor_data (precategory_binproduct_data [A, B, hsB] [B, C, hsC])
-               [A, C, hsC].
+  functor_data (precategory_binproduct_data [A, B, hsB] [B, C, hsC]) [A, C, hsC].
 Proof.
-  exists (λ FG, functor_composite (pr1 FG) (pr2 FG)).
-  intros a b αβ.
-  induction αβ as [α β].
-  exact (horcomp α β).
+  use make_functor_data.
+  - intro FG. exact (functor_compose hsB hsC (pr1 FG) (pr2 FG)).
+  - intros FG FG' fg. exact (# (pre_composition_functor _ _ _ hsB hsC (pr1 FG)) (pr2 fg) · # (post_composition_functor _ _ _ hsB hsC (pr2 FG')) (pr1 fg)).
 Defined.
 
-Lemma is_functor_functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) : is_functor (functorial_composition_data A B C hsB hsC).
+Lemma is_functor_functorial_composition_data (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
+  is_functor (functorial_composition_data A B C hsB hsC).
 Proof.
   split.
-  - unfold functor_idax.
-    intros FG.
-    apply nat_trans_eq.
-    apply hsC.
-    intros x.
-    apply remove_id_left.
-    reflexivity.
+  - intro FG.
+    apply nat_trans_eq; try exact hsC.
+    intro a.
+    unfold functorial_composition_data.
     simpl.
-    exact (functor_id (pr2 FG) ((pr1 (pr1 FG)) x)).
-  - unfold functor_compax.
-    intros FG1 FG2 FG3 αβ1 αβ2.
+    rewrite id_left.
+    apply functor_id.
+  - intros FG1 FG2 FG3 αβ1 αβ2.
     induction αβ1 as [α1 β1].
     induction αβ2 as [α2 β2].
-
-    apply nat_trans_eq.
-    apply hsC.
-    intros a.
-
+    apply nat_trans_eq; try exact hsC.
+    intro a.
     simpl.
     rewrite <- ?assoc.
-    apply cancel_precomposition.
-    rewrite (functor_comp _).
+    apply maponpaths.
+    rewrite (functor_comp (pr2 FG3)).
     rewrite -> ?assoc.
     apply cancel_postcomposition.
     apply pathsinv0.
     apply nat_trans_ax.
 Qed.
 
-Definition functorial_composition (A B C : precategory) (hsB: has_homsets B) (hsC: has_homsets C) :
+Definition functorial_composition (A B C : precategory) (hsB : has_homsets B) (hsC : has_homsets C) :
   functor (precategory_binproduct [A, B, hsB] [B, C, hsC]) [A, C, hsC].
 Proof.
   exists (functorial_composition_data A B C hsB hsC).
@@ -118,24 +111,23 @@ Proof.
 Defined.
 
 Lemma horcomp_pre_post
-      (C D:precategory) ( E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
-      (g:nat_trans G G') :
-  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G' □ F)) (c:= (G' □ F'))
+      (C D : precategory) (E : category) (F F' : functor C D) (G G' : functor D E) (f : nat_trans F F')
+      (g : nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:=(G □ F)) (b:=(G' □ F)) (c:=(G' □ F'))
                         (pre_whisker F g)
                         (post_whisker f G').
 Proof.
   intros.
   apply nat_trans_eq.
   apply homset_property.
-  intros;
-    apply idpath.
+  intros; apply idpath.
 Qed.
 
 (* the other view as composition is not by definition but follows from naturality *)
 Lemma horcomp_post_pre
-      (C D:precategory) ( E : category) (F F' : functor C D) (G G' : functor D E) (f:nat_trans F F')
-      (g:nat_trans G G') :
-  horcomp f g = compose (C:=functor_category C E) (a:= (G □ F)) (b:= (G □ F')) (c:= (G' □ F'))
+      (C D : precategory) (E : category) (F F' : functor C D) (G G' : functor D E) (f : nat_trans F F')
+      (g : nat_trans G G') :
+  horcomp f g = compose (C:=functor_category C E) (a:=(G □ F)) (b:=(G □ F')) (c:=(G' □ F'))
                         (post_whisker f G)
                         (pre_whisker F' g).
 Proof.
@@ -150,18 +142,19 @@ Qed.
 
 (** now in the functor category *)
 
-Lemma functorial_composition_pre_post (C D E: precategory) (hsD : has_homsets D) (hsE : has_homsets E)
-      (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f: [C, D, hsD]⟦F, F'⟧) (g: [D, E, hsE]⟦G, G'⟧) :
+Lemma functorial_composition_pre_post (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E)
+      (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f : [C, D, hsD]⟦F, F'⟧) (g : [D, E, hsE]⟦G, G'⟧) :
   # (functorial_composition _ _ _ hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (pre_composition_functor _ _ _ hsD hsE F) g · # (post_composition_functor _ _ _ hsD hsE G') f.
 Proof.
+  (* no longer needed:
   apply nat_trans_eq; try exact hsE.
-  intro c.
+  intro c. *)
   apply idpath.
 Qed.
 
-Lemma functorial_composition_post_pre (C D E: precategory) (hsD : has_homsets D) (hsE : has_homsets E)
-      (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f: [C, D, hsD]⟦F, F'⟧) (g: [D, E, hsE]⟦G, G'⟧) :
+Lemma functorial_composition_post_pre (C D E : precategory) (hsD : has_homsets D) (hsE : has_homsets E)
+      (F F' : [C, D, hsD]) (G G' : [D, E, hsE]) (f : [C, D, hsD]⟦F, F'⟧) (g : [D, E, hsE]⟦G, G'⟧) :
   # (functorial_composition _ _ _ hsD hsE) (f,, g:precategory_binproduct [C, D, hsD] [D, E, hsE] ⟦(F,,G), (F',,G')⟧) =
   # (post_composition_functor _ _ _ hsD hsE G) f · # (pre_composition_functor _ _ _ hsD hsE F') g.
 Proof.

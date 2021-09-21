@@ -20,6 +20,8 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.whiskering.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.HorizontalComposition.
@@ -43,44 +45,56 @@ Section PointedFunctors_as_monoidal_category.
   Proof.
     use make_functor_data.
     - intros PF1PF2.
-      exact (ptd_composite C hs (pr1 PF1PF2) (pr2 PF1PF2)).
+      exact (ptd_compose C hs (pr1 PF1PF2) (pr2 PF1PF2)).
     - intros PF1PF2 PF'PF2' α1α2.
       induction α1α2 as [α1 α2].
       cbn in *.
-      simple refine (horcomp α1 α2 ,, _).
-      abstract
-        (intro c ; cbn ;
-         rewrite assoc ;
-         refine (maponpaths (λ z, z · _) _ @ _) ;
-           [ rewrite <- assoc ;
-             rewrite nat_trans_ax ;
-             rewrite assoc ;
-             apply cancel_postcomposition ;
-             apply ptd_mor_commutes
-           | rewrite <- assoc ;
-             rewrite <- functor_comp ;
-             do 2 apply maponpaths ;
-             apply ptd_mor_commutes ]).
-  Defined.
+      use tpair.
+      exact (# (functorial_composition _ _ _ hs hs) (pr1 α1,, pr1 α2:
+        [C, C, hs] ⊠ [C, C, hs] ⟦(pr1 (pr1 PF1PF2),, pr1(pr2 PF1PF2)), (pr1 (pr1 PF'PF2'),, pr1( pr2 PF'PF2'))⟧)).
+      cbv beta in |- *.
+      red.
+      unfold ptd_compose. unfold ptd_pt. unfold pr2.
+      etrans.
+      { apply pathsinv0.
+        assert (Hyp := @functor_comp _ _ (functorial_composition C C C hs hs)).
+        set (f := (pr21 PF1PF2,, pr22 PF1PF2):
+                    [C, C, hs] ⊠ [C, C, hs] ⟦ (functor_identity_as_ob C hs,, functor_identity_as_ob C hs),
+                                              (pr11 PF1PF2,, pr12 PF1PF2)⟧).
+        set (g := (pr1 α1,, pr1 α2:
+                     [C, C, hs] ⊠ [C, C, hs] ⟦ (pr11 PF1PF2 ,, pr12 PF1PF2),
+                                               (pr11 PF'PF2',, pr12 PF'PF2')⟧)).
+        apply (Hyp _ _ _ f g).
+      }
+      apply maponpaths.
+      apply dirprodeq.
+      + exact (ptd_mor_commutes _ hs α1).
+      + exact (ptd_mor_commutes _ hs α2).
+   Defined.
 
   Definition tensor_pointedfunctor_is_functor
     : is_functor tensor_pointedfunctor_data.
   Proof.
     split.
-    - intro PF1PF2 ; cbn.
-      (* UniMath.MoreFoundations.Tactics.show_id_type. *)
-      apply eq_ptd_mor; try assumption.
+    - intro PF1PF2.
+      unfold tensor_pointedfunctor_data.
+      (* show_id_type. *)
+      apply eq_ptd_mor; try exact hs.
       cbn.
-      apply nat_trans_eq; try assumption; intro c.
-      apply horcomp_id_left.
+      rewrite post_whisker_identity; try exact hs.
+      rewrite pre_whisker_identity; try exact hs.
+      cbn.
+      (* [nat_trans_comp_id_right] is not seen to be applicable *)
+      apply nat_trans_eq; try exact hs; intro c.
+      cbn.
+      apply id_left.
     - intros PF1PF2 PF1'PF2' PF1''PF2'' α1α2 α1'α2'.
-      apply eq_ptd_mor; try assumption.
-      cbn.
+      apply eq_ptd_mor; try exact hs.
       apply nat_trans_eq; try assumption; intro c.
       cbn.
       repeat rewrite <- assoc.
       apply maponpaths.
-      rewrite functor_comp.
+      rewrite (functor_comp (pr12 PF1''PF2'')).
       do 2 rewrite assoc.
       apply cancel_postcomposition.
       apply pathsinv0.
@@ -98,15 +112,16 @@ Section PointedFunctors_as_monoidal_category.
   Defined.
 
   (** a preparation for the lemma afterwards *)
-  Lemma ptd_mor_z_iso_from_underlying_mor {F G : Ptd} (α : ptd_mor C F G):
-    is_nat_z_iso(pr1 α) -> is_z_isomorphism(C:=Ptd) α.
+  Lemma ptd_mor_z_iso_from_underlying_mor {F G : Ptd} (α : ptd_mor C hs F G):
+    is_nat_z_iso(pr11 α) -> is_z_isomorphism(C:=Ptd) α.
   Proof.
     intro Hyp.
     use tpair.
     - use tpair.
       apply nat_z_iso_to_trans_inv.
       + exact (pr1 α ,, Hyp).
-      + abstract
+      + (* TODO: continue adapation!!! *)
+        abstract
           (cbn ; red; intro c ;
            cbn ;
            apply pathsinv0 ;
@@ -254,12 +269,12 @@ Section PointedFunctors_as_monoidal_category.
         (monoidal_precat_of_endofunctors hs).
   Proof.
     use tpair.
-    - apply (mk_lax_monoidal_functor
+    - use (mk_lax_monoidal_functor
                monoidal_precat_of_pointedfunctors
                (monoidal_precat_of_endofunctors hs)
                (functor_ptd_forget C hs)
-               (nat_trans_id _)
                (nat_trans_id _)).
+      + unfold monoidal_precat_of_pointedfunctors, monoidal_functor_map. cbn. exact (nat_trans_id _).
       + abstract
           (intros PF1 PF2 PF3 ;
            apply nat_trans_eq; try assumption ;

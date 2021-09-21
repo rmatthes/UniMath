@@ -41,7 +41,7 @@ Proof.
   intros F F' m.
   apply nat_trans_eq; try assumption.
   intro c. cbn.
-  rewrite functor_id.
+  rewrite (functor_id F').
   rewrite id_left.
   do 2 rewrite id_right.
   apply idpath.
@@ -67,9 +67,8 @@ Proof.
   intros F F' m.
   apply nat_trans_eq; try assumption.
   intro c. cbn.
-  rewrite id_left.
-  rewrite id_right.
-  apply idpath.
+  do 2 rewrite id_left.
+  apply id_right.
 Qed.
 
 Definition right_unitor_of_endofunctors: right_unitor (functorial_composition C C C hs hs) (functor_identity C).
@@ -133,7 +132,8 @@ Proof.
   apply nat_trans_eq; try assumption.
   intro c.
   cbn.
-  do 4 rewrite functor_id.
+  do 3 rewrite functor_id.
+  rewrite (functor_id I).
   do 5 rewrite id_left.
   apply idpath.
 Qed.
