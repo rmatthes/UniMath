@@ -17,7 +17,7 @@ Require Import UniMath.CategoryTheory.whiskering.
 Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategories.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalFunctors.
-Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal.
+Require Import UniMath.CategoryTheory.Monoidal.PointedFunctorsMonoidal_legacy. (** !!! *)
 Require Import UniMath.CategoryTheory.Monoidal.Actions.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActions.
 Require Import UniMath.CategoryTheory.Monoidal.ActionOfEndomorphismsInBicat.
@@ -270,7 +270,7 @@ Section a_different_type_for_the_forgetful_functor_from_ptd.
     use make_nat_trans.
     - intro x. cbn. apply nat_trans_id.
     - abstract ( intros xy xy' fg; apply (nat_trans_eq hs);
-                 intro c; cbn; rewrite id_left, id_right; apply idpath ).
+                 intro c; rewrite id_left; rewrite id_right; cbn; unfold horcomp_data; apply nat_trans_ax ).
   Defined.
 
   Definition forgetful_functor_from_ptd_as_strong_monoidal_functor_alt
@@ -469,22 +469,18 @@ Section IndividualFunctorsWithABStrength.
          - apply idpath.
     }
     simpl.
-    apply maponpaths_12.
-    - unfold PointedFunctorsComposition.ptd_composite, PointedFunctorsComposition.ptd_compose.
-      cbn.
-      rewrite (horcomp_post_pre _ _ (C,,hs)). (* needed because of a mismatch of definitions *)
-      apply idpath.
-    - apply nat_trans_eq_pointwise.
-      clear c.
-      apply maponpaths. cbn.
-      apply (nat_trans_eq hsD').
-      intro c.
-      etrans.
-      2: { apply pathsinv0.
+    apply maponpaths.
+    apply nat_trans_eq_pointwise.
+    clear c.
+    apply maponpaths. cbn.
+    apply (nat_trans_eq hsD').
+    intro c.
+    etrans.
+    2: { apply pathsinv0.
          apply id_right. }
-      apply pathsinv0.
-      simpl.
-      apply functor_id.
+    apply pathsinv0.
+    simpl.
+    apply functor_id.
  Time Qed. (* long verification *)
 
   Definition signature_from_ab_strength : Signature C hs D hsD D' hsD'.
