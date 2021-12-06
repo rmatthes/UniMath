@@ -830,6 +830,34 @@ Section FixDispTensor.
           {D : disp_cat C}
           (disp_tensor : displayed_tensor tensor D).
 
+
+  Local Definition make_prodmor
+        {a₁ a₂ b₁ b₂ : C}
+        (f₁ : a₁ --> b₁)
+        (f₂ : a₂ --> b₂)
+    : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
+    := (f₁ ,, f₂).
+
+  Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 30).
+
+  Local Definition make_dispprodmor
+        {a₁ a₂ b₁ b₂ : C}
+        {f₁ : a₁ --> b₁}
+        {f₂ : a₂ --> b₂}
+        {d₁ : D a₁}
+        {d₂ : D a₂}
+        {e₁ : D b₁}
+        {e₂ : D b₂}
+        (ff₁ : d₁ -->[f₁] e₁)
+        (ff₂ : d₂ -->[f₂] e₂)
+    : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
+    := ff₁ ,, ff₂.
+
+  Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 30).
+
+
+  Local Notation "f #⊠⊠' f'" := (#disp_tensor (f ⊠⊠' f')) (at level 30).
+
   Let al : functor _ _ := assoc_left tensor.
   Let ar : functor _ _ := assoc_right tensor.
 
@@ -887,6 +915,39 @@ Section FixDispTensor.
 
   (* Now give the displayed pentagon and triangle equations *)
 
+  Context (dλ : disp_left_unitor)
+          (dρ : disp_right_unitor)
+          (dα : disp_associator)
+          (teq : triangle_eq tensor I λC ρC α)
+          (peq : pentagon_eq _ α).
+
+
+  Definition disp_triangle_eq : UU
+    := ∏ (a b : C) (da : D a) (db : D b),
+      # disp_tensor (pr1 dρ a da ⊠⊠' id_disp db)
+      =
+        transportb _ (teq _ _)
+                   (pr1 dα ((a,,I),,b) ((da,,dI),,db) ;; #disp_tensor (id_disp da ⊠⊠' pr1 dλ b db )).
+
+  Definition disp_pentagon_eq : UU.
+    refine (∏ (a b c d : C) (da : D a) (db : D b) (dc : D c) (dd : D d), _ = _).
+    - refine (pr1 dα ((tensor (a,,b),, c) ,, d) ((disp_tensor (a,,b) (da,, db),,dc),,dd) ;;
+              _).
+      apply (pr1 dα ((a,,b),,tensor (c,, d)) ((da,,db),, disp_tensor (c,,d) (dc,,dd))).
+    -
+      set (X1 := pr1 dα ((a,,b),,c) ((da,,db),,dc) #⊠⊠' id_disp db).
+      cbn in X1.
+      set (X2 := pr1 dα ( (a,, tensor (b,,c)) ,, d) ( (da,, disp_tensor (b,,c) (db,,dc)),,dd)).
+      Fail set (X12 := X1 ;; X2).
+  Abort.
+    (*
+     ∏ (a b c d : C),
+
+     pr1 α' ((a ⊗ b, c), d) · pr1 α' ((a, b), c ⊗ d) =
+
+        pr1 α' ((a, b), c) #⊗ id d · pr1 α' ((a, b ⊗ c), d) · id a #⊗ pr1 α' ((b, c), d).
+    *)
+
 End FixDispTensor.
 
 
@@ -939,17 +1000,17 @@ Section section_tensor.
           (TT : displayed_tensor T D)
           (S : section_disp D).
 
-
+(*
   Local Definition make_prodmor
         {a₁ a₂ b₁ b₂ : C}
         (f₁ : a₁ --> b₁)
         (f₂ : a₂ --> b₂)
     : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
     := (f₁ ,, f₂).
-
+*)
   Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 30).
 
-
+(*
   Local Definition make_dispprodmor
         {a₁ a₂ b₁ b₂ : C}
         {f₁ : a₁ --> b₁}
@@ -962,6 +1023,7 @@ Section section_tensor.
         (ff₂ : d₂ -->[f₂] e₂)
     : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
     := ff₁ ,, ff₂.
+ *)
 
   Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 30).
 
