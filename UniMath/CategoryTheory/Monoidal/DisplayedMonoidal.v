@@ -221,6 +221,57 @@ We can build the total category of a [disp_binprod D D'], or we can take the car
 
  Definition catiso_reord : catiso T T' := _ ,, is_catiso_reord_functor .
 
+ Definition reord2_functor_data : functor_data T' T.
+ Proof.
+   use tpair.
+   - intros [[c d] [c' d']].
+     exact (tpair _ (c,,c') (d,,d')).
+   - cbn. intros [[a da] [b db]] [[c dc] [d dd]] [[e de] [f df]]. cbn in *.
+     exact (tpair _ (e,,f) (de,,df)).
+ Defined.
+
+ Definition reord2_functor_axioms : is_functor reord2_functor_data.
+ Proof.
+   split.
+   - intros a.
+     apply idpath.
+   - intros a b c f g.
+     apply idpath.
+ Qed.
+
+ Definition reord2_functor : functor T' T := reord2_functor_data ,, reord2_functor_axioms.
+
+
+ Definition reord2_hom_inverse (a b : T')
+   : T ⟦ reord2_functor a, reord2_functor b ⟧ → T' ⟦ a, b ⟧.
+ Proof.
+   intros [[e f] [ee ff]]. cbn in *.
+   use make_dirprod.
+   - exact (e,,ee).
+   - exact (f,,ff).
+ Defined.
+
+ Definition fully_faithful_reord2_functor : fully_faithful reord2_functor.
+ Proof.
+   intros a b.
+   use gradth.
+   - exact (reord2_hom_inverse a b).
+   - intros. apply idpath.
+   - intros; apply idpath.
+ Defined.
+
+ Definition is_catiso_reord2_functor : is_catiso reord2_functor.
+ Proof.
+   split.
+   - exact fully_faithful_reord2_functor.
+   - use gradth.
+     + exact reord1_functor.
+     + intro; apply idpath.
+     + intro; apply idpath.
+ Defined.
+
+ Definition catiso_reord2 : catiso T' T := _ ,, is_catiso_reord2_functor .
+
 End TotalDispProd.
 
 
@@ -232,7 +283,7 @@ Definition total_bifunctor
            {DE : disp_cat E}
            (FF : disp_functor F (DC ⊠⊠ DD) DE)
   : total_category DC ⊠ total_category DD ⟶ total_category DE
-  := inv_catiso (catiso_reord DC DD) ∙ total_functor FF.
+  := catiso_reord2 DC DD ∙ total_functor FF.
 
 
 Lemma disp_binprod_transportf (C C' : category) (D : disp_cat C) (D' : disp_cat C')
@@ -473,9 +524,9 @@ Section DispAssocFunctors.
   Qed.
 
   Definition disp_unassoc
-    : disp_functor (precategory_binproduct_assoc A B C)
-                   (DA ⊠⊠ (DB ⊠⊠ DC)) ((DA ⊠⊠ DB) ⊠⊠ DC)
-    := _ ,, disp_assoc_axioms.
+    : disp_functor (precategory_binproduct_unassoc A B C)
+                   ((DA ⊠⊠ DB) ⊠⊠ DC) (DA ⊠⊠ (DB ⊠⊠ DC))
+    := _ ,, disp_unassoc_axioms.
 
 
 End DispAssocFunctors.
@@ -532,6 +583,64 @@ Lemma  transportf_fst_arg
         {g : b₁ --> b₂}
         (gg : db₁ -->[g] db₂)
   : transportf_fst_arg_type FF e ff gg.
+Proof.
+  unfold transportf_fst_arg_type.
+  induction e.
+  cbn.
+  apply idpath.
+Qed.
+
+
+Lemma transportf_snd_arg_type
+        {A B C : category}
+        {DA : disp_cat A}
+        {DB : disp_cat B}
+        {DC : disp_cat C}
+        {F : A ⊠ B ⟶ C}
+        (FF : disp_functor F (DA ⊠⊠ DB) DC)
+        {a₁ a₂ : A}
+        {da₁ : DA a₁}
+        {da₂ : DA a₂}
+        {f : a₁ --> a₂}
+        (ff : da₁ -->[f] da₂)
+        {b₁ b₂ : B}
+        {db₁ : DB b₁}
+        {db₂ : DB b₂}
+        {g g' : b₁ --> b₂}
+        (e : g = g')
+        (gg : db₁ -->[g] db₂)
+
+  : UU.
+Proof.
+  refine
+    (@disp_functor_on_morphisms  _ _ _ _ _ FF (a₁,,b₁) (a₂,,b₂) (da₁,,db₁) (da₂,,db₂) (f,,g') (make_dirprod ff (transportf (mor_disp db₁ db₂) e gg)
+                                                                                                    ) = _ ).
+  set (X := @disp_functor_on_morphisms  _ _ _ _ _ FF (a₁,,b₁) (a₂,,b₂) (da₁,,db₁) (da₂,,db₂) (f,,g) (ff,,gg)).
+  refine (transportf _ _ X).
+  apply maponpaths.
+  apply maponpaths.
+  apply e.
+Defined.
+
+Lemma  transportf_snd_arg
+        {A B C : category}
+        {DA : disp_cat A}
+        {DB : disp_cat B}
+        {DC : disp_cat C}
+        {F : A ⊠ B ⟶ C}
+        (FF : disp_functor F (DA ⊠⊠ DB) DC)
+        {a₁ a₂ : A}
+        {da₁ : DA a₁}
+        {da₂ : DA a₂}
+        {f : a₁ --> a₂}
+        (ff : da₁ -->[f] da₂)
+        {b₁ b₂ : B}
+        {db₁ : DB b₁}
+        {db₂ : DB b₂}
+        {g g': b₁ --> b₂}
+        (e : g = g')
+        (gg : db₁ -->[g] db₂)
+  : transportf_snd_arg_type FF ff e gg.
 Proof.
   unfold transportf_fst_arg_type.
   induction e.
@@ -616,7 +725,79 @@ Section disp_fix_fst_arg.
 
 End disp_fix_fst_arg.
 
+Section disp_fix_snd_arg.
 
+  Local Notation "( f #, g )" := (catbinprodmor f g).
+
+  Context {A B C : category}
+          {DA : disp_cat A}
+          {DB : disp_cat B}
+          {DC : disp_cat C}
+          (F : functor (A ⊠ B) C)
+          (FF : disp_functor F (DA ⊠⊠ DB) DC)
+          (b : B)
+          (db : DB b).
+
+
+  Definition disp_functor_fix_snd_arg_ob {a : A} (da : DA a) : DC (F _) := FF (a,,b) (da,, db).
+
+  Definition disp_functor_fix_snd_arg_mor {a₁ a₂ : A} {f : a₁ --> a₂} {da₁ : DA a₁} {da₂ : DA a₂} (ff : da₁ -->[f] da₂)
+    : FF (a₁,,b) (da₁,,db) -->[ (# F (f #, identity _ ))%cat ] FF (a₂,,b) (da₂,,db).
+  Proof.
+    apply #FF.
+    apply (ff,, id_disp _).
+  Defined.
+
+  Definition disp_functor_fix_snd_arg_data
+    : disp_functor_data (functor_fix_snd_arg _ _ _ F b) DA DC.
+  Proof.
+    exists @disp_functor_fix_snd_arg_ob.
+    intros x y xx yy f ff.
+    apply disp_functor_fix_snd_arg_mor.
+    apply ff.
+  Defined.
+
+
+  Definition disp_functor_fix_snd_arg_axioms
+    : disp_functor_axioms disp_functor_fix_snd_arg_data.
+  Proof.
+    split.
+    - intros.
+      cbn.
+      unfold disp_functor_fix_snd_arg_mor.
+      rewrite (@disp_functor_id _ _ _ _ _ FF).
+      apply transportf_transpose_right.
+      etrans. { apply transport_f_f. }
+      apply transportf_set.
+      apply C.
+    - intros.
+      cbn.
+      unfold disp_functor_fix_snd_arg_mor.
+      apply transportf_transpose_right.
+      set (X := @disp_functor_comp_var _ _ _ _ _ FF).
+      etrans.
+      2 : { apply X. }
+      cbn.
+      apply transportf_transpose_right.
+      etrans. 2 : { apply maponpaths.
+                    apply maponpaths.
+                    eapply pathsinv0.
+                    apply id_left_disp. }
+            etrans. { apply transport_f_f. }
+      apply pathsinv0.
+      etrans.
+      apply transportf_snd_arg.
+      apply  transportf_transpose_right.
+      etrans. apply transport_f_f.
+      apply transportf_set.
+      apply C.
+  Qed.
+
+  Definition disp_functor_fix_snd_arg
+    : disp_functor (functor_fix_snd_arg _ _ _ F b) DA DC
+    := _ ,, disp_functor_fix_snd_arg_axioms.
+
+End disp_fix_snd_arg.
 
 
 
@@ -638,6 +819,169 @@ Definition total_tensor
   := total_bifunctor T TT.
 
 
+
+
+
+Section FixDispTensor.
+
+  Context {C : category}
+          (tensor : C ⊠ C ⟶ C)
+          (α : associator tensor)
+          {D : disp_cat C}
+          (disp_tensor : displayed_tensor tensor D).
+
+
+  Local Definition make_prodmor
+        {a₁ a₂ b₁ b₂ : C}
+        (f₁ : a₁ --> b₁)
+        (f₂ : a₂ --> b₂)
+    : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
+    := (f₁ ,, f₂).
+
+  Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 30).
+
+  Local Definition make_dispprodmor
+        {a₁ a₂ b₁ b₂ : C}
+        {f₁ : a₁ --> b₁}
+        {f₂ : a₂ --> b₂}
+        {d₁ : D a₁}
+        {d₂ : D a₂}
+        {e₁ : D b₁}
+        {e₂ : D b₂}
+        (ff₁ : d₁ -->[f₁] e₁)
+        (ff₂ : d₂ -->[f₂] e₂)
+    : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
+    := ff₁ ,, ff₂.
+
+  Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 30).
+
+
+  Local Notation "f #⊠⊠' f'" := (#disp_tensor (f ⊠⊠' f')) (at level 30).
+
+  Let al : functor _ _ := assoc_left tensor.
+  Let ar : functor _ _ := assoc_right tensor.
+
+  Definition disp_assoc_left : @disp_functor ((C ⊠ C) ⊠ C) C al ((D ⊠⊠ D) ⊠⊠ D) D .
+  Proof.
+    use disp_functor_composite.
+    - use (disp_binprod D D).
+    - use disp_pair_functor.
+      + use disp_tensor.
+      + use disp_functor_identity.
+    - use disp_tensor.
+  Defined.
+
+  Definition disp_assoc_right : disp_functor  ar ((D ⊠⊠ D) ⊠⊠ D) D .
+  Proof.
+    use (disp_functor_composite (disp_unassoc _ _ _ _ _ _ )).
+    use disp_functor_composite.
+    - use (D ⊠⊠ D).
+    - use disp_pair_functor.
+      + use disp_functor_identity.
+      + use disp_tensor.
+    - use disp_tensor.
+  Defined.
+
+  Definition disp_associator : UU
+    := disp_nat_trans α disp_assoc_left disp_assoc_right.
+
+  Definition total_associator (αα : disp_associator) : associator (total_tensor tensor disp_tensor).
+  Proof.
+    (* needs some more infrastructure on total natural transformations *)
+  Abort.
+
+
+  Context {I : C} (dI : D I)
+          (λC : left_unitor tensor I)
+          (ρC : right_unitor tensor I).
+
+  Let Ipre : C ⟶ C := I_pretensor tensor I.
+
+  Definition disp_I_pretensor : disp_functor Ipre D D
+    := disp_functor_fix_fst_arg tensor disp_tensor I dI.
+
+  Definition disp_left_unitor : UU
+    := disp_nat_trans λC disp_I_pretensor (disp_functor_identity D).
+
+
+  Let Ipost : C ⟶ C := I_posttensor tensor I.
+
+  Definition disp_I_posttensor : disp_functor Ipost D D
+    := disp_functor_fix_snd_arg tensor disp_tensor I dI.
+
+  Definition disp_right_unitor : UU
+    := disp_nat_trans ρC disp_I_posttensor (disp_functor_identity D).
+
+
+  (* Now give the displayed pentagon and triangle equations *)
+
+  Context (dλ : disp_left_unitor)
+          (dρ : disp_right_unitor)
+          (dα : disp_associator)
+          (teq : triangle_eq tensor I λC ρC α)
+          (peq : pentagon_eq _ α).
+
+
+  Definition disp_triangle_eq : UU
+    := ∏ (a b : C) (da : D a) (db : D b),
+      # disp_tensor (pr1 dρ a da ⊠⊠' id_disp db)
+      =
+        transportb _ (teq _ _)
+                   (pr1 dα ((a,,I),,b) ((da,,dI),,db) ;; #disp_tensor (id_disp da ⊠⊠' pr1 dλ b db )).
+
+  Definition disp_pentagon_eq : UU.
+    refine (∏ (a b c d : C) (da : D a) (db : D b) (dc : D c) (dd : D d), _ = _).
+    - refine (pr1 dα ((tensor (a,,b),, c) ,, d) ((disp_tensor (a,,b) (da,, db),,dc),,dd) ;;
+              _).
+      apply (pr1 dα ((a,,b),,tensor (c,, d)) ((da,,db),, disp_tensor (c,,d) (dc,,dd))).
+    -
+      set (X1 := pr1 dα ((a,,b),,c) ((da,,db),,dc) #⊠⊠' id_disp db).
+      cbn in X1.
+      set (X2 := pr1 dα ( (a,, tensor (b,,c)) ,, d) ( (da,, disp_tensor (b,,c) (db,,dc)),,dd)).
+      Fail set (X12 := X1 ;; X2).
+  Abort.
+    (*
+     ∏ (a b c d : C),
+
+     pr1 α' ((a ⊗ b, c), d) · pr1 α' ((a, b), c ⊗ d) =
+
+        pr1 α' ((a, b), c) #⊗ id d · pr1 α' ((a, b ⊗ c), d) · id a #⊗ pr1 α' ((b, c), d).
+    *)
+
+End FixDispTensor.
+
+
+
+
+
+Section DisplayedMonoidal.
+
+  Context (Mon_C : monoidal_cat).
+
+  Local Definition tensor_C := monoidal_cat_tensor Mon_C.
+  Notation "X ⊗ Y" := (tensor_C (X , Y)).
+  Notation "f #⊗ g" := (# tensor_C (f #, g)) (at level 40).
+  Local Definition I_C := monoidal_cat_unit Mon_C.
+  Local Definition α_C := monoidal_cat_associator Mon_C.
+  Local Definition λ_C := monoidal_cat_left_unitor Mon_C.
+  Local Definition ρ_C := monoidal_cat_right_unitor Mon_C.
+
+  Context (D : disp_cat Mon_C).
+  Context (TT : displayed_tensor tensor_C D).
+
+
+  (* Give here the definition of displayed monoidal category.
+     Still required:
+     - definition of displayed pentagon and triangle equations
+
+   *)
+
+
+End DisplayedMonoidal.
+
+
+
+
 Section section_tensor.
 
 
@@ -656,17 +1000,17 @@ Section section_tensor.
           (TT : displayed_tensor T D)
           (S : section_disp D).
 
-
+(*
   Local Definition make_prodmor
         {a₁ a₂ b₁ b₂ : C}
         (f₁ : a₁ --> b₁)
         (f₂ : a₂ --> b₂)
     : C ⊠ C ⟦ a₁,,a₂ , b₁,,b₂ ⟧
     := (f₁ ,, f₂).
-
+*)
   Local Notation "f ⊠' f'" := (make_prodmor f f') (at level 30).
 
-
+(*
   Local Definition make_dispprodmor
         {a₁ a₂ b₁ b₂ : C}
         {f₁ : a₁ --> b₁}
@@ -679,6 +1023,7 @@ Section section_tensor.
         (ff₂ : d₂ -->[f₂] e₂)
     : @mor_disp _ (D⊠⊠D) (a₁,,a₂) (b₁,,b₂) (d₁ ,, d₂ )  ( e₁ ,, e₂ ) ( f₁ ,, f₂ )
     := ff₁ ,, ff₂.
+ *)
 
   Local Notation "f ⊠⊠' f'" := (make_dispprodmor f f') (at level 30).
 
@@ -810,12 +1155,11 @@ Section section_tensor.
   (* Sanity check looks ok, but is cumbersome to prove *)
 
   Local Definition sanity_check (α : monoidal_tensor_section)
-    : nat_iso
+    : nat_z_iso
         (functor_composite T (section_functor S))
         (functor_composite section_functor_pair (total_tensor T TT)).
   Proof.
-    Search (nat_iso).
-    use make_nat_iso.
+    use tpair.
     - use make_nat_trans.
       + intro a.
         cbn.
@@ -826,175 +1170,25 @@ Section section_tensor.
         intros [a a'] [b b'] [f f'].
         cbn in *.
         use total2_paths_f.
-        * (* we can prove this in an ugly way, since in the next goal
-             we are transporting along equality between elements of
-             a set anyway
-             For getting a clean display, it would even be good to
-             prove this equality separately and make it `Qed.`.
-           *)
-          (*cbn.
-          etrans.
-          apply id_right.
-          etrans.
-          2 : { eapply pathsinv0. apply id_left. }
-          apply maponpaths.
-
-          repeat rewrite id_left.
-          repeat rewrite id_right.
-          apply idpath.
-           *)
-          admit.
         * cbn.
           etrans.
-          apply maponpaths.
-          apply monoidal_tensor_ax'.
+          { apply id_right. }
+          apply (! id_left _ ).
+        * cbn.
+          etrans.
+          { apply maponpaths.
+            apply monoidal_tensor_ax'.
+          }
           etrans. { apply transport_f_f. }
           etrans. { apply transport_f_f. }
-          apply pathsinv0.
-          set (X := @disp_functor_comp _ _ _ _ _ TT).
-          etrans. {
-                  apply maponpaths.
-                  set (X':= @X (a,,a') (b,,b') (b,,b') (S a,, S a') (S b,,S b') (S b,,S b')).
-                  set (X'' := @X'
-                                ((id _ · f) ⊠' (id _ · f')) (identity b ⊠' id b')).
-                  set (X3 := X'' ((id_disp (S a) ;; section_disp_on_morphisms S f) ⊠⊠'(id_disp (S a') ;; section_disp_on_morphisms S f') )).
-                  set (X4 := X3 (id_disp (S b) ⊠⊠' (id_disp (S b')))).
-                  apply X4.
-                }
-                cbn.
-          etrans.
-          { apply mor_disp_transportf_prewhisker. }
-          etrans.
-          { apply maponpaths.
-            apply maponpaths.
-            etrans.
-            {
-              apply maponpaths.
-              set (X' := @disp_functor_id _ _ _ _ _ TT).
-              apply (X' (b,,b')).
-            }
-            apply mor_disp_transportf_prewhisker.
-          }
-          etrans.
-          { apply maponpaths.
-            apply mor_disp_transportf_prewhisker. }
-          etrans.
-          {
-            apply maponpaths.
-            apply maponpaths.
-            apply maponpaths.
-            apply id_right_disp.
-          }
-          etrans.
-          {
-            apply maponpaths.
-            apply maponpaths.
-            apply mor_disp_transportf_prewhisker.
-          }
-          etrans.
-          { apply transport_f_f. }
-          etrans.
-          { apply transport_f_f. }
-          etrans.
-          {
-            apply maponpaths.
-            apply maponpaths.
-            set (X':= @X (a,,a') (a,,a') (b,,b') (S a,, S a') (S a,,S a') (S b,,S b')).
-            set (X'' := @X'
-                          (identity a ⊠' id a') (f ⊠' f') ).
-            set (X3 := X'' (id_disp _ ⊠⊠' (id_disp _ ))
-                           (section_disp_on_morphisms S f ⊠⊠' section_disp_on_morphisms S f')
-                ).
-            apply X3.
-          }
-          etrans.
-          { apply maponpaths.
-            apply mor_disp_transportf_prewhisker.
-          }
-          etrans.
-          { apply transport_f_f. }
-          etrans.
-
-          { apply maponpaths.
-            apply maponpaths.
-            apply maponpaths_2.
-            set (X' := @disp_functor_id _ _ _ _ _ TT).
-            apply (X' (a,,a')).
-          }
-          etrans.
-          { apply maponpaths.
-            apply assoc_disp.
-          }
-          etrans.
-          { apply transport_f_f.
-          }
-          etrans.
-          { apply maponpaths.
-            apply maponpaths_2.
-            apply mor_disp_transportf_prewhisker.
-          }
-          etrans.
-          { apply maponpaths.
-            apply mor_disp_transportf_postwhisker.
-          }
-          etrans.
-          { apply transport_f_f.
-          }
-          etrans.
-          { apply maponpaths.
-            apply maponpaths_2.
-            apply id_right_disp.
-          }
-          etrans.
-          { apply maponpaths.
-            apply  mor_disp_transportf_postwhisker.
-          }
-          etrans.
-          { apply transport_f_f. }
-          Search ( ?x = ?x' -> ?y = ?y' -> ?f ?x ?y = ?f ?x' ?y' ).
-          apply two_arg_paths.
-          -- apply C.
-          -- apply idpath.
-    - intros a b f. cbn.
+          apply transportf_set.
+          apply C.
+    - cbn.
+      unfold is_nat_z_iso.
+      intros [c c'].
+      cbn.
+      (* search for (or make) lemma about (z-)isormorphisms in the total category *)
       admit.
   Abort.
 
 End section_tensor.
-
-
-Section FixDispTensor.
-
-  Context {C : category}
-          (tensor : C ⊠ C ⟶ C)
-          {D : disp_cat C}
-          (disp_tensor : displayed_tensor tensor D).
-
-  Let al : functor _ _ := assoc_left tensor.
-  Let ar : functor _ _ := assoc_right tensor.
-
-  Definition disp_assoc_left : @disp_functor ((C ⊠ C) ⊠ C) C al  ((D ⊠⊠ D) ⊠⊠ D) D .
-  Proof.
-    use disp_functor_composite.
-    - use (disp_binprod D D).
-    - use disp_pair_functor.
-      + use disp_tensor.
-      + use disp_functor_identity.
-    - use disp_tensor.
-  Defined.
-
-
-
-  (* TODO
-  Definition disp_assoc_right : @disp_functor (C ⊠ (C ⊠ C)) C ar  (D ⊠⊠ (D ⊠⊠ D)) D .
-  Proof.
-    use disp_functor_composite.
-    - use (disp_binprod D D).
-    - use disp_pair_functor.
-      + use disp_tensor.
-      + use disp_functor_identity.
-    - use disp_tensor.
-  Defined.
-*)
-
-
-End FixDispTensor.
