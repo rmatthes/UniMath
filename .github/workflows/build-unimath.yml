@@ -36,7 +36,7 @@ jobs:
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
-          time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make -j2 TIMECMD=time && grep vo_compile UniMath/SubstitutionSystems/.Signatures.aux
+          time make build-coq BUILD_COQIDE=$BUILD_COQIDE && time make -j2 TIMECMD=time && grep vo_compile UniMath/SubstitutionSystems/.Signatures.aux UniMath/SubstitutionSystems/.BinSumOfSignatures.aux UniMath/SubstitutionSystems/.BinProductOfSignatures.aux UniMath/SubstitutionSystems/.LiftingInitial_alt.aux UniMath/SubstitutionSystems/.ActionBasedStrengthOnHomsInBicat.aux UniMath/Bicategories/MonoidalCategories/.ActionBasedStrongFunctorsMonoidal.aux UniMath/Bicategories/DisplayedBicats/Examples/.DisplayedInserter.aux UniMath/Bicategories/DisplayedBicats/.Cartesians.aux UniMath/Bicategories/DisplayedBicats/.DispTransformation.aux
 
       # Change into UniMath directory and run sanity checks
       - name: Change into UniMath directory and run sanity checks
