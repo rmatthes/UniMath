@@ -18,6 +18,8 @@ Require Import UniMath.Bicategories.Morphisms.Adjunctions.
 Require Import UniMath.Bicategories.Core.Univalence.
 Local Open Scope bicategory_scope.
 
+Notation "x 'o' y" := (y • x) (at level 67, only parsing, left associativity).
+
 Lemma representable_faithful
            {C : bicat}
            {X Y Z : C}

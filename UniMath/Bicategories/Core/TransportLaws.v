@@ -32,7 +32,7 @@ Definition transport_one_cell_FlFr
       ∘ (idtoiso_2_0 _ _ (maponpaths f (!p))).
 Proof.
   induction p ; cbn.
-  exact (linvunitor _ o rinvunitor _).
+  exact (rinvunitor _ • linvunitor _ ).
 Defined.
 
 Definition transport_one_cell_FlFr_inv
@@ -49,7 +49,7 @@ Definition transport_one_cell_FlFr_inv
       (transportf (λ (z : A), C⟦f z,g z⟧) p h).
 Proof.
   induction p ; cbn.
-  exact (runitor _ o lunitor _).
+  exact (lunitor _ • runitor _).
 Defined.
 
 Definition transport_one_cell_FlFr_iso
@@ -139,7 +139,7 @@ Lemma transport_two_cell_FlFr
            (α : F a₁ ==> G a₁)
   : transportf (λ z, F z ==> G z) p α
     =
-    idtoiso_2_1 _ _ (maponpaths G p) o α o (idtoiso_2_1 _ _ (maponpaths F p))^-1.
+    (idtoiso_2_1 _ _ (maponpaths F p))^-1 • (α • idtoiso_2_1 _ _ (maponpaths G p)).
 Proof.
   induction p ; cbn.
   rewrite id2_right, id2_left.

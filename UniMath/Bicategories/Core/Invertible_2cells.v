@@ -98,10 +98,9 @@ Lemma pentagon
            {C : bicat}
            {V W X Y Z : C}
            (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧) (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-  : (lassociator (g ∘ f) h k o lassociator f g (k ∘ h))
+  : lassociator f g (k ∘ h) • lassociator (g ∘ f) h k
     =
-    (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k o
-                                 (lassociator g h k ⋆⋆ id₂ f).
+    lassociator g h k ⋆⋆ id₂ f • (lassociator f (h ∘ g) k • (id₂ k ⋆⋆ lassociator f g h)).
 Proof.
   unfold assoc.
   unfold hcomp.
@@ -188,7 +187,7 @@ Lemma vcomp_move_L_Vp
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : f ==> h) (ε : g ==> h)
            (Hε : is_invertible_2cell ε)
-  : ε o η₁ = η₂ -> η₁ = Hε^-1 o η₂.
+  : η₁ • ε= η₂ -> η₁ = η₂ • Hε^-1.
 Proof.
   intros ?.
   rewrite <- (id2_right η₁).
@@ -204,7 +203,7 @@ Lemma vcomp_move_L_pV
            {f g h : C⟦X,Y⟧}
            (η₁ : g ==> h) (η₂ : f ==> h) (ε : f ==> g)
            (Hε : is_invertible_2cell ε)
-  : η₁ o ε = η₂ -> η₁ = η₂ o Hε^-1.
+  : ε • η₁= η₂ -> η₁ = Hε^-1 • η₂.
 Proof.
   intros Hη.
   rewrite <- (id2_left η₁).
@@ -220,7 +219,7 @@ Lemma vcomp_move_R_Mp
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : f ==> h) (ε : g ==> h)
            (Hε : is_invertible_2cell ε)
-  : η₁ = Hε^-1 o η₂ -> ε o η₁ = η₂.
+  : η₁ = η₂ • Hε^-1 -> η₁ • ε = η₂.
 Proof.
   intros ?.
   rewrite <- (id2_right η₂).
@@ -236,7 +235,7 @@ Lemma vcomp_move_R_pM
            {f g h : C⟦X,Y⟧}
            (η₁ : g ==> h) (η₂ : f ==> h) (ε : f ==> g)
            (Hε : is_invertible_2cell ε)
-  : η₁ = η₂ o Hε^-1 -> η₁ o ε = η₂.
+  : η₁ = Hε^-1 • η₂ -> ε • η₁ = η₂.
 Proof.
   intros Hη.
   rewrite <- (id2_left η₂).
@@ -252,7 +251,7 @@ Lemma vcomp_move_L_Mp
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> h) (η₂ : f ==> g) (ε : g ==> h)
            (Hε : is_invertible_2cell ε)
-  : Hε^-1 o η₁ = η₂ -> η₁ = ε o η₂.
+  : η₁ • Hε^-1 = η₂ -> η₁ = η₂ • ε.
 Proof.
   intros ?.
   rewrite <- (id2_right η₁).
@@ -268,7 +267,7 @@ Lemma vcomp_move_L_pM
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> h) (η₂ : g ==> h) (ε : f ==> g)
            (Hε : is_invertible_2cell ε)
-  : η₁ o Hε^-1 = η₂ -> η₁ = η₂ o ε.
+  : Hε^-1 • η₁ = η₂ -> η₁ = ε • η₂.
 Proof.
   intros Hη.
   rewrite <- (id2_left η₁).

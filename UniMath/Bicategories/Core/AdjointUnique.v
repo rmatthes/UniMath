@@ -22,6 +22,8 @@ Require Import UniMath.Bicategories.Core.EquivToAdjequiv.
 Local Open Scope cat.
 Local Open Scope bicategory_scope.
 
+Notation "x 'o' y" := (y • x) (at level 67, only parsing, left associativity).
+
 Definition adjoint_unique_map
            {C : bicat}
            {X Y : C}
