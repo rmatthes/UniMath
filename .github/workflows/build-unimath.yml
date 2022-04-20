@@ -43,8 +43,7 @@ jobs:
           type coqc
           coqc --version
           echo "RM extra:"
-          cat /proc/cpuinfo | grep 'cpu cores'
-          cat /proc/cpuinfo | grep 'model name'
+          cat /proc/cpuinfo
       - name: Build UniMath
         run: |
           cd $GITHUB_WORKSPACE
