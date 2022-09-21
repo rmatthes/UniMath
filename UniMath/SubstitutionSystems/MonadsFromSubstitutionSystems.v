@@ -102,7 +102,7 @@ Defined.
 
 (** the bracket of the "degenerate" argument [η T] *)
 Definition μ_1 : functor_composite (U (id_Ptd C)) (`T) ⟹ functor_data_from_functor _ _ `T
-  := fbracket _ μ_0_ptd.
+  := fbracket _ (#U (μ_0_ptd)).
 
 (** using uniqueness of bracket for [η T] *)
 Lemma μ_1_identity : μ_1 = identity `T .
@@ -157,7 +157,7 @@ Qed.
 Definition μ_2 : functor_composite (`T) (`T) ⟹ pr1 (`T)
   := prejoin_from_hetsubst T.
 
-Goal μ_2 = fbracket T (identity _ ).
+Goal μ_2 = fbracket T (# U (identity (ptd_from_alg T))).
 Proof.
   apply idpath.
 Qed.
@@ -190,7 +190,7 @@ Proof.
   intermediate_path (μ_1 c).
   - unfold μ_1.
     assert (H' := @fbracket_unique_target_pointwise _ _ _ T).
-    assert (H1 := H'  _ μ_0_ptd).
+    assert (H1 := H'  _ (#U μ_0_ptd)).
     set (x := post_whisker μ_0 (`T)
              : EndC ⟦ `T • functor_identity _  , `T • `T ⟧).
     set (x' := x · μ_2).
@@ -285,7 +285,7 @@ Proof.
   apply μ_2_is_ptd_mor.
 Defined.
 
-Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T μ_2_ptd.
+Definition μ_3 : EndC ⟦ U T_squared • `T,  `T⟧ := fbracket T (#U μ_2_ptd).
 
 
 (** *** Proof of the third monad law via transitivity *)
@@ -296,7 +296,7 @@ Lemma μ_3_T_μ_2_μ_2 : μ_3 =
                       (`T ∘ μ_2 : EndC ⟦ `T • _  , `T • `T ⟧ ) · μ_2.
 Proof.
   apply pathsinv0.
-  apply (fbracket_unique T μ_2_ptd).
+  apply (fbracket_unique T (#U μ_2_ptd)).
   split.
   - apply nat_trans_eq_alt.
     intro c.
@@ -366,7 +366,7 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                     ((functor_ptd_forget C hs) T) --> _*) ) μ_2 :
             (*TtimesTthenT'*) T•T² --> `T) = μ_3.
 Proof.
-  apply (fbracket_unique (*_pointwise*) T μ_2_ptd).
+  apply (fbracket_unique (*_pointwise*) T (#U μ_2_ptd)).
   split.
   - apply nat_trans_eq_alt; intro c.
     simpl.
@@ -467,7 +467,7 @@ Proof.
   intermediate_path μ_3; [apply pathsinv0, μ_3_T_μ_2_μ_2 | ].
   apply pathsinv0.
   (** we only aim at a proof alternative to [μ_3_μ_2_T_μ_2] *)
-  apply (fbracket_unique (*_pointwise*) T  μ_2_ptd).
+  apply (fbracket_unique (*_pointwise*) T  (#U μ_2_ptd)).
   split.
   - apply nat_trans_eq_alt; intro c.
     simpl.
@@ -590,15 +590,18 @@ Proof.
     unfold μ_2. simpl.
     set (H' := isbracketMor_hssMor _ _ _ β).
     unfold isbracketMor in H'.
-    set (H2 := H' _ (identity _ )).
+    set (H2 := H' (ptd_from_alg T) (#U (identity _ ))).
     set (H3 := nat_trans_eq_weq (homset_property C) _ _ H2).
     rewrite id_left in H3.
     simpl in H3.
     rewrite H3; clear H3 H2 H'.
-    rewrite compute_fbracket.
-    rewrite <- assoc.
+    rewrite assoc'.
     apply maponpaths.
-    apply cancel_postcomposition.
+    assert (aux := compute_fbracket(Z:=ptd_from_alg T) C CP H T' (ptd_from_alg_mor C CP H (pr1 β))).
+    apply (maponpaths pr1) in aux.
+    apply toforallpaths in aux.
+    etrans.
+    { apply (aux c). }
     apply idpath.
   - unfold μ_0.
     intro c.
