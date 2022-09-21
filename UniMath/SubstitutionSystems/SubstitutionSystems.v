@@ -103,30 +103,30 @@ Section fix_a_pointed_functor.
   Context (θ : @PrestrengthForSignatureAtPoint C C C H Z).
 
 
-Definition bracket_property (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
+Definition bracket_property (T : algebra_ob Id_H) (f : U Z --> `T)
            (h : `T • (U Z)  --> `T) : UU
   :=
     alg_map _ T •• (U Z) · h =
           (identity (U Z) ⊕ θ `T) ·
           (identity (U Z) ⊕ #H h) ·
-          (BinCoproductArrow  (CPEndC _ _ ) (#U f) (tau_from_alg T)).
+          (BinCoproductArrow  (CPEndC _ _ ) f (tau_from_alg T)).
 
-Definition bracket_at (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T): UU :=
+Definition bracket_at (T : algebra_ob Id_H) (f : U Z --> `T): UU :=
   ∃! h : `T • (U Z)  --> `T, bracket_property T f h.
 
 
-Definition bracket_property_parts (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
+Definition bracket_property_parts (T : algebra_ob Id_H) (f : U Z --> `T)
            (h : `T • (U Z)  --> `T) : UU
   :=
-    (#U f = η T •• (U Z) · h) ×
+    (f = η T •• (U Z) · h) ×
      (θ `T · #H h · τ T  = τ T •• (U Z) ·  h).
 
-Definition bracket_parts_at (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T) : UU :=
+Definition bracket_parts_at (T : algebra_ob Id_H) (f : U Z --> `T) : UU :=
    ∃! h : `T • (U Z)  --> `T, bracket_property_parts T f h.
 
 (* show that for any h of suitable type, the following are equivalent *)
 
-Lemma parts_from_whole (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
+Lemma parts_from_whole (T : algebra_ob Id_H) (f : U Z --> `T)
       (h :  `T • (U Z)  --> `T) :
   bracket_property T f h → bracket_property_parts T f h.
 Proof.
@@ -179,7 +179,7 @@ Proof.
       apply idpath.
 Qed.
 
-Lemma whole_from_parts (T : algebra_ob Id_H) (f : Z --> ptd_from_alg T)
+Lemma whole_from_parts (T : algebra_ob Id_H) (f : U Z --> `T)
       (h :  `T • (U Z)  --> `T) :
   bracket_property_parts T f h → bracket_property T f h.
 Proof.
@@ -302,7 +302,7 @@ Section fix_a_prestrength.
   Context (θ :  @PrestrengthForSignature C C C H).
 
 Definition bracket (T : algebra_ob Id_H) : UU
-  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
+  := ∏ (Z : Ptd) (f : U Z --> `T), bracket_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
 
 Lemma isaprop_bracket (T : algebra_ob Id_H) : isaprop (bracket T).
 Proof.
@@ -312,7 +312,7 @@ Proof.
 Qed.
 
 Definition bracket_parts (T : algebra_ob Id_H) : UU
-  := ∏ (Z : Ptd) (f : Z --> ptd_from_alg T), bracket_parts_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
+  := ∏ (Z : Ptd) (f : U Z --> `T), bracket_parts_at (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f.
 
 End fix_a_prestrength.
 
@@ -337,10 +337,15 @@ Arguments bracket_parts {_} _ _ .
 (** the notion of a heterogeneous substitution system that asks for more operations to uniquely exist *)
 Definition hss : UU := ∑ (T: algebra_ob Id_H), bracket H θ T.
 
-Coercion hetsubst_from_hss (T : hss) : heterogeneous_substitution H := pr1 T,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg (pr1 T)) ,, pr2 T _ (identity _)).
+Coercion hetsubst_from_hss (T : hss) : heterogeneous_substitution H.
+Proof.
+  exists (pr1 T).
+  use tpair.
+  - apply (nat_trans_fix_snd_arg _ _ _ _ _ θ).
+  - apply (pr2 T).
+Defined.
 
-
-Definition fbracket (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
+Definition fbracket (T : hss) {Z : Ptd} (f : U Z --> `T)
   : `T • (U Z) --> `T
   := pr1 (pr1 (pr2 T Z f)).
 
@@ -348,9 +353,9 @@ Notation "⦃ f ⦄" := (fbracket _ f)(at level 0).
 
 (** The bracket operation [fbracket] is unique *)
 
-Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
+Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : U Z --> `T)
   : ∏ (α : functor_composite (U Z) `T ⟹ pr1 `T),
-     (∏ c : C, pr1 (#U f) c = pr1 (η T) (pr1 (U Z) c) · α c) →
+     (∏ c : C, pr1 f c = pr1 (η T) (pr1 (U Z) c) · α c) →
      (∏ c : C, pr1 (θ (`T ⊗ Z))  c · pr1 (#H α) c · pr1 (τ T) c =
         pr1 (τ T) (pr1 (U Z) c) · α c)
      →
@@ -364,7 +369,7 @@ Proof.
   - apply nat_trans_eq_alt; assumption.
 Qed.
 
-Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
+Definition fbracket_unique (T : hss) {Z : Ptd} (f : U Z --> `T)
 : ∏ α : (*functor_composite (C:=C)*) `T • (U Z)  --> `T,
     bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
@@ -376,7 +381,7 @@ Proof.
   split;  assumption.
 Qed.
 
-Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z --> ptd_from_alg T)
+Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : U Z --> `T)
   : ∏ α : `T • U Z --> `T,
         bracket_property_parts H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T f α
    →
@@ -389,15 +394,15 @@ Qed.
 
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
-Lemma fbracket_η (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
-   #U f = η T •• U Z · ⦃f⦄.
+Lemma fbracket_η (T : hss) : ∏ {Z : Ptd} (f : U Z --> `T),
+   f = η T •• U Z · ⦃f⦄.
 Proof.
   intros Z f.
   (* assert (H' := parts_from_whole T Z f (fbracket _ f)) . *)
   exact (pr1 (parts_from_whole _ _ _ _ _ (pr2 (pr1 (pr2 T Z f))))).
 Qed.
 
-Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
+Lemma fbracket_τ (T : hss) : ∏ {Z : Ptd} (f : U Z --> `T),
     θ (`T ⊗ Z) · #H ⦃f⦄ · τ T
     =
     τ T •• U Z · ⦃f⦄.
@@ -408,8 +413,8 @@ Qed.
 
 (** [fbracket] is also natural *)
 
-Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z --> Z') (g : Z' --> ptd_from_alg T)
-:  (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄.
+Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z --> Z') (g : U Z' --> `T)
+:  (` T ∘ #U f : EndC ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ #U f · g ⦄.
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
@@ -434,7 +439,7 @@ Proof.
     simpl in X.
     rewrite  <- assoc.
     rewrite  <- assoc.
-    transitivity (  # (pr1 (H ((`T)))) (pr1 (pr1 f) c) ·
+    transitivity (  # (pr1 (H ((`T)))) (pr1 f c) ·
                      (pr1 (θ ((`T) ⊗ Z')) c)· pr1 (# H (fbracket T g)) c· pr1 (τ T) c).
     2: { rewrite <- assoc.
          rewrite <- assoc.
@@ -466,12 +471,13 @@ Qed.
 (** As a consequence of naturality, we can compute [fbracket f] from [fbracket identity] *)
 
 Lemma compute_fbracket (T : hss) : ∏ {Z : Ptd} (f : Z --> ptd_from_alg T),
-    ⦃ f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (ptd_from_alg T) ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
+    ⦃ #U f ⦄ = (` T ∘ # U f : EndC ⟦ `T • U Z , `T • U (ptd_from_alg T) ⟧) · ⦃ identity (U (ptd_from_alg T)) ⦄.
 Proof.
   intros Z f.
   assert (A : f = f · identity _ ).
   { rewrite id_right; apply idpath. }
   rewrite A.
+  rewrite functor_comp.
   rewrite <- fbracket_natural.
   rewrite id_right.
   apply idpath.
@@ -488,8 +494,8 @@ Section from_identity_to_hss.
     T ,, (nat_trans_fix_snd_arg _ _ _ _ _ θ (ptd_from_alg T) ,, prejoin).
 
 Lemma heterogeneous_substitution_into_bracket {Z : Ptd} (f : Z --> ptd_from_alg T0) :
-  bracket_property H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T0 f
-    ((` T0 ∘ # U f : EndC ⟦ `T0 • U Z , `T0 • U (ptd_from_alg T0) ⟧) · prejoin_from_hetsubst T0).
+  bracket_property H (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) T0 (#U f)
+    ((` T0 ∘ #U f : EndC ⟦ `T0 • U Z , `T0 • U (ptd_from_alg T0) ⟧) · prejoin_from_hetsubst T0).
 Proof.
   apply whole_from_parts.
   split.
@@ -662,7 +668,7 @@ Definition ptd_from_alg_functor: functor (category_FunctorAlg Id_H) Ptd :=
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
     ∏ (Z : Ptd) (f : Z --> ptd_from_alg T),
-      ⦃ f ⦄ · β = β •• U Z · ⦃ f · # ptd_from_alg_functor β ⦄.
+      ⦃ #U f ⦄ · β = β •• U Z · ⦃ #U (f · # ptd_from_alg_functor β) ⦄.
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
@@ -767,7 +773,7 @@ Proof.
     apply maponpaths.
     apply isbracketMor_hssMor.
   rewrite assoc.
-  rewrite functor_comp.
+  do 5 rewrite functor_comp.
   rewrite assoc.
   apply cancel_postcomposition.
   apply pathsinv0, (functor_comp (pre_composition_functor _ _ C (U Z)) ).
