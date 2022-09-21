@@ -258,14 +258,14 @@ Definition θ'_Thm15 (Z: Ptd)
    (identity (constant_functor EndC _ (U Z): functor_category EndC EndC))
    (θ_in_first_arg Z).
 
-Definition ρ_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptdInitAlg ⟧)
+Definition ρ_Thm15 (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : [C, C] ⟦ BinCoproductObject (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
-   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
+   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) f
    (BinCoproductIn2 (CPEndC _ _) · (alg_map _ InitAlg)).
 
-Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : ∃! h : [C, C] ⟦ ℓ (U Z) (` (InitialObject IA)), pr1 InitAlg ⟧,
            # (ℓ (U Z)) (alg_map Id_H (InitialObject IA)) · h
            =
@@ -274,17 +274,15 @@ Definition SpecializedGMIt_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg �
   := SpecializedGMIt Z (pr1 InitAlg) (Const_plus_H (U Z))
      (ρ_Thm15 Z f) (aux_iso_1 Z · θ'_Thm15 Z · aux_iso_2_inv Z).
 
-Definition bracket_Thm15 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition bracket_Thm15 (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : [C, C] ⟦ ℓ (U Z) (` (InitialObject IA)), `InitAlg ⟧
   := pr1 (pr1 (SpecializedGMIt_Thm15 Z f)).
 
 Notation "⦃ f ⦄" := (bracket_Thm15 _ f) (at level 0).
 
 (* we prove the individual components for ease of compilation *)
-Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
- # U f
- =
- # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
+Lemma bracket_Thm15_ok_part1 (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧):
+ f = # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
 Proof.
   apply nat_trans_eq_alt.
   intro c.
@@ -332,7 +330,7 @@ Proof.
     apply idpath.
 Qed.
 
-Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg  InitAlg ⟧):
+Lemma bracket_Thm15_ok_part2 (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧):
  (theta H) ((alg_carrier _  InitAlg) ⊗ Z) ·  # H ⦃f⦄ · τ InitAlg
   =
    # (pr1 (ℓ (U Z))) (τ InitAlg) · ⦃f⦄.
@@ -392,7 +390,7 @@ Proof.
     apply assoc.
 Qed.
 
-Lemma bracket_Thm15_ok (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
+Lemma bracket_Thm15_ok (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧):
  bracket_property_parts (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f ⦃f⦄.
 Proof.
   split.
@@ -400,14 +398,14 @@ Proof.
   + exact (bracket_Thm15_ok_part2 Z f).
 Qed.
 
-Lemma bracket_Thm15_ok_cor (Z: Ptd)(f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧):
+Lemma bracket_Thm15_ok_cor (Z: Ptd)(f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧):
  bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f (bracket_Thm15 Z f).
 Proof.
   apply whole_from_parts.
   apply bracket_Thm15_ok.
 Qed.
 
-Local Lemma foo' (Z : Ptd) (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+Local Lemma foo' (Z : Ptd) (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
  ∏ t : ∑ h : [C, C] ⟦ functor_composite (U Z) (pr1  InitAlg),
                          pr1 InitAlg ⟧,
        bracket_property (nat_trans_fix_snd_arg _ _ _ _ _ θ Z) _ f h,
@@ -514,7 +512,7 @@ Proof.
   apply id_right] ).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z --> ptdInitAlg):
+Definition thetahat_0 (Z : Ptd) (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧):
 EndEndC
 ⟦ BinCoproductObject
     (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
@@ -524,7 +522,7 @@ BinCoproductObject
              (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)) ⟧ .
 Proof.
   exact (BinCoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
-                           (constant_nat_trans _ _ _ _ (#U f))
+                           (constant_nat_trans _ _ _ _ f)
                            (θ_in_first_arg Z)).
 Defined.
 
@@ -584,7 +582,7 @@ Proof.
   - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd)  (f : Z --> ptdInitAlg)
+Definition thetahat (Z : Ptd)  (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
            : EndEndC ⟦ functor_composite Id_H
                                         (ℓ (U Z)),
                      functor_composite (ℓ (U Z)) (Ghat) ⟧.
@@ -750,7 +748,7 @@ Proof.
       { apply cancel_postcomposition.
         assert (ptd_mor_commutes_inst := ptd_mor_commutes _ (ptd_from_alg_mor _ CP H β0) ((pr1 Z) c)).
         apply ptd_mor_commutes_inst. }
-      assert (fbracket_η_inst := fbracket_η T' (f· ptd_from_alg_mor _ CP H β0)).
+      assert (fbracket_η_inst := fbracket_η T' (f · #U (ptd_from_alg_mor _ CP H β0))).
       assert (fbracket_η_inst_c := nat_trans_eq_pointwise fbracket_η_inst c); clear fbracket_η_inst.
       apply (!fbracket_η_inst_c).
     + (* now the difficult case *)
@@ -789,7 +787,7 @@ Proof.
       { apply maponpaths.
         rewrite assoc.
         eapply pathsinv0.
-        assert (fbracket_τ_inst := fbracket_τ T' (f · ptd_from_alg_mor _  CP H β0)).
+        assert (fbracket_τ_inst := fbracket_τ T' (f · #U (ptd_from_alg_mor _  CP H β0))).
         assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
       }
@@ -801,11 +799,11 @@ Proof.
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  (theta H) ((alg_carrier _  T') ⊗ Z)·
-                 # H (fbracket T' (f · ptd_from_alg_mor C CP H β0))
+                 # H (fbracket T' (f · #U(ptd_from_alg_mor C CP H β0)))
                  =
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
-                 fbracket T' (f · ptd_from_alg_mor C CP H β0)))).
+                 fbracket T' (f · #U(ptd_from_alg_mor C CP H β0))))).
       2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
            exact Hyp_c. }
       clear c. clear X. clear rhohat.
