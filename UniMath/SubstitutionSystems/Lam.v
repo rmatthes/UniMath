@@ -19,7 +19,9 @@ Contents :
 
 
 
-************************************************************)
+ ************************************************************)
+
+(** WARNING 2022: does not compile with recent changes to the notion of hss *)
 
 Set Kernel Term Sharing.
 
@@ -207,6 +209,7 @@ Proof.
            ).
 Defined.
 
+(** WARNING: does not compile from here onwards *)
 
 Definition fbracket_for_LamE_algebra_on_Lam (Z : Ptd)
    (f : Ptd ⟦ Z, ptd_from_alg_functor CC LamE_S LamE_algebra_on_Lam ⟧ ) :

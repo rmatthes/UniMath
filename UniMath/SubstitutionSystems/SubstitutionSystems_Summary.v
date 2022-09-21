@@ -44,7 +44,7 @@ Require Import UniMath.CategoryTheory.UnitorsAndAssociatorsForEndofunctors.
 Require Import UniMath.SubstitutionSystems.LiftingInitial.
 Require Import UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
 Require Import UniMath.SubstitutionSystems.LamSignature.
-Require Import UniMath.SubstitutionSystems.Lam.
+(* Require Import UniMath.SubstitutionSystems.Lam. does not compile with current modifications *)
 Require Import UniMath.SubstitutionSystems.Notation.
 Local Open Scope subsys.
 
@@ -107,8 +107,8 @@ Lemma fbracket_natural
      : ∏ (C : category) (CP : BinCoproducts C)
        (H : Presignature C C C) (T : hss CP H) (Z Z' : category_Ptd C)
        (f : category_Ptd C ⟦ Z, Z' ⟧)
-       (g : category_Ptd C ⟦ Z', ptd_from_alg T ⟧),
-       (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ f · g ⦄ .
+       (g : [C,C] ⟦ U Z', `T ⟧),
+       (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U Z' ⟧) · ⦃ g ⦄ = ⦃ #U f · g ⦄ .
 Proof.
   apply fbracket_natural.
 Qed.
@@ -117,7 +117,7 @@ Lemma compute_fbracket
      : ∏ (C : category) (CP : BinCoproducts C)
        (H : Presignature C C C) (T : hss CP H) (Z : category_Ptd C)
        (f : category_Ptd C ⟦ Z, ptd_from_alg T ⟧),
-       ⦃ f ⦄ = (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (ptd_from_alg T) ⦄.
+       ⦃ #U f ⦄ = (`T ∘ # U f : [C, C] ⟦ `T • U Z , `T • U _ ⟧) · ⦃ identity (U (ptd_from_alg T)) ⦄.
 Proof.
   apply compute_fbracket.
 Qed.
@@ -168,7 +168,7 @@ Definition bracket_for_initial_algebra
        → ∏ (H : Presignature C C C)
            (IA : Initial (FunctorAlg (Id_H C CP H)))
            (Z : category_Ptd C),
-           category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA) ⟧
+           [C, C] ⟦ U Z, U (ptd_from_alg (InitAlg C CP H IA)) ⟧
            →
            [C, C] ⟦ ℓ (U Z) ` (InitialObject IA), ` (InitAlg C CP H IA) ⟧.
 Proof.
@@ -182,8 +182,8 @@ Lemma bracket_Thm15_ok_η
        (H : Presignature C C C)
        (IA : Initial (FunctorAlg (Id_H C CP H)))
        (Z : category_Ptd C)
-       (f : category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA)⟧),
-       # U f =
+       (f : [C,C] ⟦ U Z, U (ptd_from_alg (InitAlg C CP H IA))⟧),
+       f =
        # (pr1 (ℓ (U Z))) (η (InitAlg C CP H IA)) ·
        bracket_Thm15 C CP KanExt H IA Z f.
 Proof.
@@ -196,7 +196,7 @@ Lemma bracket_Thm15_ok_τ
       (H : Presignature C C C)
       (IA : Initial (FunctorAlg (Id_H C CP H)))
       (Z : category_Ptd C)
-      (f : category_Ptd C ⟦ Z, ptd_from_alg (InitAlg C CP H IA) ⟧),
+      (f : [C,C] ⟦ U Z, U (ptd_from_alg (InitAlg C CP H IA)) ⟧),
     (theta H) (` (InitAlg C CP H IA) ⊗ Z) ·
     # H (bracket_Thm15 C CP KanExt H IA Z f) ·
     τ (InitAlg C CP H IA)
@@ -262,6 +262,8 @@ Defined.
 
 (** * Evaluation of explicit substitution as initial morphism *)
 
+(** this part not compatible with current modifications to the notion of hss
+
 (** Definition 36 *)
 
 Definition Lam_Flatten
@@ -314,3 +316,6 @@ Definition EVAL
 Proof.
   apply FLATTEN.
 Defined.
+
+
+*)

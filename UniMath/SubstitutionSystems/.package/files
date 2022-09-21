@@ -11,7 +11,6 @@ LiftingInitial.v
 LiftingInitial_alt.v
 ModulesFromSignatures.v
 LamSignature.v
-Lam.v
 SignatureExamples.v
 SignatureCategory.v
 SubstitutionSystems_Summary.v
