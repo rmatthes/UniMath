@@ -250,15 +250,15 @@ Definition θ'_Thm15
    (identity (constant_functor EndC _ (U Z): functor_category EndC EndC))
    prestrength_in_first_arg.
 
-Definition ρ_Thm15 (f : Ptd ⟦ Z, ptdInitAlg ⟧)
+Definition ρ_Thm15 (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : [C, C] ⟦ BinCoproductObject (CPEndC (U Z) (H `InitAlg)), `InitAlg ⟧
   := @BinCoproductArrow
    EndC _ _  (CPEndC (U Z)
-   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) (#U f)
+   (H (alg_carrier _ InitAlg))) (alg_carrier _ InitAlg) f
    (BinCoproductIn2 (CPEndC _ _) · (alg_map _ InitAlg)).
 
 
-Definition SpecializedGMIt_Thm15 (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition SpecializedGMIt_Thm15 (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : ∃! h : [C, C]
               ⟦ ℓ (U Z) (pr1 InitAlg),
               pr1 InitAlg ⟧,
@@ -269,15 +269,15 @@ Definition SpecializedGMIt_Thm15 (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
    (SpecializedGMIt (pr1 InitAlg) (Const_plus_H (U Z))
      (ρ_Thm15 f) (aux_iso_1 · θ'_Thm15 · aux_iso_2_inv)).
 
-Definition bracket_Thm15 (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧)
+Definition bracket_Thm15 (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
   : [C, C]⟦ ℓ (U Z) (pr1 InitAlg), pr1 InitAlg ⟧
   := pr1 (pr1 (SpecializedGMIt_Thm15 f)).
 
 Notation "⦃ f ⦄" := (bracket_Thm15 f) (at level 0).
 
 (* we prove the individual components for ease of compilation *)
-Lemma bracket_Thm15_ok_part1 (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
- # U f = # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
+Lemma bracket_Thm15_ok_part1 (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
+ f = # (pr1 (ℓ (U Z))) (η InitAlg) · ⦃f⦄.
 Proof.
 apply nat_trans_eq_alt; intro c.
 assert (h_eq := pr2 (pr1 (SpecializedGMIt_Thm15 f))).
@@ -298,7 +298,7 @@ eapply pathscomp0, pathscomp0; [|apply (!h_eq1'_inst)|]; clear h_eq1'_inst.
   now rewrite id_left, assoc.
 Qed.
 
-Lemma bracket_Thm15_ok_part2 (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+Lemma bracket_Thm15_ok_part2 (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
   prestrength_in_first_arg (alg_carrier _ InitAlg) ·  # H ⦃f⦄ · τ InitAlg =
   # (pr1 (ℓ (U Z))) (τ InitAlg) · ⦃f⦄.
 Proof.
@@ -325,7 +325,7 @@ eapply pathscomp0, pathscomp0; [|apply (!h_eq2'_inst)|]; clear h_eq2'_inst.
   now rewrite id_left; apply assoc.
 Qed.
 
-Lemma bracket_Thm15_ok (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+Lemma bracket_Thm15_ok (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
   bracket_property_parts prestrength_in_first_arg InitAlg f ⦃f⦄.
 Proof.
 split.
@@ -333,13 +333,13 @@ split.
 + exact (bracket_Thm15_ok_part2 f).
 Qed.
 
-Lemma bracket_Thm15_ok_cor (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+Lemma bracket_Thm15_ok_cor (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
  bracket_property prestrength_in_first_arg InitAlg f (bracket_Thm15 f).
 Proof.
 now apply whole_from_parts, bracket_Thm15_ok.
 Qed.
 
-Local Lemma bracket_unique (f : Ptd ⟦ Z, ptd_from_alg InitAlg ⟧) :
+Local Lemma bracket_unique (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
  ∏ t : ∑ h : [C, C] ⟦ functor_composite (U Z) (pr1  InitAlg),
                             pr1 InitAlg ⟧, bracket_property prestrength_in_first_arg InitAlg f h,
    t = tpair _ ⦃f⦄ (bracket_Thm15_ok_cor f).
@@ -407,7 +407,7 @@ exists (λ _, m).
 abstract (intros ? ? ?; intermediate_path m; [ apply id_left | apply pathsinv0, id_right]).
 Defined.
 
-Definition thetahat_0 (Z : Ptd) (f : Z --> ptdInitAlg) :
+Definition thetahat_0 (Z : Ptd) (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧) :
   EndEndC
   ⟦ BinCoproductObject
       (CPEndEndC (constant_functor [C, C] [C, C] (U Z))
@@ -417,7 +417,7 @@ Definition thetahat_0 (Z : Ptd) (f : Z --> ptdInitAlg) :
                  (functor_fix_snd_arg [C, C] Ptd [C, C] (θ_target H) Z)) ⟧.
 Proof.
 exact (BinCoproductOfArrows EndEndC (CPEndEndC _ _) (CPEndEndC _ _)
-                           (constant_nat_trans _ _ _ _ (#U f))
+                           (constant_nat_trans _ _ _ _ f)
                            (nat_trans_fix_snd_arg _ _ _ _ _ θ Z)).
 Defined.
 
@@ -468,7 +468,7 @@ use tpair.
 - exact (is_nat_trans_iso2' Z).
 Defined.
 
-Definition thetahat (Z : Ptd) (f : Z --> ptdInitAlg)
+Definition thetahat (Z : Ptd) (f : [C, C] ⟦ U Z, U (ptd_from_alg InitAlg) ⟧)
            : EndEndC ⟦ functor_composite Id_H (ℓ (U Z)),
                        functor_composite (ℓ (U Z)) (Ghat) ⟧.
 Proof.
@@ -574,7 +574,7 @@ intermediate_path (pr1 (pr1 X)).
         [| apply maponpaths, BinCoproductIn1Commutes_right_in_ctx_dir; simpl;
            rewrite id_left; apply BinCoproductIn1Commutes_right_dir, idpath ].
       rewrite !assoc.
-      assert (fbracket_η_inst_c := nat_trans_eq_pointwise (fbracket_η T' (f · ptd_from_alg_mor _ CP H β0)) c).
+      assert (fbracket_η_inst_c := nat_trans_eq_pointwise (fbracket_η T' (f · #U(ptd_from_alg_mor _ CP H β0))) c).
       etrans; [| apply (!fbracket_η_inst_c) ].
       apply cancel_postcomposition, (ptd_mor_commutes _ (ptd_from_alg_mor _ CP H β0) ((pr1 Z) c)).
     + (* now the difficult case *)
@@ -613,7 +613,7 @@ intermediate_path (pr1 (pr1 X)).
       { apply maponpaths.
         rewrite assoc.
         eapply pathsinv0.
-        assert (fbracket_τ_inst := fbracket_τ T' (f · ptd_from_alg_mor _ CP H β0)).
+        assert (fbracket_τ_inst := fbracket_τ T' (f · #U(ptd_from_alg_mor _ CP H β0))).
         assert (fbracket_τ_inst_c := nat_trans_eq_pointwise fbracket_τ_inst c); clear fbracket_τ_inst.
         apply fbracket_τ_inst_c.
       }
@@ -625,11 +625,11 @@ intermediate_path (pr1 (pr1 X)).
       assert (Hyp:
                  ((# (pr1 (ℓ(U Z))) (# H β))·
                  θ ((alg_carrier _  T') ⊗ Z)·
-                 # H (fbracket T' (f · ptd_from_alg_mor C CP H β0))
+                 # H (fbracket T' (f · #U(ptd_from_alg_mor C CP H β0)))
                  =
                  θ (tpair (λ _ : functor C C, ptd_obj C) (alg_carrier _ (InitialObject IA)) Z) ·
                  # H (# (pr1 (ℓ(U Z))) β ·
-                 fbracket T' (f · ptd_from_alg_mor C CP H β0)))).
+                 fbracket T' (f · #U(ptd_from_alg_mor C CP H β0))))).
       2: { assert (Hyp_c := nat_trans_eq_pointwise Hyp c); clear Hyp.
            exact Hyp_c. }
       clear c. clear X. clear rhohat.

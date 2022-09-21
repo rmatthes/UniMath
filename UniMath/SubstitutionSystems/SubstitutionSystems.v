@@ -667,8 +667,8 @@ Definition ptd_from_alg_functor: functor (category_FunctorAlg Id_H) Ptd :=
 
 
 Definition isbracketMor {T T' : hss} (β : algebra_mor _ T T') : UU :=
-    ∏ (Z : Ptd) (f : Z --> ptd_from_alg T),
-      ⦃ #U f ⦄ · β = β •• U Z · ⦃ #U (f · # ptd_from_alg_functor β) ⦄.
+    ∏ (Z : Ptd) (f : U Z --> `T),
+      ⦃ f ⦄ · β = β •• U Z · ⦃  f · #U (# ptd_from_alg_functor β) ⦄.
 
 
 Lemma isaprop_isbracketMor (T T':hss) (β : algebra_mor _ T T') : isaprop (isbracketMor β).
@@ -773,7 +773,7 @@ Proof.
     apply maponpaths.
     apply isbracketMor_hssMor.
   rewrite assoc.
-  do 5 rewrite functor_comp.
+  do 2 rewrite functor_comp.
   rewrite assoc.
   apply cancel_postcomposition.
   apply pathsinv0, (functor_comp (pre_composition_functor _ _ C (U Z)) ).
