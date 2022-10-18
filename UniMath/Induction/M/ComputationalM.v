@@ -33,33 +33,33 @@ Require Import UniMath.Induction.M.Uniqueness.
 *)
 Section Refinement.
 
-  Context (A : UU).
-  Context (B : A → UU).
-  Local Notation F := (polynomial_functor A B).
-
-  Variable M0 : coalgebra F.
-  Local Notation carrierM0 := (coalgebra_ob _  M0).
-  Local Notation destrM0 := (coalgebra_mor _ M0).
-
-  Variable finalM0 : is_final M0.
-  Local Notation corecM0 C := (pr11 (finalM0 C)).
-
   Local Open Scope cat.
   Local Open Scope functions.
 
-  (* Refinement of the final coalgebra to computable elements *)
+  Context (A : UU).
+  Context (B : A → UU).
+  Let F := polynomial_functor A B : type_precat ⟶ type_precat.
 
-  Definition carrierM := ∑ m0 : carrierM0, ∃ C c, corecM0 C c = m0.
+  Context (M0 : coalgebra F).
+  Local Definition carrierM0 : type_precat := coalgebra_ob F M0.
+  Local Definition destrM0 : type_precat ⟦ carrierM0, F carrierM0 ⟧
+    := coalgebra_mor F M0.
 
-  (* Definition of the corecursor *)
+  Context (finalM0 : is_final M0).
+  Local Definition coitM0 (C : coalgebra F) :
+    type_precat ⟦ coalgebra_ob F C, carrierM0 ⟧ := (pr11 (finalM0 C)).
 
-  Definition corecM (C : coalgebra F) (c : coalgebra_ob _ C) : carrierM.
+  (** Refinement of the final coalgebra to computable elements *)
+  Definition carrierM : UU := ∑ m0 : carrierM0,
+        ∃ (C : coalgebra F) (c : coalgebra_ob F C), coitM0 C c = m0.
+
+  (** Definition of the coiterator *)
+  Definition coitM (C : coalgebra F) (c : coalgebra_ob F C) : carrierM.
   Proof.
-    exists (corecM0 C c). apply hinhpr. exists C, c. apply idpath.
+    exists (coitM0 C c). apply hinhpr. exists C, c. apply idpath.
   Defined.
 
-  (* Definition of a proposition we factor the computation through *)
-
+  (** Definition of a proposition we factor the computation through *)
   Local Definition P (m0 : carrierM0) :=
     ∑ af : F carrierM, destrM0 m0 = # F pr1 af.
 
@@ -73,11 +73,10 @@ Section Refinement.
                                            (pr2 ap)
                                            (pr2 (destrM0 m0)) b =
                                 m0',
-                                ∃ C c, corecM0 C c = pr1 mp.
+                                ∃ C c, coitM0 C c = pr1 mp.
 
   (** the easy auxiliary lemma *)
-  Local Lemma P'_isaprop m0 :
-    isaprop (P' m0).
+  Local Lemma P'_isaprop m0 : isaprop (P' m0).
   Proof.
     apply isofhleveltotal2.
     - apply isofhlevelcontr.
@@ -92,8 +91,7 @@ Section Refinement.
   Defined.
 
   (** the crucial lemma *)
-  Local Lemma P_isaprop (m0 : carrierM0) :
-    isaprop (P m0).
+  Local Lemma P_isaprop (m0 : carrierM0) : isaprop (P m0).
   Proof.
     use (@isofhlevelweqb _ _ (P' m0) _ (P'_isaprop m0)).
     simple refine (weqcomp (weqtotal2asstor _ _) _).
@@ -121,7 +119,7 @@ Section Refinement.
     { apply weqtotal2comm. }
     apply weqfibtototal; intro p.
     intermediate_weq (∑ fg : ∑ f : B a -> carrierM0,
-                                   ∏ b, ∃ C c, corecM0 C c = f b,
+                                   ∏ b, ∃ C c, coitM0 C c = f b,
                         transportf
                           (λ a, B a -> carrierM0)
                           p
@@ -134,7 +132,7 @@ Section Refinement.
         apply idweq.
     }
     intermediate_weq (∑ f : B a  → carrierM0,
-                            ∑ _ : ∏ b, ∃ C c, corecM0 C c = f b,
+                            ∑ _ : ∏ b, ∃ C c, coitM0 C c = f b,
                         transportf
                           (λ a, B a  → carrierM0)
                           p
@@ -142,7 +140,7 @@ Section Refinement.
                         f).
     { apply weqtotal2asstor. }
     intermediate_weq (∑ f : B a → carrierM0,
-                            ∑ _ : ∏ b, ∃ C c, corecM0 C c = f b,
+                            ∑ _ : ∏ b, ∃ C c, coitM0 C c = f b,
                         ∏ b, transportf
                                (λ a, B a → carrierM0)
                                p
@@ -153,7 +151,7 @@ Section Refinement.
       apply weqtoforallpaths.
     }
     intermediate_weq (∑ f : B a → carrierM0,
-                            ∏ b, ∑ _ : ∃ C c, corecM0 C c = f b,
+                            ∏ b, ∑ _ : ∃ C c, coitM0 C c = f b,
                         transportf
                           (λ a, B a  → carrierM0)
                           p
@@ -164,7 +162,7 @@ Section Refinement.
       apply weqforalltototal.
     }
     intermediate_weq (∏ b, ∑ m0' : carrierM0,
-                                   ∑ _ : ∃ C c, corecM0 C c = m0',
+                                   ∑ _ : ∃ C c, coitM0 C c = m0',
                         transportf
                           (λ a, B a -> carrierM0)
                           p
@@ -180,14 +178,14 @@ Section Refinement.
                                       p
                                       (pr2 (destrM0 m0)) b =
                                     m0',
-                                    ∃ C c, corecM0 C c = m0').
+                                    ∃ C c, coitM0 C c = m0').
     {
       apply weqfibtototal; intro m0'.
       apply weqdirprodcomm.
     }
     intermediate_weq (∑ mp : ∑ m0', transportf (λ a, B a → carrierM0) p
                                                (pr2 (destrM0 m0)) b = m0',
-                             ∃ C c, corecM0 C c = pr1 mp).
+                             ∃ C c, coitM0 C c = pr1 mp).
     {
       apply invweq.
       apply weqtotal2asstor.
@@ -199,18 +197,18 @@ Section Refinement.
       apply idweq.
   Defined.
 
-  (* Now the destructor of M can be defined *)
-
+  (** Now the destructor of M can be defined *)
   Local Definition destrM' (m : carrierM) : P (pr1 m).
   Proof.
     induction m as [m0 H]. apply (squash_to_prop H); try apply P_isaprop.
     intros [C [c H1]].
-    refine ((# F (corecM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
-    assert (H : is_coalgebra_homo F (corecM0 C)).
-    { destruct finalM0 as [[G H] H']. apply H. }
+    refine ((# F (coitM C) ∘ (pr2 C)) c,, _). cbn [pr1]. clear H.
+    assert (H : is_coalgebra_homo F (coitM0 C)).
+    { unfold coitM0 in H1. unfold coitM0.
+      destruct (finalM0 C) as [[G H] H']. apply H. }
     apply toforallpaths in H.
     apply pathsinv0.
-    intermediate_path (destrM0 (corecM0 C c)).
+    intermediate_path (destrM0 (coitM0 C c)).
     - apply H.
     - apply maponpaths. assumption.
   Defined.
@@ -218,22 +216,18 @@ Section Refinement.
   Definition destrM (m : carrierM) : F carrierM :=
     pr1 (destrM' m).
 
-  Definition M : coalgebra F :=
-    (carrierM,, destrM).
+  Definition M : coalgebra F := (carrierM,, destrM).
 
-  (* The destructor satisfies the corecursion equation definitionally *)
-
-  Lemma corec_computation C c :
-    destrM (corecM C c) = # F (corecM C) (pr2 C c).
+  (** The destructor satisfies the coiteration equation definitionally *)
+  Lemma coit_computation C c : destrM (coitM C c) = # F (coitM C) (pr2 C c).
   Proof.
     apply idpath.
   Defined.
 
-  (* The two carriers are equal *)
-
-  Lemma eq_corecM0 m0 :
-    corecM0 M0 m0 = m0.
+  (** The two carriers are equal *)
+  Lemma eq_coitM0 (m0 : coalgebra_ob F M0) : coitM0 M0 m0 = m0.
   Proof.
+    unfold coitM0.
     induction finalM0 as [[G H1] H2]. cbn.
     specialize (H2 (coalgebra_homo_id F M0)).
     change (pr1 (G,, H1) m0 = pr1 (coalgebra_homo_id F M0) m0).
@@ -242,16 +236,15 @@ Section Refinement.
     assumption.
   Defined.
 
-  Definition injectM0 m0 :
-    ∃ C c, corecM0 C c = m0.
+  Definition injectM0 (m0 : coalgebra_ob F M0) : ∃ C c, coitM0 C c = m0.
   Proof.
-    apply hinhpr. exists M0, m0. apply eq_corecM0.
+    apply hinhpr. exists M0, m0. apply eq_coitM0.
   Defined.
 
   Lemma carriers_weq :
     carrierM ≃ carrierM0.
   Proof.
-    apply (weq_iso pr1 (λ m0, m0,, injectM0 m0)).
+    apply (weq_iso pr1 (λ m0, m0 ,, injectM0 m0)).
     - intros [m H]. cbn. apply maponpaths, ishinh_irrel.
     - intros x. cbn. apply idpath.
   Defined.
@@ -262,8 +255,7 @@ Section Refinement.
     apply weqtopaths, carriers_weq.
   Defined. (** needs to be transparent *)
 
-  (* The two coalgebras are equal *)
-
+  (** The two coalgebras are equal *)
   Local Lemma eq1 (m0 : carrierM0) :
     transportf (λ X, X → F X) carriers_eq destrM m0
     = transportf (λ X, F X) carriers_eq (destrM (transportf (λ X, X) (!carriers_eq) m0)).
@@ -279,7 +271,7 @@ Section Refinement.
   Defined.
 
   Local Lemma eq3 m0 :
-    destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, corecM M0 ∘ pr2 (destrM0 m0).
+    destrM (m0,, injectM0 m0) = pr1 (destrM0 m0),, coitM M0 ∘ pr2 (destrM0 m0).
   Proof.
     apply idpath.
   Defined.
@@ -295,11 +287,10 @@ Section Refinement.
     use total2_paths_f; try apply idpath.
     cbn. apply funextsec. intros b. rewrite <- helper_A.
     unfold carriers_eq. rewrite weqpath_transport.
-    cbn. rewrite eq_corecM0. apply idpath.
+    cbn. rewrite eq_coitM0. apply idpath.
   Defined.
 
-  (* Thus M is final *)
-
+  (** Thus M is final *)
   Lemma finalM : is_final M.
   Proof.
     rewrite coalgebras_eq. apply finalM0.
