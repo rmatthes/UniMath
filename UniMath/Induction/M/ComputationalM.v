@@ -76,7 +76,7 @@ Section Refinement.
                                 ∃ C c, coitM0 C c = pr1 mp.
 
   (** the easy auxiliary lemma *)
-  Local Lemma P'_isaprop m0 : isaprop (P' m0).
+  Local Lemma P'_isaprop (m0 : carrierM0) : isaprop (P' m0).
   Proof.
     apply isofhleveltotal2.
     - apply isofhlevelcontr.
