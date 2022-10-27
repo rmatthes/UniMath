@@ -32,6 +32,8 @@ Require Import UniMath.CategoryTheory.Monoidal.DisplayedMonoidalWhiskered.
 
 Require Import UniMath.CategoryTheory.Monoidal.CartesianMonoidalCategoriesWhiskered.
 
+Require Export UniMath.Tactics.EnsureStructuredProofs.
+
 Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 
@@ -295,9 +297,8 @@ Section FixADisplayedCategory.
       (* eapply (pathscomp0(b:=?[sh1])).
       Show sh1. *)
       etrans.
-      2: { simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). shelve. (* creates one shelved goal *)
+      2: { refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). (* creates one shelved goal *)
            + apply dispTerminalArrowEq. (* resolves the shelved goal *)
-           + shelve. (* creates one shelved goal *)
            + rewrite assoc_disp_var.
              rewrite dispBinProductPr2Commutes.
              apply pathsinv0, transportf_comp_lemma.
