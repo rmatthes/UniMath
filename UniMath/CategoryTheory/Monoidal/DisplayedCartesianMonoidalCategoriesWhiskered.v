@@ -277,8 +277,6 @@ Section FixADisplayedCategory.
     - exact DCM_associatorinv_data.
   Defined.
 
-Set Default Goal Selector "1".
-
   Lemma DCM_leftunitor_law : disp_leftunitor_law DCM_leftunitor_data DCM_leftunitorinv_data.
   Proof.
     split; [| split]; try red; intros.
@@ -329,7 +327,7 @@ Set Default Goal Selector "1".
     - cbn. unfold DCM_rightunitorinv_data, DCM_rightunitor_data.
       apply pathsinv0.
       etrans.
-      2: { simple refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). shelve. (* creates one shelved goal *)
+      2: { refine (dispBinProduct_endo_is_identity _ _ _ _ _ _ ?[shH1] _ ?[shH2] _). (* creates one shelved goal *)
            (* Show shH1. *)
            + rewrite assoc_disp_var.
              rewrite dispBinProductPr1Commutes.
@@ -339,7 +337,6 @@ Set Default Goal Selector "1".
              rewrite transport_f_b.
              apply transportf_comp_lemma.
              apply transportf_comp_lemma_hset; try apply homset_property; apply idpath.
-           + shelve. (* creates one shelved goal *)
            + apply dispTerminalArrowEq. (* resolves second shelved goal *)
              (* Show shH1. *)
       }
@@ -348,8 +345,6 @@ Set Default Goal Selector "1".
       Unshelve.
       rewrite <- assoc. rewrite BinProductPr1Commutes. apply id_right.
   Qed.
-
-Export Set Default Goal Selector "!".
 
   Lemma DCM_associator_law : disp_associator_law DCM_associator_data DCM_associatorinv_data.
   Proof.
