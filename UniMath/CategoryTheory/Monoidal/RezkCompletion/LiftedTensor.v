@@ -36,14 +36,11 @@ Local Open Scope cat.
 
 Section TensorRezk.
 
-  Context {C D E : category} {H : functor C D}
+  Context {C D : category} {H : functor C D}
           (Duniv : is_univalent D)
-          (Euniv : is_univalent E)
           (H_eso : essentially_surjective H)
-          (H_ff : fully_faithful H).
-
-  Context (TC : functor (C ⊠ C) C)
-          (TE : functor (E ⊠ E) E).
+          (H_ff : fully_faithful H)
+          (TC : functor (C ⊠ C) C).
 
   Local Notation HH := (pair_functor H H).
   Let HH_eso := pair_functor_eso H H H_eso H_eso.
@@ -59,6 +56,8 @@ Section TensorRezk.
     := lift_functor_along_comm (_,,Duniv) HH HH_eso HH_ff (functor_composite TC H).
 
   Let TD := TransportedTensor.
+
+  Context {E : category} (Euniv : is_univalent E) (TE : functor (E ⊠ E) E).
 
   Definition precompT_data
     : disp_functor_data (pre_composition_functor _ _ E H)

@@ -232,7 +232,7 @@ Section LiftedTensorUnit.
       - exact H_ff.
     }
     apply disp_prod_functor_over_fixed_base_ff.
-    - exact (HT_ff Duniv Euniv H_eso H_ff TC TE).
+    - exact (HT_ff Duniv H_eso H_ff TC Euniv TE).
     - exact (HU_ff I IE).
   Qed.
 
@@ -247,7 +247,7 @@ Section LiftedTensorUnit.
       - exact H_ff.
     }
     apply disp_prod_functor_over_fixed_base_eso.
-    - exact (HT_eso Duniv Euniv H_eso H_ff TC TE).
+    - exact (HT_eso Duniv H_eso H_ff TC Euniv TE).
     - exact (HU_eso I IE).
     - use Fibrations.iso_cleaving_category.
       apply is_univalent_functor_category.
