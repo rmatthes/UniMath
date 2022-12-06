@@ -62,7 +62,7 @@ Section TensorRezkCompletion.
              (total_category (functor_tensor_disp_cat TC TE)).
   Proof.
     use adj_equivalence_of_cats_to_cat_iso.
-    4: exact (precomp_tensor_adj_equiv Duniv Euniv H_eso H_ff TC TE).
+    4: exact (precomp_tensor_adj_equiv Duniv H_eso H_ff TC Euniv TE).
     - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
     - apply (is_univalent_total_category (is_univalent_functor_category _ _ Euniv) (functor_tensor_disp_cat_is_univalent _ _)).
   Defined.
