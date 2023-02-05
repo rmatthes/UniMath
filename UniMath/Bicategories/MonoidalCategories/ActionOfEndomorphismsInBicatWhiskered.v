@@ -149,76 +149,98 @@ Section Lifting.
 Local Definition lifted_act_from_precomp : actegory Mon_W (endocat c0) :=
       lifted_actegory (Mon_endo c0) (actegory_from_precomp c0 c0) Mon_W U.
 Local Definition lifted_act_from_self : actegory Mon_W (endocat c0) :=
-      lifted_actegory (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)) Mon_W U.
+  lifted_actegory (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)) Mon_W U.
+
+Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H <->
+  lineator_data Mon_W lifted_act_from_self lifted_act_from_self H.
+Proof.
+  split.
+  + intro ld.
+    intros v x.
+    set (ld_inst := ld v x).
+    cbn.
+    exact ld_inst.
+  + intro ld.
+    intros v x.
+    set (ld_inst := ld v x).
+    cbn.
+    exact ld_inst.
+Time Defined. (* looks desperate, but next definition needs the very definition *)
+
+
+Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H ≃
+  lineator_data Mon_W lifted_act_from_self lifted_act_from_self H.
+Proof.
+  use weq_iso.
+  + exact (pr1 (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux H)).
+  + exact (pr2 (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux H)).
+  + intro ld.
+    intros v x.
+    cbn.
+    exact (ld v x).
+  + intro ld. apply idpath.
+  + intro ld. apply idpath.
+Time Defined.
 
 Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (H: functor (homcat c0 c0) (homcat c0 c0)) :
   lineator_lax Mon_W lifted_act_from_precomp lifted_act_from_precomp H ≃
   lineator_lax Mon_W lifted_act_from_self lifted_act_from_self H.
 Proof.
   (* use weqfibtototal.    not seen to terminate*)
-  use weqbandf.
-   - use weq_iso.
-     + intro ld.
-       intros v x.
-       cbn.
-       apply ld.
-     + intro ld.
-       intros v x.
-       cbn.
-       apply ld.
-     + intro ld. cbn. apply idpath.
-     + intro ld. cbn. apply idpath.
-   - intro ld.
-     use weqimplimpl.
-     4: { apply isaprop_lineator_laxlaws. }
-     3: { apply isaprop_lineator_laxlaws. }
-     + intro ldl.
-       red; repeat split.
-       * intros v x1 x2 g.
-         assert (Hyp := pr1 ldl v x1 x2 g).
-         simpl.
-         change ((F v ◃ # H g) • ld v x2 = ld v x1 • # H (F v ◃ g)). (* this is what the goal would look like after cbn *)
-         exact Hyp.
-       * intros v1 v2 x f.
-         assert (Hyp := pr12 ldl v1 v2 x f).
-         simpl.
-         change ((# F f ▹ H x) • ld v2 x = ld v1 x • # H (# F f ▹ x)).
-         exact Hyp.
-       * intros v w x.
-         assert (Hyp := pr122 ldl v w x).
-         simpl.
-         change (ld (v ⊗_{ Mon_W} w) x
-  • # H
-      ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ x) • rassociator (F v) (F w) x) =
-  (((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ H x)
-    • rassociator (F v) (F w) (H x)) • (F v ◃ ld w x)) • ld v (F w · x)).
-         exact Hyp.
-       * intro x.
-         assert (Hyp := pr222 ldl x).
-         simpl.
-         change (ld (monoidal_unit Mon_W) x
-  • # H ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ x) • lunitor x) =
-  (pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ H x) • lunitor (H x)).
-         exact Hyp.
-     + intro ldl.
-       red; repeat split.
-       * intros v x1 x2 g.
-         assert (Hyp := pr1 ldl v x1 x2 g).
-         cbn. (* simpl does not suffice *)
-         exact Hyp.
-       * intros v1 v2 x f.
-         assert (Hyp := pr12 ldl v1 v2 x f).
-         cbn.
-         exact Hyp.
-       * intros v w x.
-         assert (Hyp := pr122 ldl v w x).
-         cbn.
-         exact Hyp.
-       * intro x.
-         assert (Hyp := pr222 ldl x).
-         cbn.
-         exact Hyp.
-         Admitted.  (* Time Defined. not seen to terminate *)
+  apply (weqbandf (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree H)).
+  intro ld.
+  use weqimplimpl.
+  4: { apply isaprop_lineator_laxlaws. }
+  3: { apply isaprop_lineator_laxlaws. }
+  - intro ldl.
+    red; repeat split.
+    + intros v x1 x2 g.
+      assert (Hyp := pr1 ldl v x1 x2 g).
+      simpl.
+      change ((F v ◃ # H g) • ld v x2 = ld v x1 • # H (F v ◃ g)). (* this is what the goal would look like after cbn *)
+      exact Hyp.
+    + intros v1 v2 x f.
+      assert (Hyp := pr12 ldl v1 v2 x f).
+      simpl.
+      change ((# F f ▹ H x) • ld v2 x = ld v1 x • # H (# F f ▹ x)).
+      exact Hyp.
+    + intros v w x.
+      assert (Hyp := pr122 ldl v w x).
+      simpl.
+      change (ld (v ⊗_{ Mon_W} w) x
+                • # H
+                ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ x) • rassociator (F v) (F w) x) =
+                (((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ H x)
+                    • rassociator (F v) (F w) (H x)) • (F v ◃ ld w x)) • ld v (F w · x)).
+      exact Hyp.
+    + intro x.
+      assert (Hyp := pr222 ldl x).
+      simpl.
+      change (ld (monoidal_unit Mon_W) x
+                • # H ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ x) • lunitor x) =
+                (pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ H x) • lunitor (H x)).
+      exact Hyp.
+  - intro ldl.
+    red; repeat split.
+    + intros v x1 x2 g.
+      assert (Hyp := pr1 ldl v x1 x2 g).
+      cbn. (* simpl does not suffice *)
+      exact Hyp.
+    + intros v1 v2 x f.
+      assert (Hyp := pr12 ldl v1 v2 x f).
+      cbn.
+      exact Hyp.
+    + intros v w x.
+      assert (Hyp := pr122 ldl v w x).
+      cbn.
+      exact Hyp.
+    + intro x.
+      assert (Hyp := pr222 ldl x).
+      cbn.
+      exact Hyp.
+Admitted.  (* Time Defined. not seen to terminate *)
 
 End Lifting.
 
