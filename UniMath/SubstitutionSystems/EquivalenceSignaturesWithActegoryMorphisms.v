@@ -482,8 +482,6 @@ Section B.
  Proof.
    cbn.
    apply (weqcomp weqSignatureLaxMorphismActegoriesHomogeneous).
-   apply weqfibtototal.
-   intro H.
    apply idweq.
  Defined.
 
