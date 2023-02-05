@@ -14,6 +14,7 @@ Require Import UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
 Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
 Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
 Require Import UniMath.Bicategories.Core.Bicat.
 Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
@@ -21,6 +22,8 @@ Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 Require Import UniMath.CategoryTheory.limits.bincoproducts.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 
 Import Bicat.Notations.
 Import BifunctorNotations.
@@ -45,7 +48,7 @@ Proof.
   - intros f v1 v2 α. exact (α ▹ f).
 Defined.
 
-(** we explicitly do not opacify the following definition: *)
+(* (** we explicitly do not opacify the following definition: *) *)
 Definition action_from_precomp_laws : is_bifunctor action_from_precomp_data.
 Proof.
   repeat split.
@@ -54,7 +57,7 @@ Proof.
   - intros v f1 f2 f3 β1 β2. apply pathsinv0, lwhisker_vcomp.
   - intros f v1 v2 v3 α1 α2. apply pathsinv0, rwhisker_vcomp.
   - intros v1 v2 f1 f2 α β. apply vcomp_whisker.
-Defined.
+Qed. (* Defined. *)
 
 Definition action_from_precomp : bifunctor endocat homcat homcat :=
   make_bifunctor action_from_precomp_data action_from_precomp_laws.
@@ -94,6 +97,7 @@ Section TheHomogeneousCase.
 Context {C : bicat}.
 Context (c0 : ob C).
 
+(*
 (** requires [action_from_precomp] with known proofs of the laws *)
 Definition action_in_actegory_from_precomp_as_self_action :
   actegory_action (Mon_endo c0) (actegory_from_precomp c0 c0) = actegory_action (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)).
@@ -101,7 +105,8 @@ Proof.
   change (pr11 (actegory_from_precomp c0 c0) = pr11 (actegory_with_canonical_self_action (Mon_endo c0))).
   apply idpath.
 Defined.
-
+*)
+(*
 Lemma actegory_from_precomp_as_self_action :
   actegory_from_precomp c0 c0 = actegory_with_canonical_self_action (Mon_endo c0).
 Proof.
@@ -115,9 +120,121 @@ Proof.
   { apply idpath. }
   apply idpath.
 Qed. (* slow *)
+*)
 
-(** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
-Opaque action_from_precomp_laws.
+(* the following is a test only since we are only interested in pointed tensorial strength:
+Lemma lax_lineators_from_precomp_and_self_action_agree (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_lax (Mon_endo c0) (actegory_from_precomp c0 c0)
+                             (actegory_from_precomp c0 c0) H =
+  lineator_lax (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0))
+                             (actegory_with_canonical_self_action (Mon_endo c0)) H.
+Proof.
+  Time (apply idpath). (* ~40s *)
+  Time Qed. (* ~40s *)
+(* if instead of equality, [≃] is asked for:
+  use weqfibtototal.
+  intro ld.
+  use weqimplimpl.
+  4: { apply isaprop_lineator_laxlaws. }
+  3: { apply isaprop_lineator_laxlaws. }
+  - intro ldl. Time (exact ldl). (* ~50s *)
+  - intro ldl. Time (exact ldl). (* ~ 40s *)
+Time Defined. (* ~100s *) *)
+*)
+
+Section Lifting.
+
+  Context {W : category} (Mon_W : monoidal W) {F : W ⟶ endocat c0} (U : MonoidalFunctorsWhiskered.fmonoidal Mon_W (Mon_endo c0) F).
+
+Local Definition lifted_act_from_precomp : actegory Mon_W (endocat c0) :=
+      lifted_actegory (Mon_endo c0) (actegory_from_precomp c0 c0) Mon_W U.
+Local Definition lifted_act_from_self : actegory Mon_W (endocat c0) :=
+      lifted_actegory (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)) Mon_W U.
+
+Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_lax Mon_W lifted_act_from_precomp lifted_act_from_precomp H ≃
+  lineator_lax Mon_W lifted_act_from_self lifted_act_from_self H.
+Proof.
+  (* use weqfibtototal.    not seen to terminate*)
+  use weqbandf.
+   - use weq_iso.
+     + intro ld.
+       intros v x.
+       cbn.
+       apply ld.
+     + intro ld.
+       intros v x.
+       cbn.
+       apply ld.
+     + intro ld. cbn. apply idpath.
+     + intro ld. cbn. apply idpath.
+   - intro ld.
+     use weqimplimpl.
+     4: { apply isaprop_lineator_laxlaws. }
+     3: { apply isaprop_lineator_laxlaws. }
+     + intro ldl.
+       red; repeat split.
+       * intros v x1 x2 g.
+         assert (Hyp := pr1 ldl v x1 x2 g).
+         simpl.
+         change ((F v ◃ # H g) • ld v x2 = ld v x1 • # H (F v ◃ g)). (* this is what the goal would look like after cbn *)
+         exact Hyp.
+       * intros v1 v2 x f.
+         assert (Hyp := pr12 ldl v1 v2 x f).
+         simpl.
+         change ((# F f ▹ H x) • ld v2 x = ld v1 x • # H (# F f ▹ x)).
+         exact Hyp.
+       * intros v w x.
+         assert (Hyp := pr122 ldl v w x).
+         simpl.
+         change (ld (v ⊗_{ Mon_W} w) x
+  • # H
+      ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ x) • rassociator (F v) (F w) x) =
+  (((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservestensorstrongly U v w) ▹ H x)
+    • rassociator (F v) (F w) (H x)) • (F v ◃ ld w x)) • ld v (F w · x)).
+         exact Hyp.
+       * intro x.
+         assert (Hyp := pr222 ldl x).
+         simpl.
+         change (ld (monoidal_unit Mon_W) x
+  • # H ((pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ x) • lunitor x) =
+  (pr1 (MonoidalFunctorsWhiskered.fmonoidal_preservesunitstrongly U) ▹ H x) • lunitor (H x)).
+         exact Hyp.
+     + intro ldl.
+       red; repeat split.
+       * intros v x1 x2 g.
+         assert (Hyp := pr1 ldl v x1 x2 g).
+         cbn. (* simpl does not suffice *)
+         exact Hyp.
+       * intros v1 v2 x f.
+         assert (Hyp := pr12 ldl v1 v2 x f).
+         cbn.
+         exact Hyp.
+       * intros v w x.
+         assert (Hyp := pr122 ldl v w x).
+         cbn.
+         exact Hyp.
+       * intro x.
+         assert (Hyp := pr222 ldl x).
+         cbn.
+         exact Hyp.
+         Admitted.  (* Time Defined. not seen to terminate *)
+
+End Lifting.
+
+Let lifted_act_from_precomp_inst := lifted_act_from_precomp (monoidal_pointed_objects (Mon_endo c0)) (forget_monoidal_pointed_objects_monoidal (Mon_endo c0)).
+
+Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree_inst (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_lax (monoidal_pointed_objects (Mon_endo c0)) lifted_act_from_precomp_inst lifted_act_from_precomp_inst H ≃
+  lineator_lax (monoidal_pointed_objects (Mon_endo c0))
+                   (actegory_with_canonical_pointed_action (Mon_endo c0))
+                   (actegory_with_canonical_pointed_action (Mon_endo c0)) H.
+Proof.
+  exact (lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (monoidal_pointed_objects (Mon_endo c0)) (forget_monoidal_pointed_objects_monoidal (Mon_endo c0)) H).
+Qed.
+
+(* (** we should no longer need the proofs of the laws after this result  - is the following command effective? *)
+Opaque action_from_precomp_laws. *)
 
 End TheHomogeneousCase.
 

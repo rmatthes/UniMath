@@ -68,7 +68,7 @@ Proof.
   - intros b a1 a2 α. exact (rwhisker _ α).
 Defined.
 
-(** we explicitly do not opacify the following definition: *)
+(* (** we explicitly do not opacify the following definition: *) *)
 Definition tensor_laws_from_bicat_and_ob: is_bifunctor tensor_data_from_bicat_and_ob.
 Proof.
   red; repeat split; red; cbn.
@@ -77,7 +77,7 @@ Proof.
   - intros; apply pathsinv0, lwhisker_vcomp.
   - intros; apply pathsinv0, rwhisker_vcomp.
   - intros; apply vcomp_whisker.
-Defined.
+Qed. (* Defined. *)
 
 Definition tensor_from_bicat_and_ob: tensor category_from_bicat_and_ob :=
   make_bifunctor tensor_data_from_bicat_and_ob tensor_laws_from_bicat_and_ob.

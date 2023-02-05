@@ -35,6 +35,7 @@ Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
 Require Import UniMath.Bicategories.MonoidalCategories.PointedFunctorsWhiskeredMonoidal.
 Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
 Require Import UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
+Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
 
 Import Bicat.Notations.
 Import MonoidalNotations.
@@ -71,6 +72,7 @@ Section A.
    := lifted_actegory Mon_endo (actegoryfromprecomp C E) (monoidal_pointed_objects Mon_endo)
         (forget_monoidal_pointed_objects_monoidal Mon_endo).
 
+ (*
  Local Lemma actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action :
    actegoryPtdEndosOnFunctors C = actegory_with_canonical_pointed_action Mon_endo.
  Proof.
@@ -79,6 +81,7 @@ Section A.
    rewrite actegory_from_precomp_as_self_action.
    apply idpath.
  Qed.
+  *)
 
  Section AA.
 
@@ -431,6 +434,8 @@ End AA.
    apply weqABStrengthLaxMorphismActegories.
  Defined.
 
+ (* Opaque action_from_precomp_laws.
+ Opaque tensor_laws_from_bicat_and_ob. *)
  Lemma weqSignatureLaxMorphismActegories_alt :
    Signature C D D' ≃ hom(C:=actbicat Mon_ptdendo) (hom(C:=bicat_of_cats) C D',,actegoryPtdEndosOnFunctors D') (hom(C:=bicat_of_cats) C D,,actegoryPtdEndosOnFunctors D).
  Proof.
@@ -438,8 +443,8 @@ End AA.
    apply weqfibtototal.
    intro H.
    cbn.
-   apply idweq. (* very slow *)
- Defined. (* very slow *)
+   Time (apply idweq). (* very slow *)
+ Time Defined. (* very slow *)
 
  (* a direct proof without going through weqSignatureLaxMorphismActegories:
  Lemma weqSignatureLaxMorphismActegories_alt_alt :
@@ -448,8 +453,8 @@ End AA.
    apply (weqcomp weqSignatureABStrength).
    apply weqfibtototal.
    intro H.
-   apply weqABStrengthLaxMorphismActegories. (* very slow *)
- Defined. (* very slow *)
+   Time (apply weqABStrengthLaxMorphismActegories). (* very slow *)
+ Time Defined. (* very slow *)
 *)
 
 End A.
@@ -466,9 +471,10 @@ Section B.
    cbn.
    apply weqfibtototal.
    intro H.
-   unfold pointedtensorialstrength.
+   apply lax_lineators_from_lifted_precomp_and_lifted_self_action_agree_inst.
+(* unfold pointedtensorialstrength.
    rewrite (actegoryPtdEndosOnFunctors_as_actegory_with_canonical_pointed_action C).
-   apply idweq.
+   apply idweq. *)
  Defined.
 
  Corollary weqSignatureLaxMorphismActegoriesHomogeneous_alt :
