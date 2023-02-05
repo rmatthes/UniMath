@@ -18,6 +18,8 @@ instantiation of MultiSortedSigToMonad for C = Set are now found in
 Written by: Anders Mörtberg, 2021. The formalization is an adaptation of
 Multisorted.v
 
+Added by Ralph Matthes in 2023: actegorical treatment of strength
+
 *)
 Require Import UniMath.Foundations.PartD.
 Require Import UniMath.Foundations.Sets.
@@ -54,6 +56,19 @@ Require Import UniMath.SubstitutionSystems.Signatures.
 Require Import UniMath.SubstitutionSystems.SumOfSignatures.
 Require Import UniMath.SubstitutionSystems.BinProductOfSignatures.
 Require Import UniMath.SubstitutionSystems.SignatureExamples.
+
+(** for the additions in 2023 *)
+Require Import UniMath.CategoryTheory.Monoidal.MonoidalCategoriesWhiskered.
+Require Import UniMath.CategoryTheory.Monoidal.Actegories.
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.MorphismsOfActegories.
+Require Import UniMath.CategoryTheory.Monoidal.CoproductsInActegories.
+Require Import UniMath.CategoryTheory.Monoidal.ConstructionOfActegoryMorphisms.
+Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms.
+Require Import UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
+Require Import UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicatWhiskered.
+Require Import UniMath.Bicategories.Core.Examples.BicatOfCats.
 
 Local Open Scope cat.
 
@@ -109,6 +124,17 @@ Definition MultiSortedSig : UU :=
   ∑ (I : hSet), I → list (list sort × sort) × sort.
 
 Definition ops (M : MultiSortedSig) : hSet := pr1 M.
+
+Definition CoproductsMultiSortedSig_base (M : MultiSortedSig) : Coproducts (ops M) sortToC.
+Proof.
+  apply Coproducts_functor_precat, CC, setproperty.
+Defined.
+
+Definition CoproductsMultiSortedSig (M : MultiSortedSig) : Coproducts (ops M) [sortToC, sortToC].
+Proof.
+  apply Coproducts_functor_precat, CoproductsMultiSortedSig_base.
+Defined.
+
 Definition arity (M : MultiSortedSig) : ops M → list (list sort × sort) × sort :=
   λ x, pr2 M x.
 
@@ -244,8 +270,7 @@ Definition hat_exp_functor_list (xst : list (list sort × sort) × sort) :
 Definition MultiSortedSigToFunctor (M : MultiSortedSig) :
   functor [sortToC,sortToC] [sortToC,sortToC].
 Proof.
-use (coproduct_of_functors (ops M)).
-+ apply Coproducts_functor_precat, Coproducts_functor_precat, CC, setproperty.
+use (coproduct_of_functors (ops M) _ _ (CoproductsMultiSortedSig M)).
 + intros op.
   exact (hat_exp_functor_list (arity M op)).
 Defined.
@@ -255,6 +280,161 @@ End functor.
 (** * Construction of the strength for the endofunctor on [C^sort,C^sort]
       derived from a multisorted signature *)
 Section strength.
+
+(* The distributive law for sorted_option_functor *)
+Definition DL_sorted_option_functor (s : sort) :
+  DistributiveLaw sortToC (sorted_option_functor s) :=
+    genoption_DistributiveLaw sortToC (option_fun_summand s) BCsortToC.
+
+(* The DL for option_list *)
+Definition DL_option_list (xs : list sort) : DistributiveLaw _ (option_list xs).
+Proof.
+induction xs as [[|n] xs].
++ induction xs.
+  apply DL_id.
++ induction n as [|n IH].
+  * induction xs as [m []].
+    apply DL_sorted_option_functor.
+  * induction xs as [m [k xs]].
+    apply (DL_comp (DL_sorted_option_functor m) (IH (k,,xs))).
+Defined.
+
+(* The signature for exp_functor *)
+Definition Sig_exp_functor (lt : list sort × sort) :
+  Signature sortToC C sortToC.
+Proof.
+exists (exp_functor lt).
+induction lt as [l t]; revert l.
+use list_ind.
++ exact (pr2 (Gθ_Signature (IdSignature _ _) (projSortToC t))).
++ intros x xs H; simpl.
+  set (Sig_option_list := θ_from_δ_Signature (DL_option_list (cons x xs))).
+  apply (pr2 (Gθ_Signature Sig_option_list (projSortToC t))).
+Defined.
+
+Local Lemma functor_in_Sig_exp_functor_ok (lt : list sort × sort) :
+  Signature_Functor (Sig_exp_functor lt) = exp_functor lt.
+Proof.
+apply idpath.
+Qed.
+
+(* The signature for exp_functor_list *)
+Definition Sig_exp_functor_list (xs : list (list sort × sort)) :
+  Signature sortToC C sortToC.
+Proof.
+exists (exp_functor_list xs).
+induction xs as [[|n] xs].
+- induction xs.
+  exact (pr2 (ConstConstSignature _ _ _ _)).
+- induction n as [|n IH].
+  + induction xs as [m []].
+    exact (pr2 (Sig_exp_functor m)).
+  + induction xs as [m [k xs]].
+    exact (pr2 (BinProduct_of_Signatures _ (Sig_exp_functor _) (tpair _ _ (IH (k,,xs))))).
+Defined.
+
+Local Lemma functor_in_Sig_exp_functor_list_ok (xs : list (list sort × sort)) :
+  Signature_Functor (Sig_exp_functor_list xs) = exp_functor_list xs.
+Proof.
+apply idpath.
+Qed.
+
+(* the signature for hat_exp_functor_list *)
+Definition Sig_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+  Signature sortToC sortToC sortToC.
+Proof.
+apply (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))).
+Defined.
+
+Local Lemma functor_in_Sig_hat_exp_functor_list_ok (xst : list (list sort × sort) × sort) :
+  Signature_Functor (Sig_hat_exp_functor_list xst) = hat_exp_functor_list xst.
+Proof.
+apply idpath.
+Qed.
+
+(* The signature for MultiSortedSigToFunctor *)
+Definition MultiSortedSigToSignature (M : MultiSortedSig) : Signature sortToC sortToC sortToC.
+Proof.
+set (Hyps := λ (op : ops M), Sig_hat_exp_functor_list (arity M op)).
+apply (Sum_of_Signatures (ops M) (CoproductsMultiSortedSig_base M) Hyps).
+Defined.
+
+Local Lemma functor_in_MultiSortedSigToSignature_ok (M : MultiSortedSig) :
+  Signature_Functor (MultiSortedSigToSignature M) = MultiSortedSigToFunctor M.
+Proof.
+apply idpath.
+Qed.
+
+End strength.
+
+
+(** * Construction of the lineator for the endofunctor on [C^sort,C^sort]
+      derived from a multisorted signature, hence an alternative to the
+      constructions in the preceding section *)
+Section strength_through_actegories.
+
+  Local Definition endofrombicat : category := EquivalenceSignaturesWithActegoryMorphisms.endofrombicat sortToC.
+  Local Definition Mon_endo : monoidal endofrombicat := EquivalenceSignaturesWithActegoryMorphisms.Mon_endo sortToC.
+  Local Definition ptdendo : category := EquivalenceSignaturesWithActegoryMorphisms.ptdendo sortToC.
+  Local Definition Mon_ptdendo : monoidal ptdendo := monoidal_pointed_objects Mon_endo.
+    (* before, it was: EquivalenceSignaturesWithActegoryMorphisms.Mon_ptdendo sortToC. *)
+  Local Definition Act0 : actegory Mon_ptdendo endofrombicat := actegory_with_canonical_pointed_action Mon_endo.
+  Local Definition Act : actegory Mon_ptdendo endofrombicat := ActionOfEndomorphismsInBicatWhiskered.lifted_act_from_precomp(C:=bicat_of_cats) sortToC Mon_ptdendo (forget_monoidal_pointed_objects_monoidal Mon_endo).
+  Local Definition pointedstrengthfromprecomp := lineator_lax Mon_ptdendo Act Act.
+
+  (* Opaque action_from_precomp_laws.
+  Opaque tensor_laws_from_bicat_and_ob. *)
+
+  Local Definition δMSS_aux (M : MultiSortedSig) : coprod_distributor Mon_endo (CoproductsMultiSortedSig M) (actegoryfromprecomp sortToC sortToC).
+  Proof.
+    set (aux := actfromprecomp_coprod_distributor(I:=ops M) sortToC sortToC (CoproductsMultiSortedSig_base M)).
+    assert (CP_ok: CP_homcat_CAT sortToC sortToC (CoproductsMultiSortedSig_base M) = CoproductsMultiSortedSig M).
+    { apply idpath. }
+    change (coprod_distributor Mon_endo (CP_homcat_CAT sortToC sortToC (CoproductsMultiSortedSig_base M)) (actegoryfromprecomp sortToC sortToC)).
+    exact aux.
+  Defined.
+
+  Local Definition δMSS (M : MultiSortedSig) : coprod_distributor Mon_ptdendo (CoproductsMultiSortedSig M) Act.
+  Proof.
+    set (aux := lifted_coprod_distributor Mon_endo (actegoryfromprecomp sortToC sortToC)
+                  Mon_ptdendo (forget_monoidal_pointed_objects_monoidal Mon_endo) (CoproductsMultiSortedSig M)).
+    unfold Act.
+    exact (aux (δMSS_aux M)).
+  Defined.
+
+  (* the strength for hat_exp_functor_list *)
+  Definition Strength_hat_exp_functor_list (xst : list (list sort × sort) × sort) :
+    pointedstrengthfromprecomp (hat_exp_functor_list xst).
+  Proof.
+  (* TODO: adapt to new setting     apply (Gθ_Signature (Sig_exp_functor_list (pr1 xst)) (hat_functor (pr2 xst))). *)
+  Admitted.
+
+  Definition MultiSortedSigToStrength (M : MultiSortedSig) :
+    pointedstrengthfromprecomp (MultiSortedSigToFunctor M).
+  Proof.
+    unfold MultiSortedSigToFunctor.
+    set (Hyps := λ (op : ops M), Strength_hat_exp_functor_list (arity M op)).
+    Time (exact (lax_lineator_coprod Mon_ptdendo Act Act Hyps (CoproductsMultiSortedSig M) (δMSS M))). (* 26s on a very modern Intel processor *)
+  Time Defined. (* 26s on a very modern Intel processor *)
+
+  (** this yields an alternative definition for the semantic signature *)
+  Definition MultiSortedSigToSignature_alt (M : MultiSortedSig) : Signature sortToC sortToC sortToC.
+  Proof.
+    apply weqSignatureLaxMorphismActegoriesHomogeneous_alt.
+    exists (MultiSortedSigToFunctor M).
+    apply lax_lineators_from_lifted_precomp_and_lifted_self_action_agree.
+    apply MultiSortedSigToStrength.
+  Defined.
+
+  Local Lemma functor_in_MultiSortedSigToSignature_alt_ok (M : MultiSortedSig) :
+  Signature_Functor (MultiSortedSigToSignature_alt M) = MultiSortedSigToFunctor M.
+  Proof.
+    apply idpath.
+  Qed.
+  (** however, the computational behaviour of the lineator will not be available *)
+
+
+(*
 
 (* The distributive law for sorted_option_functor *)
 Definition DL_sorted_option_functor (s : sort) :
@@ -341,8 +521,8 @@ Proof.
 apply idpath.
 Qed.
 
-End strength.
-
+*)
+End strength_through_actegories.
 
 (** * Proof that the functor obtained from a multisorted signature is omega-cocontinuous *)
 Section omega_cocont.
