@@ -151,6 +151,7 @@ Local Definition lifted_act_from_precomp : actegory Mon_W (endocat c0) :=
 Local Definition lifted_act_from_self : actegory Mon_W (endocat c0) :=
   lifted_actegory (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)) Mon_W U.
 
+(*
 Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux (H: functor (homcat c0 c0) (homcat c0 c0)) :
   lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H <->
   lineator_data Mon_W lifted_act_from_self lifted_act_from_self H.
@@ -184,12 +185,38 @@ Proof.
   + intro ld. apply idpath.
 Time Defined.
 
+ *)
+
+(*
+Definition lax_lineators_from_lifted_precomp_and_lifted_self_action_agree_aux_type (H: functor (homcat c0 c0) (homcat c0 c0))
+  (ld : lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H) : UU.
+Proof.
+  set (lhs := lineator_laxlaws Mon_W lifted_act_from_precomp lifted_act_from_precomp H ld).
+  set (rhs := lineator_laxlaws Mon_W lifted_act_from_self lifted_act_from_self H (λ (v : W) (x : C ⟦ c0, c0 ⟧), ld v x)).
+  exact (lhs  ≃ rhs).
+the type-checker cannot digest rhs
+*)
+
 Lemma lax_lineators_from_lifted_precomp_and_lifted_self_action_agree (H: functor (homcat c0 c0) (homcat c0 c0)) :
   lineator_lax Mon_W lifted_act_from_precomp lifted_act_from_precomp H ≃
   lineator_lax Mon_W lifted_act_from_self lifted_act_from_self H.
 Proof.
   (* use weqfibtototal.    not seen to terminate*)
-  apply (weqbandf (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree H)).
+  use  weqbandf.
+  { use weq_iso.
+    + intro ld.
+      intros v x.
+      set (ld_inst := ld v x).
+      cbn.
+      exact ld_inst.
+    + intro ld.
+      intros v x.
+      set (ld_inst := ld v x).
+      cbn.
+      exact ld_inst.
+    + intro ld. apply idpath.
+    + intro ld. apply idpath.
+  }
   intro ld.
   use weqimplimpl.
   4: { apply isaprop_lineator_laxlaws. }
