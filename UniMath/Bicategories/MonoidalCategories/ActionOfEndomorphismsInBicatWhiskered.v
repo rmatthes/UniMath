@@ -152,21 +152,26 @@ Local Definition lifted_act_from_self : actegory Mon_W (endocat c0) :=
   lifted_actegory (Mon_endo c0) (actegory_with_canonical_self_action (Mon_endo c0)) Mon_W U.
 
 (*
-Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux (H: functor (homcat c0 c0) (homcat c0 c0)) :
-  lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H <->
+Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux1 (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H ->
   lineator_data Mon_W lifted_act_from_self lifted_act_from_self H.
 Proof.
-  split.
-  + intro ld.
-    intros v x.
-    set (ld_inst := ld v x).
-    cbn.
-    exact ld_inst.
-  + intro ld.
-    intros v x.
-    set (ld_inst := ld v x).
-    cbn.
-    exact ld_inst.
+  intro ld.
+  intros v x.
+  set (ld_inst := ld v x).
+  cbn.
+  exact ld_inst.
+Time Defined.
+
+Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux2 (H: functor (homcat c0 c0) (homcat c0 c0)) :
+  lineator_data Mon_W lifted_act_from_self lifted_act_from_self H ->
+  lineator_data Mon_W lifted_act_from_precomp lifted_act_from_precomp H.
+Proof.
+  intro ld.
+  intros v x.
+  set (ld_inst := ld v x).
+  cbn.
+  exact ld_inst.
 Time Defined. (* looks desperate, but next definition needs the very definition *)
 
 
@@ -175,8 +180,8 @@ Definition lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree (
   lineator_data Mon_W lifted_act_from_self lifted_act_from_self H.
 Proof.
   use weq_iso.
-  + exact (pr1 (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux H)).
-  + exact (pr2 (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux H)).
+  + exact (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux1 H).
+  + exact (lax_lineators_data_from_lifted_precomp_and_lifted_self_action_agree_aux2 H).
   + intro ld.
     intros v x.
     cbn.
