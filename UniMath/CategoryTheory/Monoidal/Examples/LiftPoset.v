@@ -37,13 +37,14 @@ Require Import UniMath.CategoryTheory.Monoidal.Comonoids.Category.
 
 Local Open Scope cat.
 
+Local Definition base : category
+  := category_of_hset_struct struct_pointed_poset_strict.
+
 (**
  1. Lifting as a functor
  *)
 Definition lift_poset_functor_data
-  : functor_data
-      pointed_poset_sym_mon_closed_cat
-      pointed_poset_sym_mon_closed_cat.
+  : functor_data base base.
 Proof.
   use make_functor_data.
   - exact (λ X, _ ,, lift_pointed_PartialOrder (pr12 X)).
@@ -68,8 +69,7 @@ Proof.
     + apply idpath.
 Qed.
 
-Definition lift_poset_functor
-  : pointed_poset_sym_mon_closed_cat ⟶ pointed_poset_sym_mon_closed_cat.
+Definition lift_poset_functor : base ⟶ base.
 Proof.
   use make_functor.
   - exact lift_poset_functor_data.
@@ -127,12 +127,14 @@ Proof.
     + apply idpath.
 Qed.
 
-Definition lift_poset_comonad
-  : Comonad pointed_poset_sym_mon_closed_cat.
+Definition lift_poset_comonad0
+  : Comonad base.
 Proof.
   refine (lift_poset_functor ,, ((lift_poset_dupl ,, lift_poset_extract) ,, _)).
   exact lift_poset_comonad_laws.
 Defined.
+
+Definition lift_poset_comonad : Comonad pointed_poset_sym_mon_closed_cat := lift_poset_comonad0.
 
 (**
  4. Lifting is symmetric monoidal
@@ -349,7 +351,7 @@ Defined.
 Definition lift_poset_comult_map
            {X : pointed_poset_sym_mon_closed_cat}
            (x : pr11 X ⨿ unit)
-  : pr11 (lift_poset_functor X ∧* lift_poset_functor X).
+  : pr11 ((lift_poset_functor : pointed_poset_sym_mon_closed_cat ⟶ pointed_poset_sym_mon_closed_cat) X ∧* lift_poset_functor X).
 Proof.
   induction x as [ x | ].
   - exact (setquotpr _ (inl x ,, inl x)).
@@ -360,7 +362,7 @@ Proposition is_strict_and_monotone_lift_poset_comult_map
             (X : pointed_poset_sym_mon_closed_cat)
   : is_strict_and_monotone
       (pr2 (lift_poset_functor X))
-      (pr2 (lift_poset_functor X ∧* lift_poset_functor X))
+      (pr2 ((lift_poset_functor : pointed_poset_sym_mon_closed_cat ⟶ pointed_poset_sym_mon_closed_cat) X ∧* lift_poset_functor X))
       (@lift_poset_comult_map X).
 Proof.
   split.
