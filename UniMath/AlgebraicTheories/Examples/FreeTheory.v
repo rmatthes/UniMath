@@ -247,7 +247,6 @@ Section CosliceCatEquivalence.
     use make_functor_data.
     - intro A.
       exists ((A : algebra _) : hSet).
-      (* cbn. *)
       intro s.
       exact (action (T := free_theory S) (n := 0) (inr s) (weqvecfun 0 [()])).
     - intros A B F.
