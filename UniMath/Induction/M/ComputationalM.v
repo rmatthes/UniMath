@@ -56,7 +56,7 @@ Section Refinement.
   Local Definition corecM0 (C : coalgebra F) : type_precat ⟦ coalgebra_ob F C, carrierM0 ⟧
     := pr1 (iscontrpr1 (finalM0 C)).
 
-  Lemma corec_equational_aux (C : coalgebra F) (c : coalgebra_ob F C) : is_coalgebra_homo F (corecM0 C).
+  Lemma corec_equational_aux (C : coalgebra F) : is_coalgebra_homo F (corecM0 C).
   Proof.
     exact (pr2 (iscontrpr1 (finalM0 C))).
   Defined. (* defined because the target of the morphisms is a precategory only *)
@@ -65,7 +65,7 @@ Section Refinement.
   Lemma corec_equational (C : coalgebra F) (c : coalgebra_ob F C) :
     destrM0 (corecM0 C c) = # F (corecM0 C) (coalgebra_mor F C c).
   Proof.
-    set (aux := toforallpaths _ _ _ (corec_equational_aux C c)).
+    set (aux := toforallpaths _ _ _ (corec_equational_aux C)).
     apply pathsinv0, aux.
   Defined.
 
