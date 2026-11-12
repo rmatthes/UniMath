@@ -41,7 +41,7 @@ Definition isInjective_pr1_image
 Proof.
   intros y₁ y₂.
   refine (pr2 (path_sigma_hprop
-                 (λ (y : Y), ∥ hfiber f y ∥)
+                 (λ (y : Y), ∥ hfiber f y |)
                  y₁ y₂
                  _)).
   apply ishinh.

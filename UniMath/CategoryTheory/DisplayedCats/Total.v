@@ -113,7 +113,7 @@ Section Total_Category.
     make_functor (pr1_category_data D) (pr1_category_is_functor D).
 
   Lemma full_pr1_category {C : category} (D : disp_cat C)
-        (H : ∏ (a b : total_category D) (x : C ⟦ pr1 a, pr1 b ⟧), (∥ pr2 a -->[ x] pr2 b ∥))
+        (H : ∏ (a b : total_category D) (x : C ⟦ pr1 a, pr1 b ⟧), (∥ pr2 a -->[ x] pr2 b |))
     : full (pr1_category D).
   Proof.
     intros ? ?.

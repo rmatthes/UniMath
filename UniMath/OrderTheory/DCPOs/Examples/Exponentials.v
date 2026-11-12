@@ -37,7 +37,7 @@ Proposition prod_dcpo_monotone_lub_const_l
             (f : monotone_function (X × Y) Z)
             (x : X)
             {I : UU}
-            (i : ∥ I ∥)
+            (i : ∥ I |)
   : ⨆_{prod_directed_set_dcpo (const_directed_set X x I i) D} f
     =
     ⨆_{D} (f ·l x).
@@ -68,7 +68,7 @@ Proposition prod_dcpo_monotone_lub_const_r
             (f : monotone_function (X × Y) Z)
             (y : Y)
             {I : UU}
-            (i : ∥ I ∥)
+            (i : ∥ I |)
   : ⨆_{prod_directed_set_dcpo D (const_directed_set Y y I i)} f
     =
     ⨆_{D} (f ·r y).

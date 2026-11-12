@@ -689,22 +689,22 @@ Section def_pretrangulated.
    *)
   Definition isPreTriang (PTD : PreTriangData) : UU :=
     (∏ (x : ob PTD), isDTri (TrivialTri x))
-      × (∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2)
+      × (∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 |), isDTri T1 -> isDTri T2)
       × (∏ (D : DTri), @isDTri PTD (RotTri D))
       × (∏ (D : DTri), @isDTri PTD (InvRotTri D))
-      × (∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+      × (∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) |)
       × (∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-           (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H ∥).
+           (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H |).
 
   Definition make_isPreTriang {PTD : PreTriangData}
              (H1 : (∏ (x : ob PTD), isDTri (TrivialTri x)))
-             (H2 : ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2)
+             (H2 : ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 |), isDTri T1 -> isDTri T2)
              (H3 : ∏ (D : DTri), isDTri (RotTri D))
              (H4 : ∏ (D : DTri), isDTri (InvRotTri D))
              (H5 : ∏ (x y : ob PTD) (f : x --> y),
-                   ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥)
+                   ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) |)
              (H6 : ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-                     (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ (@TExt PTD _ _ _ _ H) ∥) :
+                     (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ (@TExt PTD _ _ _ _ H) |) :
     isPreTriang PTD := (H1,,(H2,,(H3,,(H4,,(H5,,H6))))).
 
   (** *** Accessor functions *)
@@ -719,7 +719,7 @@ Section def_pretrangulated.
   Defined.
 
   Definition DTrisUnderIso {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 ∥), isDTri T1 -> isDTri T2 :=
+    ∏ (T1 T2 : @Tri PTD Trans) (I : ∥ TriIso T1 T2 |), isDTri T1 -> isDTri T2 :=
     dirprod_pr1 (dirprod_pr2 iPT).
 
   Definition RotDTris {PTD : PreTriangData} (iPT : isPreTriang PTD) (D : @DTri PTD) :
@@ -741,17 +741,17 @@ Section def_pretrangulated.
   Defined.
 
   Definition DCompletion {PTD : PreTriangData} (iPT : isPreTriang PTD) :
-    ∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) ∥ :=
+    ∏ (x y : ob PTD) (f : x --> y), ∥ ∑ D : ConeData Trans x y, isDTri (ConeTri f D) | :=
     dirprod_pr1 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
   Definition DExts {PTD : PreTriangData} (iPT : isPreTriang PTD) :
     ∏ (D1 D2 : DTri) (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2)
-      (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H ∥ :=
+      (H : f1 · Mor1 D2 = Mor1 D1 · f2), ∥ @TExt PTD _ _ _ _ H | :=
     dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 (dirprod_pr2 iPT)))).
 
   Definition DExt {PTD : PreTriangData} (iPT : isPreTriang PTD) (D1 D2 : DTri)
              (f1 : Ob1 D1 --> Ob1 D2) (f2 : Ob2 D1 --> Ob2 D2) (H : f1 · Mor1 D2 = Mor1 D1 · f2) :
-    ∥ TExt H ∥ := DExts iPT D1 D2 f1 f2 H.
+    ∥ TExt H | := DExts iPT D1 D2 f1 f2 H.
 
   (** ** Pretriangulated category *)
 
@@ -890,14 +890,14 @@ Section def_triangulated.
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (make_Tri f1 f2 f3)) (H2 : isDTri (make_Tri g1 g2 g3))
-              (H3 : isDTri (make_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 ∥).
+              (H3 : isDTri (make_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 |).
 
   Definition make_Triang {PT : PreTriang} (H : ∏ (x1 x2 y1 y2 z1 z2 : ob PT)
               (f1 : x1 --> y1) (f2 : y1 --> z2) (f3 : z2 --> (AddEquiv1 Trans x1))
               (g1 : y1 --> z1) (g2 : z1 --> x2) (g3 : x2 --> (AddEquiv1 Trans y1))
               (h2 : z1 --> y2) (h3 : y2 --> (AddEquiv1 Trans x1))
               (H1 : isDTri (make_Tri f1 f2 f3)) (H2 : isDTri (make_Tri g1 g2 g3))
-              (H3 : isDTri (make_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 ∥) : Triang := (PT,,H).
+              (H3 : isDTri (make_Tri (f1 · g1) h2 h3)), ∥ Octa H1 H2 H3 |) : Triang := (PT,,H).
 
   Definition Triang_PreTriang (TR : Triang) : PreTriang := pr1 TR.
   Coercion Triang_PreTriang : Triang >-> PreTriang.
@@ -908,7 +908,7 @@ Section def_triangulated.
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              {H1 : isDTri (make_Tri f1 f2 f3)} {H2 : isDTri (make_Tri g1 g2 g3)}
              {H3 : isDTri (make_Tri (f1 · g1) h2 h3)} :
-    ∥ Octa H1 H2 H3 ∥ := (pr2 TR) x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3.
+    ∥ Octa H1 H2 H3 | := (pr2 TR) x1 x2 y1 y2 z1 z2 f1 f2 f3 g1 g2 g3 h2 h3 H1 H2 H3.
 
 End def_triangulated.
 
@@ -1169,7 +1169,7 @@ Section rotation_isos.
 
   Definition ExtMor2 (D1 D2 : @DTri PT) (f3 : Ob3 D1 --> Ob3 D2)
              (f4 : (AddEquiv1 Trans (Ob1 D1)) --> (AddEquiv1 Trans (Ob1 D2)))
-             (H : f3 · Mor3 D2 = Mor3 D1 · f4) : ∥ TriMor D1 D2 ∥.
+             (H : f3 · Mor3 D2 = Mor3 D1 · f4) : ∥ TriMor D1 D2 |.
   Proof.
     set (D1' := InvRotDTri PT D1). set (D2' := InvRotDTri PT D2).
     set (Ext' := DExt PT D1' D2' (# (AddEquiv2 Trans) f3)

@@ -144,7 +144,7 @@ Section KAPreTriangulated.
     pr2 D.
 
   Definition KAisDTri (T : @Tri (ComplexHomot_Additive A) (TranslationHEquiv A)) : hProp :=
-    ∥ KADTriData T ∥.
+    ∥ KADTriData T |.
 
   Definition KAPreTriangData : PreTriangData.
   Proof.
@@ -658,7 +658,7 @@ Section KAPreTriangulated.
 
   Lemma KAExt :
     ∏ (D1 D2 : DTri) (g1 : KAPreTriangData ⟦ Ob1 D1, Ob1 D2 ⟧)
-      (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 · Mor1 D2 = Mor1 D1 · g2), ∥ TExt H ∥.
+      (g2 : KAPreTriangData ⟦ Ob2 D1, Ob2 D2 ⟧) (H : g1 · Mor1 D2 = Mor1 D1 · g2), ∥ TExt H |.
   Proof.
     intros D1 D2 g1 g2 H.
     use (squash_to_prop (DTriisDTri D1) (propproperty _)). intros I1.
@@ -684,7 +684,7 @@ Section KAPreTriangulated.
   (** ** Closed under isomorphisms *)
 
   Definition KADTrisIsos :
-    ∏ T1 T2 : Tri, ∥ TriIso T1 T2 ∥ → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
+    ∏ T1 T2 : Tri, ∥ TriIso T1 T2 | → @isDTri KAPreTriangData T1 → @isDTri KAPreTriangData T2.
   Proof.
     intros T1 T2 I X0.
     use (squash_to_prop I (propproperty _)). intros I'.

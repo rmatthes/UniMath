@@ -449,7 +449,7 @@ Qed.
 
 Section singletons.
   Definition singleton {X : UU} (x : X) : hsubtype X
-    := λ (a : X), ∥ a = x ∥.
+    := λ (a : X), ∥ a = x |.
 
   (* The canonical element of the singleton subtype. *)
   Definition singleton_point {X : UU} {x : X} : singleton x

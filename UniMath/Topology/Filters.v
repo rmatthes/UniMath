@@ -775,7 +775,7 @@ Defined.
 
 Section filtertop.
 
-Context  {X : UU} (x0 : ∥ X ∥).
+Context  {X : UU} (x0 : ∥ X |).
 
 Definition filtertop : (X → hProp) → hProp :=
   λ A : X → hProp, make_hProp (∏ x : X, A x) (impred_isaprop _ (λ _, propproperty _)).
@@ -823,7 +823,7 @@ Proof.
   - exact filtertop_and.
 Defined.
 
-Definition FilterTop {X : UU} (x0 : ∥ X ∥) : Filter X.
+Definition FilterTop {X : UU} (x0 : ∥ X |) : Filter X.
 Proof.
   refine (tpair _ _ _).
   split.
@@ -838,7 +838,7 @@ Proof.
   apply filter_forall, Ha.
 Qed.
 Lemma FilterTop_correct {X : UU} :
-  ∏ (x0 : ∥ X ∥) (F : Filter X), filter_le F (FilterTop x0).
+  ∏ (x0 : ∥ X |) (F : Filter X), filter_le F (FilterTop x0).
 Proof.
   intros x0 F A Ha.
   apply PreFilterTop_correct, Ha.

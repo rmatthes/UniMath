@@ -468,7 +468,7 @@ Section preadditive_quotient.
     tpair (λ ob : UU, ob -> ob -> UU) (ob PA) (λ A B : ob PA, Quotcategory_homsets A B).
 
   Lemma Quotcategory_surj {c d : Quotcategory_ob_mor} (f : Quotcategory_ob_mor⟦c, d⟧) :
-    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS c d))) f ∥.
+    ∥ hfiber (setquotpr (binopeqrel_subgr_eqrel (PAS c d))) f |.
   Proof.
     use issurjsetquotpr.
   Qed.

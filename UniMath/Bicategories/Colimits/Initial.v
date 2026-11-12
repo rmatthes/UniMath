@@ -389,7 +389,7 @@ End Initial.
 Definition biinitial_obj (B : bicat) : UU
   := ∑ (X : B), is_biinitial X.
 
-Definition has_biinitial (B : bicat) : UU := ∥ biinitial_obj B ∥.
+Definition has_biinitial (B : bicat) : UU := ∥ biinitial_obj B |.
 
 Definition bicat_with_biinitial
   : UU

@@ -132,7 +132,7 @@ Section KATriangulated.
              {h2 : z1 --> y2} {h3 : y2 --> (AddEquiv1 Trans x1)}
              (H1 : isDTri (make_Tri f1 f2 f3)) (H2 : isDTri (make_Tri g1 g2 g3))
              (H3 : isDTri (make_Tri (f1 · g1) h2 h3)) :
-    ∥ Octa H1 H2 H3 ∥.
+    ∥ Octa H1 H2 H3 |.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_issurj A f1) (propproperty _)). intros f1'.
     use (squash_to_prop (ComplexHomotFunctor_issurj A g1) (propproperty _)). intros g1'.

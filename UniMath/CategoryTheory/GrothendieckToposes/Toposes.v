@@ -57,7 +57,7 @@ Definition Grothendieck_topos_structure_equiv
 Definition is_Grothendieck_topos
   (C : category)
   : hProp
-  := ∥ Grothendieck_topos_structure C ∥.
+  := ∥ Grothendieck_topos_structure C |.
 
 (** * 2. Grothendieck toposes *)
 

@@ -389,7 +389,7 @@ End Final.
 Definition bifinal_obj (B : bicat) : UU
   := ∑ (X : B), is_bifinal X.
 
-Definition has_bifinal (B : bicat) : UU := ∥ bifinal_obj B ∥.
+Definition has_bifinal (B : bicat) : UU := ∥ bifinal_obj B |.
 
 (**
  5. Bifinal objects are unique

@@ -4,7 +4,7 @@ Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.NullHomotopies.
 Require Import UniMath.MoreFoundations.Notations.
 
-Definition interval := ∥ bool ∥.
+Definition interval := ∥ bool |.
 Definition left := hinhpr true : interval.
 Definition right := hinhpr false : interval.
 Definition interval_path : left = right := squash_path true false.

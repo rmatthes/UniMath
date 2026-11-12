@@ -78,7 +78,7 @@ Definition continuous_dcpo_struct
 Definition is_continuous_dcpo
            (X : dcpo)
   : hProp
-  := ∥ continuous_dcpo_struct X ∥.
+  := ∥ continuous_dcpo_struct X |.
 
 Section ContinuousDCPOAccessors.
   Context {X : dcpo}

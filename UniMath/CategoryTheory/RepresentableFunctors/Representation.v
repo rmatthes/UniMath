@@ -41,7 +41,7 @@ Defined.
 Definition Representation {C:category} (X:[C^op,HSET]) : UU
   := ∑ (c:C), Universal X c.
 
-Definition isRepresentable {C:category} (X:[C^op,HSET]) := ∥ Representation X ∥.
+Definition isRepresentable {C:category} (X:[C^op,HSET]) := ∥ Representation X |.
 
 Lemma isaprop_Representation {C: univalent_category} (X:[C^op,HSET]) :
   isaprop (@Representation C X).
@@ -327,7 +327,7 @@ Proof.
   exact (pr2 k,,pr1 k).
 Defined.
 
-Definition hasZeroObject (C:category) := ∥ ZeroObject C ∥.
+Definition hasZeroObject (C:category) := ∥ ZeroObject C |.
 
 Definition haszero_opp (C:category) : hasZeroObject C -> hasZeroObject C^op
   := hinhfun (zero_opp C).

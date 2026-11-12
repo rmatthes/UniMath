@@ -305,7 +305,7 @@ Section LiftAlongWeakEquivalencePreservesChosenPullbacksUptoEquality.
       (g' : C2⟦G y, G z⟧).
 
     Lemma lift_preserves_chosen_pullbacks_uptoeq_after_isotoid_induction
-      : ∥ H (P₂ (G z) (G x) (G y) f' g') = P₃ (H (G z)) (H (G x)) (H (G y)) (# H f') (# H g') ∥.
+      : ∥ H (P₂ (G z) (G x) (G y) f' g') = P₃ (H (G z)) (H (G x)) (H (G y)) (# H f') (# H g') |.
     Proof.
 
       set (f := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw) _ _ f')).

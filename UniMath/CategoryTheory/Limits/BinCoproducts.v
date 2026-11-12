@@ -66,7 +66,7 @@ Definition BinCoproduct (a b : C) :=
       isBinCoproduct a b (pr1 coiaib) (pr1 (pr2 coiaib)) (pr2 (pr2 coiaib)).
 
 Definition BinCoproducts := ∏ (a b : C), BinCoproduct a b.
-Definition hasBinCoproducts := ∏ (a b : C), ∥ BinCoproduct a b ∥.
+Definition hasBinCoproducts := ∏ (a b : C), ∥ BinCoproduct a b |.
 
 Definition BinCoproductObject {a b : C} (CC : BinCoproduct a b) : C := pr1 (pr1 CC).
 Coercion BinCoproductObject : BinCoproduct >-> ob.

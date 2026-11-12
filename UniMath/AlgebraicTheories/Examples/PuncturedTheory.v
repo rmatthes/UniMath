@@ -131,7 +131,7 @@ Section PuncturedTheory.
   Section LiftPuncturedTheoryAlgebra.
 
     Context (A : algebra punctured_theory).
-    Context (a0 : ∥ A ∥).
+    Context (a0 : ∥ A |).
 
     Lemma isaprop_inflated_constant_image
       {m n : nat}
@@ -166,7 +166,7 @@ Section PuncturedTheory.
 
     Definition inflated_constant_image
       (f : T 0)
-      (a0' : ∥ A ∥)
+      (a0' : ∥ A |)
       : A.
     Proof.
       simple refine (squash_to_set (setproperty _) _ _ a0').
@@ -225,7 +225,7 @@ Section PuncturedTheory.
 (** * 4. The isomorphism that shows we have a retraction for T_0 nonempty *)
 
   Definition algebra_to_punctured_theory_algebra_to_algebra
-    (t : ∥ T 0 ∥)
+    (t : ∥ T 0 |)
     (A : algebra T)
     : algebra T
     := punctured_theory_algebra_to_algebra
@@ -233,7 +233,7 @@ Section PuncturedTheory.
       (hinhfun (λ t, action t (weqvecfun _ [()])) t).
 
   Lemma algebra_to_punctured_theory_algebra_to_algebra_iso_is_morphism
-    (t : ∥ T 0 ∥)
+    (t : ∥ T 0 |)
     (A : algebra T)
     : is_algebra_morphism (idfun A : algebra_to_punctured_theory_algebra_to_algebra t A → A).
   Proof.
@@ -247,7 +247,7 @@ Section PuncturedTheory.
   Qed.
 
   Definition algebra_to_punctured_theory_algebra_to_algebra_iso
-    (t : ∥ T 0 ∥)
+    (t : ∥ T 0 |)
     (A : algebra T)
     : z_iso (algebra_to_punctured_theory_algebra_to_algebra t A) A.
   Proof.

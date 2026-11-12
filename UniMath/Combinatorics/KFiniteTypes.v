@@ -9,7 +9,7 @@
   (*                                                                  *)
   (* [iskfinite] -- A type X is Kuratowski finite (K-finite) if there *)
   (*                merely exists some Kuratowski structure on X:     *)
-  (*                        iskfinite X := ∥ kfinstruct X ∥.          *)
+  (*                        iskfinite X := ∥ kfinstruct X |.          *)
   (*                                                                  *)
   (********************************************************************)
 
@@ -198,7 +198,7 @@ Section kfinite_definition.
    *)
 
   Definition iskfinite (X : UU) : UU
-    := ∥ kfinstruct X ∥.
+    := ∥ kfinstruct X |.
 
   Definition kfinstruct_iskfinite {X : UU} : kfinstruct X → iskfinite X
     := hinhpr.
@@ -244,42 +244,42 @@ Section kfinite_definition.
 End kfinite_definition.
 
 Section iskfinite_isdeceq_isfinite.
-(** 
-  This section provides the necessary construction to prove that 
-  every K-Finite type with decidable equality is Bishop-finite. 
-  
-  Proof outline: 
-  Let X be a K-Finite type. Then there exists n : nat with a surjection 
+(**
+  This section provides the necessary construction to prove that
+  every K-Finite type with decidable equality is Bishop-finite.
+
+  Proof outline:
+  Let X be a K-Finite type. Then there exists n : nat with a surjection
   from stn n to X.
 
   The proof goes by induction on n, with the type X being generalized.
   In the base case, we have a surjection from an uninhabited type to X.
-  Thus, X must also have no elements and therefore, X is equivalent with 
+  Thus, X must also have no elements and therefore, X is equivalent with
   stn 0.
 
-  In the inductive step, we assume that for any type X for which there 
-  exists a surjection from stn n to X and has decidable equality is 
-  Bishop finite. We have to show that if there exists a surjection f 
-  from stn (S n) to X and X has decidable equality, then X is Bishop 
+  In the inductive step, we assume that for any type X for which there
+  exists a surjection from stn n to X and has decidable equality is
+  Bishop finite. We have to show that if there exists a surjection f
+  from stn (S n) to X and X has decidable equality, then X is Bishop
   finite.
-  Let g : stn n -> X such that g (x) := f x. If X has decidable equality, 
-  then it is decidable whether f (n) is included in the image of g. 
+  Let g : stn n -> X such that g (x) := f x. If X has decidable equality,
+  then it is decidable whether f (n) is included in the image of g.
 
   We will thus proceed by case analysis on whether f n is included in the image of g.
-  If f n is included in the image of g, then g must be a surjection as well. By the inductive 
-  hypothesis X is Bishop finite. If f n is not included in the image of g, we will denote 
-  y := f n. We now consider the type X / y (pair X (\x -> x != y)) which is inhabited by 
-  terms different than y. First, we note that X / y has decidable equality. Secondly, we note 
-  that X / y + unit is equivalent to X. Lastly, we note that by restricting the codomain of g 
-  to X / y, we obtain a surjection g1 : stn n -> X / y. By the inductive hypothesis, the type 
-  X / y is Bishop finite, and thus equivalent to stn m for some m : nat. 
-  To conclude, we have the following chain of equivalences 
+  If f n is included in the image of g, then g must be a surjection as well. By the inductive
+  hypothesis X is Bishop finite. If f n is not included in the image of g, we will denote
+  y := f n. We now consider the type X / y (pair X (\x -> x != y)) which is inhabited by
+  terms different than y. First, we note that X / y has decidable equality. Secondly, we note
+  that X / y + unit is equivalent to X. Lastly, we note that by restricting the codomain of g
+  to X / y, we obtain a surjection g1 : stn n -> X / y. By the inductive hypothesis, the type
+  X / y is Bishop finite, and thus equivalent to stn m for some m : nat.
+  To conclude, we have the following chain of equivalences
   X ≃ X / y + 1 ≃ stn m + 1 ≃ stn (S m). Thus, X is Bishop finite.
 
   *)
 
-  Lemma issurjective_stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X) 
-        (nfib : ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement)) : issurjective f → 
+  Lemma issurjective_stnfun_singleton_complement {X : UU} {n : nat} (f : stn (S n) → X)
+        (nfib : ¬ hfiber (fun_stnsn_to_stnn f) (f lastelement)) : issurjective f →
         issurjective (stnfun_singleton_complement f nfib).
   Proof.
     intros surjf y.
@@ -293,7 +293,7 @@ Section iskfinite_isdeceq_isfinite.
       + apply (tpair _ (m ,, a)).
         unfold stnfun_singleton_complement, fun_stnsn_to_stnn, make_stn.
         apply subtypePath_prop; cbn.
-        induction q. apply maponpaths, stn_eq, idpath. 
+        induction q. apply maponpaths, stn_eq, idpath.
       + assert (H : (m ,, lth = lastelement)) by apply stn_eq, b.
         apply fromempty. induction neq. induction H. apply pathsinv0, q.
   Qed.
@@ -304,7 +304,7 @@ Section iskfinite_isdeceq_isfinite.
     generalize dependent X.
     induction n; intros.
     - apply tpair with (pr1 := 0).
-      apply surj_from_stn0_to_neg with (f := f). assumption. 
+      apply surj_from_stn0_to_neg with (f := f). assumption.
     - set (g := fun_stnsn_to_stnn f).
       set (y := f lastelement).
       induction (isdeceq_isdecsurj g y deceqX).
@@ -316,7 +316,7 @@ Section iskfinite_isdeceq_isfinite.
         [ | apply isdeceq_subtype; try assumption; intros x; apply isapropneg ].
         destruct surjg' as [s1 s2].
         apply tpair with (pr1 := (S s1)); unfold nelstruct.
-        eapply weqcomp. 
+        eapply weqcomp.
         * apply invweq, weqdnicoprod, lastelement.
         * eapply weqcomp.
           { eapply weqcoprodf1, s2. }

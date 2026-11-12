@@ -42,7 +42,7 @@ Definition coalgebra_mor (X : coalgebra) : type_precat ⟦X, F X ⟧ := pr2 X.
 Definition is_coalgebra_homo {X Y : coalgebra} (f : type_precat ⟦X, Y⟧) (x : coalgebra_ob X) : UU
   := ((coalgebra_mor X) · #F f) x = (f · (coalgebra_mor Y)) x.
 
-Definition coalgebra_homo (X Y : coalgebra) := ∑ f : type_precat ⟦X, Y⟧, ∏ x : coalgebra_ob X, ∥ is_coalgebra_homo f x ∥.
+Definition coalgebra_homo (X Y : coalgebra) := ∑ f : type_precat ⟦X, Y⟧, ∏ x : coalgebra_ob X, ∥ is_coalgebra_homo f x |.
 
 Definition mor_from_coalgebra_homo (X Y : coalgebra) (f : coalgebra_homo X Y)
   : type_precat ⟦X, Y⟧ := pr1 f.

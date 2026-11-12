@@ -360,7 +360,7 @@ Definition fibration (C : category) : UU
 
 Definition is_cleaving {C : category} (D : disp_cat C) : UU
 :=
-  forall (c c' : C) (f : c' --> c) (d : D c), ∥ cartesian_lift d f ∥.
+  forall (c c' : C) (f : c' --> c) (d : D c), ∥ cartesian_lift d f |.
 
 Definition weak_fibration (C : category) : UU
 := ∑ D : disp_cat C, is_cleaving D.
@@ -1056,7 +1056,7 @@ Section Opcleaving.
     := ∏ (c₁ c₂ : C)
          (cc₁ : D c₁)
          (f : c₁ --> c₂),
-       ∥ opcartesian_lift cc₁ f ∥.
+       ∥ opcartesian_lift cc₁ f |.
 End Opcleaving.
 
 Definition opcleaving_ob

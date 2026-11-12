@@ -314,7 +314,7 @@ Proposition const_lub
             {X : dcpo}
             (x : X)
             (I : UU)
-            (i : ∥ I ∥)
+            (i : ∥ I |)
   : ⨆ (const_directed_set X x I i) = x.
 Proof.
   use antisymm_dcpo.

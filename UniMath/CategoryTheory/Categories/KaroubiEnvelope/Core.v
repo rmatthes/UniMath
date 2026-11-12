@@ -83,7 +83,7 @@ Definition karoubi_envelope_functor
 Definition idempotents_split
   (D : category)
   : UU
-  := ∏ (X : D) (f : idempotent X), ∥ is_split_idempotent f ∥.
+  := ∏ (X : D) (f : idempotent X), ∥ is_split_idempotent f |.
 
 Definition objects_are_retracts
   {C D : category}

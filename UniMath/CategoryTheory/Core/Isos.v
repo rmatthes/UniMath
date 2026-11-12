@@ -390,7 +390,7 @@ Section are_isomorphic.
   Context {C : precategory}.
 
   (** a and b are related if there merely exists an iso between them *)
-  Definition are_isomorphic : hrel C := λ a b, ∥iso a b∥.
+  Definition are_isomorphic : hrel C := λ a b, ∥iso a b|.
 
   Lemma iseqrel_are_isomorphic : iseqrel are_isomorphic.
   Proof.
@@ -752,7 +752,7 @@ Proof.
   assumption.
 Qed.
 
-Definition are_z_isomorphic {C : precategory_data} : hrel C := λ a b, ∥z_iso a b∥.
+Definition are_z_isomorphic {C : precategory_data} : hrel C := λ a b, ∥z_iso a b|.
 
 Lemma iseqrel_are_z_isomorphic {C : precategory} : iseqrel (are_z_isomorphic(C:=C)).
   Proof.

@@ -25,7 +25,7 @@ Proof.
   { apply iscontrcoconustot. }
 Defined.
 
-Definition halfline := ∥ ℕ ∥.
+Definition halfline := ∥ ℕ |.
 
 Definition makeNullHomotopy {Y} {f:ℕ->Y} (s:target_paths f) {y:Y} (h0:y=f 0) :
   nullHomotopyFrom f y.

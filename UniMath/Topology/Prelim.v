@@ -13,7 +13,7 @@ Require Export UniMath.Tactics.EnsureStructuredProofs.
 (** ** hProp *)
 
 Lemma hinhuniv2' {P X Y : UU} :
-  isaprop P → (X → Y → P) → (∥ X ∥ → ∥ Y ∥ → P).
+  isaprop P → (X → Y → P) → (∥ X | → ∥ Y | → P).
 Proof.
   intros HP Hxy.
   apply (hinhuniv2 (P := make_hProp _ HP)).

@@ -161,7 +161,7 @@ Section def_bindirectsums.
 
   Definition hasBinDirectSums : hProp.
   Proof.
-    exists (∏ (a b : A), ∥ BinDirectSum a b ∥).
+    exists (∏ (a b : A), ∥ BinDirectSum a b |).
     apply impred; intro p.
     apply impred; intro q.
     apply isapropishinh.

@@ -10,7 +10,7 @@ Contents:
 *)
 
 Definition eqrel_closure_hrel {X : UU} (R : hrel X) : hrel X :=
-  λ x y, ∥ gpaths (symmetric_closure R) x y ∥.
+  λ x y, ∥ gpaths (symmetric_closure R) x y |.
 
 Lemma iseqrel_closure {X : UU} (R : hrel X) : iseqrel (eqrel_closure_hrel R).
 Proof.

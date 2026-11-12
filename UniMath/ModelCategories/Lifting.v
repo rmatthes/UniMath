@@ -28,7 +28,7 @@ Definition filler_comm {x y a b : C} {f : x --> y} {g : a --> b}
     {h : x --> a} {k : y --> b} {H : h · g = f · k} (l : filler H) := pr2 l.
 
 Definition lp {x y a b : C} (f : x --> y) (g : a --> b) : hProp :=
-  ∀ (h : x --> a) (k : y --> b) (H : h · g = f · k), ∥filler H∥.
+  ∀ (h : x --> a) (k : y --> b) (H : h · g = f · k), ∥filler H|.
 
 (* "existential" lifting property *)
 Definition elp {x y a b : C} (f : x --> y) (g : a --> b) : UU :=

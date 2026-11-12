@@ -551,7 +551,7 @@ Proof.
 
   (* we need the axiom of choice here
      it is basically exactly the definition of the axiom of choice *)
-  assert (∥∏ i, ∑ li, (li ∘ (f i) = hi i) × (g ∘ li = ki i)∥) as ilift_aoc.
+  assert (∥∏ i, ∑ li, (li ∘ (f i) = hi i) × (g ∘ li = ki i)|) as ilift_aoc.
   {
     set (aocI := aoc I).
     simpl in aocI.

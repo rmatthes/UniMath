@@ -541,7 +541,7 @@ Proof.
 Defined.
 
 Definition map {T:Torsor ℤ} {Y} (f:T->Y) (s:target_paths f) :
-  ∥ T ∥ -> GuidedHomotopy s.
+  ∥ T | -> GuidedHomotopy s.
 Proof.
   intros t'.
   (* try to use transport as in Halfline.map *)
@@ -578,7 +578,7 @@ Defined.
 
 (** ** The construction of the affine line *)
 
-Definition affine_line (T:Torsor ℤ) := ∥ T ∥.
+Definition affine_line (T:Torsor ℤ) := ∥ T |.
 
 Definition affine_line_point (T:Torsor ℤ) : affine_line T.
 Proof.

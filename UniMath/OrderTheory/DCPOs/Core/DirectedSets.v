@@ -34,11 +34,11 @@ Section Directed.
 
   Definition is_directed
     : hProp
-    := ∥ I ∥ ∧ ∀ (i j : I), ∃ (k : I), PX (D i) (D k) × PX (D j) (D k).
+    := ∥ I | ∧ ∀ (i j : I), ∃ (k : I), PX (D i) (D k) × PX (D j) (D k).
 
   Definition is_directed_el
              (H : is_directed)
-    : ∥ I ∥
+    : ∥ I |
     := pr1 H.
 
   Definition is_directed_top
@@ -89,7 +89,7 @@ Definition directed_set_el
            {X : hSet}
            {PX : PartialOrder X}
            (D : directed_set PX)
-  : ∥ D ∥
+  : ∥ D |
   := is_directed_el (directed_set_is_directed D).
 
 Definition directed_set_top
@@ -167,7 +167,7 @@ Proposition is_directed_const
             (PX : PartialOrder X)
             (x : X)
             (I : UU)
-            (i : ∥ I ∥)
+            (i : ∥ I |)
   : is_directed PX (λ _ : I, x).
 Proof.
   split.
@@ -183,7 +183,7 @@ Definition const_directed_set
            (PX : PartialOrder X)
            (x : X)
            (I : UU)
-           (i : ∥ I ∥)
+           (i : ∥ I |)
   : directed_set PX.
 Proof.
   use (make_directed_set _ I).

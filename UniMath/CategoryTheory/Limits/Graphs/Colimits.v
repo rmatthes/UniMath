@@ -39,7 +39,7 @@ Definition forms_cocone {C : precategory} {g : graph} (d : diagram g C) {c : C} 
   := ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
 
 Lemma isaprop_forms_cocone {C : category} {g : graph} {d : diagram g C}
-  {c : C} {f : ∏ (v : vertex g), C⟦dob d v, c⟧} 
+  {c : C} {f : ∏ (v : vertex g), C⟦dob d v, c⟧}
   : isaprop (forms_cocone d f).
 Proof.
   do 3 (use impred; intro).
@@ -366,7 +366,7 @@ Section Colims.
 
 Definition Colims (C : category) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
 Definition hasColims (C : category) : UU  :=
-  ∏ (g : graph) (d : diagram g C), ∥ ColimCocone d ∥.
+  ∏ (g : graph) (d : diagram g C), ∥ ColimCocone d |.
 
 (** Colimits of a specific shape *)
 Definition Colims_of_shape (g : graph) (C : category) : UU :=
@@ -578,9 +578,9 @@ Qed.
 
 End map.
 
-Lemma composition_preserves_colimit 
+Lemma composition_preserves_colimit
   {C D E : category} (F : C ⟶ D) (G : D ⟶ E)
-  {g : graph} {d : diagram g C} (L : C) (cc : cocone d L) 
+  {g : graph} {d : diagram g C} (L : C) (cc : cocone d L)
   (hyp_F : preserves_colimit F d L cc)
   (hyp_G : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F d cc))
   : preserves_colimit (F ∙ G) d L cc.
@@ -706,7 +706,7 @@ Lemma colimOfArrows_comp {C : precategory} {g : graph} {d1 d2 d3 : diagram g C}
   (p_nat : ∏ u v e, dmor d1 e · p v = p u · dmor d2 e)
   (q_nat : ∏ u v e, dmor d2 e · q v = q u · dmor d3 e)
   (pq_nat : ∏ u v e, dmor d1 e · (p v · q v) = p u · q u · dmor d3 e)
-  : colimOfArrows CC1 CC2 p p_nat · colimOfArrows CC2 CC3 q q_nat 
+  : colimOfArrows CC1 CC2 p p_nat · colimOfArrows CC2 CC3 q q_nat
   = colimOfArrows CC1 CC3 (λ u, p u · q u) pq_nat.
 Proof.
   unfold colimOfArrows; use colimArrowUnique; intro u.

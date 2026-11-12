@@ -58,7 +58,7 @@ Section filtered_colimits_in_SET.
   Definition filtered_cobase_rel : hrel cobase
     := λ (a b : cobase),
       ∥ ∑ (c : J) (fia : edge a c) (fib : edge b c),
-      (dmor d fia) a = (dmor d fib) b ∥.
+      (dmor d fia) a = (dmor d fib) b |.
 
   Definition filtered_rel : hrel cobase
     := eqrel_from_hrel filtered_cobase_rel.

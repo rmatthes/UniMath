@@ -44,12 +44,12 @@ Section filtered_categories.
   Definition is_filtered (J : category) : UU
     := ∏ (g : graph)
          (d : diagram g J),
-      (is_finite_graph g) -> ∥ ∑ (z : J), cocone d z ∥.
+      (is_finite_graph g) -> ∥ ∑ (z : J), cocone d z |.
 
   Definition is_filtered_alt
     (J : category)
     : UU
-    := ∥ J ∥
+    := ∥ J |
          × (∏ (d : diagram bool_graph J), ∃ z : J, cocone d z)
          × (∏ (d : diagram pair_graph J), ∃ z : J, cocone d z).
 
@@ -112,7 +112,7 @@ Section alternate_formulation.
 
   Lemma filtered_is_inhabited {J : category}
     (filtered : is_filtered J)
-    : ∥ J ∥.
+    : ∥ J |.
   Proof.
     exact(hinhfun pr1 (filtered empty_graph make_empty_diagram is_finite_graph_empty)).
   Qed.
@@ -319,7 +319,7 @@ Section alternate_formulation.
     use(filtered_alt_has_discrete_cocones filtalt (vertex g) points n (invweq w)).
     intros [P Pcc].
 
-    assert(edgechoice : ∥ ∏ (a b : vertex g), finstruct (edge a b) ∥). {
+    assert(edgechoice : ∥ ∏ (a b : vertex g), finstruct (edge a b) |). {
       do 2 (use(ischoicebasefiniteset (finite_vertexset gfinite)); intro).
       apply finite_edges.
     }
@@ -345,7 +345,7 @@ Section alternate_formulation.
       exact(weqcoprodf1 (invweq i)).
     }
 
-    assert(D' : ∥ (∏ (a b : vertex g), ∑ (Pab : J), cocone (ediagram a b) Pab) ∥). {
+    assert(D' : ∥ (∏ (a b : vertex g), ∑ (Pab : J), cocone (ediagram a b) Pab) |). {
       do 2 (use(ischoicebasefiniteset (finite_vertexset gfinite)); intro).
       apply D.
     }

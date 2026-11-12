@@ -100,14 +100,14 @@ Definition E_is_good_to_I_and_T (C : folds_3_id_comp_eq) : UU :=
 (** **  The axioms for identity *)
 
 Definition folds_ax_id (C : folds_3_id_comp_eq) :=
-     (∏ a : C, ∥ ∑ f : a ⇒ a, I f ∥ )  (* there is a thing satisfying I *)
+     (∏ a : C, ∥ ∑ f : a ⇒ a, I f | )  (* there is a thing satisfying I *)
  ×  ((∏ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* I is post neutral *)
   ×  (∏ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* I is pre neutral *)
 
 (** ** The axioms for composition *)
 
 Definition folds_ax_comp (C : folds_3_id_comp_eq) :=
-     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ )
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h | )
                                                         (* there is a composite *)
  × ( (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c), T f g h → T f g k → E h k )
                                                         (* composite is unique mod E *)

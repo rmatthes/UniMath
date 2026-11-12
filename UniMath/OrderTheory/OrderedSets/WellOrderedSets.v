@@ -876,7 +876,7 @@ Proof.
   induction (ishinh_irrel ( j ,, xinSj ) i).
   (* T' is the intersection of T with S j *)
   set (T' := (λ s, T (subtype_inc (subtype_union_containedIn S j) s))).
-  assert (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' ∥); clear x xinSj xinT.
+  assert (t' := hinhpr ((x,,xinSj),,xinT) : ∥ carrier T' |); clear x xinSj xinT.
   assert (min := WOS_hasSmallest (S j) T' t'); clear t'.
   apply (squash_to_hProp min); clear min; intros [t0 [t0inT' t0min]].
   (* t0 is the minimal element of T' *)
@@ -935,7 +935,7 @@ Defined.
 
 Definition choice_fun (X:hSet) : hSet := ∏ S : proper_subtypes_set X, ∑ x : X, hProp_to_hSet (¬ pr1 S x).
 
-Lemma AC_to_choice_fun (X:hSet) : AxiomOfChoice ⇒ ∥ choice_fun X ∥.
+Lemma AC_to_choice_fun (X:hSet) : AxiomOfChoice ⇒ ∥ choice_fun X |.
 Proof.
   intros ac.
   exact (squash_to_hProp (ac (proper_subtypes_set X)

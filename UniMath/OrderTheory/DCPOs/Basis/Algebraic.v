@@ -118,7 +118,7 @@ End AlgebraicDCPOAccessors.
 Definition is_algebraic_dcpo
            (X : dcpo)
   : hProp
-  := ∥ algebraic_dcpo_struct X ∥.
+  := ∥ algebraic_dcpo_struct X |.
 
 (**
  4. Algebraic DCPOs to continuous DCPOs

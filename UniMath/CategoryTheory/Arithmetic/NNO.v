@@ -105,7 +105,7 @@ End UniversalMappingProperty.
 Definition make_NNO (n : C) (z : C ⟦ 1, n ⟧) (s : C ⟦ n, n ⟧)
  (h : isNNO n z s) : NNO := (n,,z,,s,,h).
 
-Definition hasNNO : hProp := ∥ NNO ∥.
+Definition hasNNO : hProp := ∥ NNO |.
 
 End nno.
 

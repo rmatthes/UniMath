@@ -37,7 +37,7 @@ Proof.
 Defined.
 
 Lemma isaprop_NullHomotopyTo {X} {Y} (iss:isaset Y) (f:X->Y) :
-  ∥ X ∥ -> isaprop (NullHomotopyTo f).
+  ∥ X | -> isaprop (NullHomotopyTo f).
 Proof.
   apply factor_through_squash.
   apply isapropisaprop.
@@ -47,11 +47,11 @@ Proof.
   - exact (!i x @ j x).
 Defined.
 
-(* We can get a map from '∥ X ∥' to any type 'Y' provided paths
+(* We can get a map from '∥ X |' to any type 'Y' provided paths
    are given that allow us to map first into a cone in 'Y'.  *)
 
 Definition cone_squash_map {X Y} (f:X->Y) (y:Y) :
-  nullHomotopyTo f y -> ∥ X ∥ -> Y.
+  nullHomotopyTo f y -> ∥ X | -> Y.
 Proof.
   intros e h. exact (point_from (h (paths_to_prop y) (λ x, f x,,e x))).
 Defined.

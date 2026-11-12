@@ -504,7 +504,7 @@ Proof.
 
   (* we need the axiom of choice here
      it is basically exactly the definition of the axiom of choice *)
-  assert (∥∏ i, ∑ li, ((f i) · li = hi i) × (li · g = ki i)∥) as ilift_aoc.
+  assert (∥∏ i, ∑ li, ((f i) · li = hi i) × (li · g = ki i)|) as ilift_aoc.
   {
     set (aocI := aoc I).
     simpl in aocI.
@@ -643,7 +643,7 @@ Proof.
       exact (pr2 lpSv).
   }
 
-  assert (∥∏ v : vertex nat_graph, ∑ va : dob d v --> a, va · g = colimIn CC v · k∥) as Hind_aoc.
+  assert (∥∏ v : vertex nat_graph, ∑ va : dob d v --> a, va · g = colimIn CC v · k|) as Hind_aoc.
   {
     set (aocI := aoc natset).
     simpl in aocI.

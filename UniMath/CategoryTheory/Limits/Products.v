@@ -44,7 +44,7 @@ Definition Product (ci : ∏ i, C) :=
     isProduct ci (pr1 pp1p2) (pr2 pp1p2).
 
 Definition Products := ∏ (ci : ∏ i, C), Product ci.
-Definition hasProducts := ∏ (ci : ∏ i, C), ∥ Product ci ∥.
+Definition hasProducts := ∏ (ci : ∏ i, C), ∥ Product ci |.
 
 Definition ProductObject {c : ∏ i, C} (P : Product c) : C := pr1 (pr1 P).
 

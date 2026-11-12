@@ -175,7 +175,7 @@ Defined.
 (** Using the axiom of choice we can push the quantifiers into the truncation. Hopefully this will
 help with using this definition below for defining exponentials. However it might run into problems
 with AC not computing. *)
-Definition squash_BinProducts_WOSET (AC : AxiomOfChoice) : ∥ BinProducts WOSET ∥.
+Definition squash_BinProducts_WOSET (AC : AxiomOfChoice) : ∥ BinProducts WOSET |.
 Proof.
 use AC; intros A; use AC; intros B.
 apply (hasBinProducts_WOSET AC).
@@ -191,7 +191,7 @@ state the property explicitly. I'm not sure which is the best. *)
 (*   ∏ (a : C), ∃ (H : BinProducts C), is_exponentiable H a. *)
 
 (* I have run into some serious problems when trying to define the functor X ↦ X^A *)
-(* Definition exponential_functor_WOSET (AC : AxiomOfChoice) (A : WOSET) : ∥ functor WOSET WOSET ∥. *)
+(* Definition exponential_functor_WOSET (AC : AxiomOfChoice) (A : WOSET) : ∥ functor WOSET WOSET |. *)
 (* Proof. *)
 (* The idea is to well-order the function space using Zermelo's well-ordering theorem, but I can't
 figure out how to write down the definition. It essentially boils down to some truncation juggling

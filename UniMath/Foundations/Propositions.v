@@ -180,52 +180,52 @@ Definition ishinh (X : UU) : hProp := make_hProp (ishinh_UU X) (isapropishinh X)
 
 Notation nonempty := ishinh (only parsing).
 
-Notation "∥ A ∥" := (ishinh A) (at level 20) : type_scope.
+Notation "∥ A |" := (ishinh A) (at level 0) : type_scope.
 (* written \|| in agda-input method *)
 
-Definition hinhpr {X : UU} : X -> ∥ X ∥
+Definition hinhpr {X : UU} : X -> ∥ X |
   := λ x : X, λ P : hProp, fun f : X -> P => f x.
 
-Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X ∥ -> ∥ Y ∥ :=
-  fun isx : ∥ X ∥ => λ P : _, fun yp : Y -> P => isx P (λ x : X, yp (f x)).
+Definition hinhfun {X Y : UU} (f : X -> Y) : ∥ X | -> ∥ Y | :=
+  fun isx : ∥ X | => λ P : _, fun yp : Y -> P => isx P (λ x : X, yp (f x)).
 
 (** Note that the previous definitions do not require RR1 in an essential way
   (except for the placing of [ishinh] in [hProp UU] - without RR1 it would be
   placed in [hProp UU1]). The first place where RR1 is essentially required is
   in application of [hinhuniv] to a function [X -> ishinh Y] *)
 
-Definition hinhuniv {X : UU} {P : hProp} (f : X -> P) (wit : ∥ X ∥) : P
+Definition hinhuniv {X : UU} {P : hProp} (f : X -> P) (wit : ∥ X |) : P
   := wit P f.
 
-Corollary factor_through_squash {X Q : UU} : isaprop Q -> (X -> Q) -> ∥ X ∥ -> Q.
+Corollary factor_through_squash {X Q : UU} : isaprop Q -> (X -> Q) -> ∥ X | -> Q.
 Proof.
   intros i f h. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Corollary squash_to_prop {X Q : UU} : ∥ X ∥ -> isaprop Q -> (X -> Q) -> Q.
+Corollary squash_to_prop {X Q : UU} : ∥ X | -> isaprop Q -> (X -> Q) -> Q.
 Proof.
   intros h i f. exact (@hinhuniv X (Q,,i) f h).
 Defined.
 
-Definition hinhand {X Y : UU} (inx1 : ∥ X ∥) (iny1 : ∥ Y ∥) : ∥ X × Y ∥
+Definition hinhand {X Y : UU} (inx1 : ∥ X |) (iny1 : ∥ Y |) : ∥ X × Y |
   := λ P : _, ddualand (inx1 P) (iny1 P).
 
 Definition hinhuniv2 {X Y : UU} {P : hProp} (f : X -> Y -> P)
-           (isx : ∥ X ∥) (isy : ∥ Y ∥) : P
+           (isx : ∥ X |) (isy : ∥ Y |) : P
   := hinhuniv (λ xy : X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
 
 Definition hinhfun2 {X Y Z : UU} (f : X -> Y -> Z)
-           (isx : ∥ X ∥) (isy : ∥ Y ∥) : ∥ Z ∥
+           (isx : ∥ X |) (isy : ∥ Y |) : ∥ Z |
   := hinhfun (λ xy: X × Y, f (pr1 xy) (pr2 xy)) (hinhand isx isy).
 
-Definition hinhunivcor1 (P : hProp) : ∥ P ∥ -> P := hinhuniv (idfun P).
+Definition hinhunivcor1 (P : hProp) : ∥ P | -> P := hinhuniv (idfun P).
 Notation hinhprinv := hinhunivcor1.
 
 
 (** *** [ishinh] and negation [neg] *)
 
 
-Lemma weqishinhnegtoneg (X : UU) : ∥ ¬ X ∥ ≃ ¬ X.
+Lemma weqishinhnegtoneg (X : UU) : ∥ ¬ X | ≃ ¬ X.
 Proof.
   assert (lg : logeq (ishinh (neg X)) (neg X)).
   {
@@ -237,7 +237,7 @@ Proof.
   apply (weqimplimpl (pr1 lg) (pr2 lg) (pr2 (ishinh _)) (isapropneg X)).
 Defined.
 
-Lemma weqnegtonegishinh (X : UU) : ¬ X ≃ ¬ ∥ X ∥.
+Lemma weqnegtonegishinh (X : UU) : ¬ X ≃ ¬ ∥ X |.
 Proof.
   assert (lg : logeq (neg (ishinh X)) (neg X)).
   {
@@ -254,7 +254,7 @@ Defined.
 (** *** [ishinh] and [coprod] *)
 
 
-Lemma hinhcoprod (X Y : UU) : ∥ (∥ X ∥ ⨿ ∥ Y ∥) ∥ -> ∥ X ⨿ Y ∥.
+Lemma hinhcoprod (X Y : UU) : ∥ (∥ X | ⨿ ∥ Y |) | -> ∥ X ⨿ Y |.
 Proof.
   intros isin. unfold ishinh. intro P. intro CP.
   set (CPX := λ x : X, CP (ii1 x)).
@@ -267,7 +267,7 @@ Defined.
 
 (** [ishinh] and decidability  *)
 
-Lemma decidable_ishinh {X} : decidable X → decidable(∥X∥).
+Lemma decidable_ishinh {X} : decidable X → decidable(∥X|).
 Proof.
   intros d.
   unfold decidable in *.
@@ -286,10 +286,10 @@ of connected components) **)
 Definition image {X Y : UU} (f : X -> Y) : UU
   := total2 (λ y : Y, ishinh (hfiber f y)).
 Definition make_image {X Y : UU} (f : X -> Y) :
-  ∏ (t : Y), (λ y : Y, ∥ hfiber f y ∥) t → ∑ y : Y, ∥ hfiber f y ∥
+  ∏ (t : Y), (λ y : Y, ∥ hfiber f y |) t → ∑ y : Y, ∥ hfiber f y |
   := tpair (λ y : Y, ishinh (hfiber f y)).
 Definition pr1image {X Y : UU} (f : X -> Y) :
-  (∑ y : Y, ∥ hfiber f y ∥) → Y
+  (∑ y : Y, ∥ hfiber f y |) → Y
   := @pr1 _  (λ y : Y, ishinh (hfiber f y)).
 
 Definition prtoimage {X Y : UU} (f : X -> Y) : X -> image f.
@@ -429,7 +429,7 @@ Local Notation "A ⇒ B" := (himpl A B) : logic.
      CategoryTheory/UnicodeNotations.v *)
 Local Open Scope logic.
 
-Definition hexists {X : UU} (P : X -> UU) := ∥ total2 P ∥.
+Definition hexists {X : UU} (P : X -> UU) := ∥ total2 P |.
 
 Notation "'∃' x .. y , P"
   := (ishinh (∑ x ,.. (∑ y , P)..))

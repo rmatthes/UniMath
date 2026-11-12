@@ -73,7 +73,7 @@ Context {X : Poset}.
 Context {I : UU}.
 
 Definition isdirected (f : I -> X) : UU :=
-  ∥ I ∥ × ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k∥.
+  ∥ I | × ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k|.
 Lemma isaprop_isdirected (f : I -> X) : isaprop (isdirected f).
 Proof.
   apply isapropdirprod.
@@ -86,9 +86,9 @@ Definition directeduntruncated (f : I -> X) (i j : I) : UU :=
   ∑ (k : I), f i ≤ f k × f j ≤ f k.
 
 Definition isdirected_inhabited {f : I -> X} :
-  isdirected f -> ∥ I  ∥ := pr1.
+  isdirected f -> ∥ I  | := pr1.
 Definition isdirected_compatible {f : I -> X} :
-  isdirected f -> ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k∥ := pr2.
+  isdirected f -> ∏ (i j : I), ∥∑ (k : I), f i ≤ f k × f j ≤ f k| := pr2.
 
 End directedfamily.
 

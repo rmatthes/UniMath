@@ -23,7 +23,7 @@ Section def_FinOrdProducts.
   Definition FinOrdProducts : UU :=
     ∏ (n : nat) (a : stn n -> C), Product (stn n) C a.
   Definition hasFinOrdProducts : UU :=
-    ∏ (n : nat) (a : stn n -> C), ∥ Product (stn n) C a ∥.
+    ∏ (n : nat) (a : stn n -> C), ∥ Product (stn n) C a |.
 
 End def_FinOrdProducts.
 

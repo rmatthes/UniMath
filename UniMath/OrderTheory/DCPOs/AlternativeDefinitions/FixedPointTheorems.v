@@ -216,7 +216,7 @@ Defined.
 
 (* TODO: surely this must be in the library somewhere, along with its essential properties?? *)
 Definition image {X Y : UU} (f : X -> Y) : hsubtype Y
-  := fun y => ∥ hfiber f y ∥.
+  := fun y => ∥ hfiber f y |.
 
 Definition value_in_image {X Y : UU} (f : X -> Y) (x : X) : image f (f x)
   := hinhpr (x ,, idpath _).
@@ -994,7 +994,7 @@ Defined.
 Lemma progressive_pointwise_lub {P : Poset}
     {I} {f : I -> P -> P} (f_prog : forall i, isprogressive (f i))
     {g} (g_pw_lub : is_least_upper_bound_pointwise f g)
-    (I_inhab : ∥ I ∥)
+    (I_inhab : ∥ I |)
   : isprogressive g.
 Proof.
   intros x. eapply factor_through_squash_hProp. 2: { apply I_inhab. }

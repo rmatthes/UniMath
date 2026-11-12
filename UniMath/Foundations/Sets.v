@@ -418,7 +418,7 @@ Definition squash_pairs_to_set {Y : UU} (F : Y -> UU) :
   (isaset Y) -> (∏ y y', F y -> F y' -> y = y') -> (∃ y, F y) -> Y.
 Proof.
   intros iss e.
-  set (P := ∑ y, ∥ F y ∥).
+  set (P := ∑ y, ∥ F y |).
   assert (iP : isaprop P).
   {
     apply isapropsubtype. intros y y' f f'.
@@ -439,7 +439,7 @@ Proof.
 Defined.
 
 Definition squash_to_set {X Y : UU} (iss : isaset Y) (f : X -> Y) :
-          (∏ x x', f x = f x') -> ∥ X ∥ -> Y.
+          (∏ x x', f x = f x') -> ∥ X | -> Y.
 Proof.
   intros e w.
   set (P := ∑ y, ∃ x, f x = y).
@@ -1444,7 +1444,7 @@ Proof.
   assert(pred_set : isaset (B -> hProp)).
   { apply (isaset_set_fun_space _ (make_hSet _ isasethProp)). }
   specialize (epip (make_hSet _ pred_set)
-                   (λ b x, ∥ ∑ y : hfiber p b, x = p (pr1 y) ∥ )
+                   (λ b x, ∥ ∑ y : hfiber p b, x = p (pr1 y) | )
                    (λ b x, make_hProp (x = b) (isB x b))
                ).
   lapply epip.

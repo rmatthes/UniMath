@@ -30,9 +30,9 @@ Local Open Scope morcls.
 (* we can obtain a wfs from an nwfs *)
 (* the existence of an algebra map is exactly ||nwfs_R_maps_disp f|| *)
 Definition nwfs_R_maps_class {C : category} (n : nwfs C) : morphism_class C :=
-    λ (x y : C) (f : x --> y), ∥nwfs_R_maps n f∥.
+    λ (x y : C) (f : x --> y), ∥nwfs_R_maps n f|.
 Definition nwfs_L_maps_class {C : category} (n : nwfs C) : morphism_class C :=
-    λ (x y : C) (f : x --> y), ∥nwfs_L_maps n (opp_mor f)∥.
+    λ (x y : C) (f : x --> y), ∥nwfs_L_maps n (opp_mor f)|.
 
 Lemma L_map_class_R_map_class_lp {C : category} {n : nwfs C} {a b c d : C}
     {f : a --> b} {g : c --> d} (hf : nwfs_L_maps_class n _ _ f)

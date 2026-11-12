@@ -125,7 +125,7 @@ Section nelproperty.
   (** *** The property of [ X ] to have [ n ] elements *)
 
   Definition isofnel (n : nat) (X : UU) : hProp
-    := ∥ ⟦ n ⟧ ≃  X ∥.
+    := ∥ ⟦ n ⟧ ≃  X |.
 
   Definition isofneluniv {n : nat} {X : UU}  (P : hProp)
     : ((nelstruct n X) -> P) -> (isofnel n X -> P).
@@ -317,7 +317,7 @@ Section finite_property.
    *)
 
   Definition isfinite (X : UU) : hProp
-    := ∥ finstruct X ∥.
+    := ∥ finstruct X |.
 
   Definition isfinite_isdeceq (X : UU)
     : isfinite X -> isdeceq X.

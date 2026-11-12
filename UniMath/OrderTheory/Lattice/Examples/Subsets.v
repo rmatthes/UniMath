@@ -57,7 +57,7 @@ Section Subsets.
   Defined.
 
   Local Lemma squash_to_prop_ishinh {Y Q : UU} :
-    ∥ Y ∥ → (Y → ∥ Q ∥) → ∥ Q ∥.
+    ∥ Y | → (Y → ∥ Q |) → ∥ Q |.
   Proof.
     intros z ?.
     apply (squash_to_prop z); [apply isapropishinh|].

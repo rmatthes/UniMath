@@ -72,7 +72,7 @@ Section SplitMonic.
   Definition is_merely_split_monic (m : A --> B) : hProp.
   Proof.
     use make_hProp.
-    - exact (∥ ∑ r : B --> A, is_retraction m r ∥).
+    - exact (∥ ∑ r : B --> A, is_retraction m r |).
     - apply isapropishinh.
   Defined.
 
@@ -234,7 +234,7 @@ Section SplitEpis.
   Defined.
 
   Definition is_merely_split_epi (f : A --> B) :=
-    ∥ ∑ (g : C⟦B,A⟧), g · f = identity B ∥.
+    ∥ ∑ (g : C⟦B,A⟧), g · f = identity B |.
 
   Definition merely_split_epi : UU :=
     ∑ (f : A --> B), is_merely_split_epi f.

@@ -191,7 +191,7 @@ Definition preserves_chosen_terminal_eq
            (T₁ : Terminal C₁)
            (T₂ : Terminal C₂)
   : UU
-  := ∥ F T₁ = T₂ ∥.
+  := ∥ F T₁ = T₂ |.
 
 Proposition identity_preserves_chosen_terminal_eq
             {C : category}
@@ -592,7 +592,7 @@ Definition preserves_chosen_binproducts_eq
            (BP₁ : BinProducts C₁)
            (BP₂ : BinProducts C₂)
   : UU
-  := ∏ x y : C₁,  ∥ F (BP₁ x y) = BP₂ (F x) (F y) ∥.
+  := ∏ x y : C₁,  ∥ F (BP₁ x y) = BP₂ (F x) (F y) |.
 
 Proposition identity_preserves_chosen_binproducts_eq
             {C : category}
@@ -818,7 +818,7 @@ Definition preserves_chosen_equalizers_eq
            (BE₁ : Equalizers C₁)
            (BE₂ : Equalizers C₂)
   : UU
-  := ∏ (x y : C₁) (f g : C₁⟦x,y⟧), ∥ F (BE₁ _ _ f g) = BE₂ _ _ (#F f) (#F g) ∥.
+  := ∏ (x y : C₁) (f g : C₁⟦x,y⟧), ∥ F (BE₁ _ _ f g) = BE₂ _ _ (#F f) (#F g) |.
 
 Proposition identity_preserves_chosen_equalizers_eq
             {C : category}
@@ -1068,7 +1068,7 @@ Definition preserves_chosen_pullbacks_eq
            (P₁ : Pullbacks C₁)
            (P₂ : Pullbacks C₂)
   : UU
-  := ∏ (x y z : C₁) (f : C₁⟦x,z⟧) (g : C₁⟦y, z⟧), ∥ F (P₁ _ _ _ f g) = P₂ _ _ _ (#F f) (#F g) ∥.
+  := ∏ (x y z : C₁) (f : C₁⟦x,z⟧) (g : C₁⟦y, z⟧), ∥ F (P₁ _ _ _ f g) = P₂ _ _ _ (#F f) (#F g) |.
 
 Proposition identity_preserves_chosen_pullbacks_eq
             {C : category}
@@ -1223,7 +1223,7 @@ Definition preserves_chosen_initial_eq
            (T₁ : Initial C₁)
            (T₂ : Initial C₂)
   : UU
-  := ∥ F T₁ = T₂ ∥.
+  := ∥ F T₁ = T₂ |.
 
 Proposition identity_preserves_chosen_initial_eq
             {C : category}

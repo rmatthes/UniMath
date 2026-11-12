@@ -254,7 +254,7 @@ Section envelope_defs.
 
   (** This justifies truncating the polarization choice to a property *)
   Definition envelope_polarization (a : envelope_preob) : hProp
-    := ∥envelope_polarization_choice a∥.
+    := ∥envelope_polarization_choice a|.
 
   Lemma isaprop_envelope_polarization (a : envelope_preob) : isaprop (envelope_polarization a).
   Proof. apply propproperty. Qed.

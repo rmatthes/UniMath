@@ -282,7 +282,7 @@ End Idempotents.
 Definition idempotents_split
   (C : category)
   : UU
-  := ∏ (x : C) (f : idempotent x), ∥ is_split_idempotent f ∥.
+  := ∏ (x : C) (f : idempotent x), ∥ is_split_idempotent f |.
 
 (** ** 3.2. In a univalent category, being split idempotent is a mere proposition *)
 

@@ -625,7 +625,7 @@ Section abgr_monics_and_epis.
     (isE : isEpi f)
     (b : B)
     (H : setquotpr (abgr_Cokernel_eqrel f) b = setquotpr (abgr_Cokernel_eqrel f) 0)
-    : ∥ hfiber f b ∥.
+    : ∥ hfiber f b |.
   Proof.
     set (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b 0).
     refine (hinhuniv _ ((invweq tmp) H)). intros Y. apply hinhpr. induction Y as [t p].
@@ -1135,7 +1135,7 @@ Section KernelCriterion.
   Context (f : abelian_group_morphism X Y).
   Context (g : abelian_group_morphism Y Z).
   Context (ZA : f · g = ZeroArrow (to_Zero abgr_Abelian) _ _).
-  Context (H : ∏ (D : hfiber g 0), ∥ hfiber f (pr1 D) ∥).
+  Context (H : ∏ (D : hfiber g 0), ∥ hfiber f (pr1 D) |).
   Context (isM : isMonic f).
 
   Local Opaque ZeroArrow.

@@ -38,7 +38,7 @@ Proof.
   exact H.
 Qed.
 
-Definition squash_to_hSet {X : UU} {Y : hSet} (f : X -> Y) : isconst f -> ∥ X ∥ -> Y.
+Definition squash_to_hSet {X : UU} {Y : hSet} (f : X -> Y) : isconst f -> ∥ X | -> Y.
 Proof.
   apply squash_to_set, setproperty.
 Defined.
@@ -47,7 +47,7 @@ Definition isconst_2 {X Y:UU} {Z:hSet} (f : X -> Y -> Z) : hProp :=
   ∀ x x' y y', f x y = f x' y'.
 
 Definition squash_to_hSet_2 {X Y : UU} {Z : hSet} (f : X -> Y -> Z) :
-  isconst_2 f -> ∥ X ∥ -> ∥ Y ∥ -> Z.
+  isconst_2 f -> ∥ X | -> ∥ Y | -> Z.
 Proof.
   intros c. use squash_to_set.
   { apply isaset_forall_hSet. }
@@ -66,7 +66,7 @@ Definition isconst_2' {X Y:UU} {Z:hSet} (f : X -> Y -> Z) : hProp :=
     (∀ x y y', f x y = f x y').
 
 Definition squash_to_hSet_2' {X Y : UU} {Z : hSet} (f : X -> Y -> Z) :
-  isconst_2' f -> ∥ X ∥ -> ∥ Y ∥ -> Z.
+  isconst_2' f -> ∥ X | -> ∥ Y | -> Z.
 Proof.
   intros [c d]. use squash_to_set.
   { apply isaset_forall_hSet. }
@@ -517,7 +517,7 @@ Local Close Scope logic.
 
 Lemma path_eqrel_iseqrel
   (X : UU)
-  : iseqrel (λ x₁ x₂ : X, ∥ x₁ = x₂ ∥ : hProp).
+  : iseqrel (λ x₁ x₂ : X, ∥ x₁ = x₂ | : hProp).
 Proof.
   repeat split.
   + intros x₁ x₂ x₃.
@@ -551,7 +551,7 @@ Definition path_eqrel
   : eqrel X.
 Proof.
   use make_eqrel.
-  - exact (λ x₁ x₂, ∥ x₁ = x₂ ∥ : hProp).
+  - exact (λ x₁ x₂, ∥ x₁ = x₂ | : hProp).
   - apply path_eqrel_iseqrel.
 Defined.
 

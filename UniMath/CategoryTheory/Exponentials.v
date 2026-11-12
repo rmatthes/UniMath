@@ -64,7 +64,7 @@ Section Exponentials.
   Definition is_exponentiable (a : C) : UU := is_left_adjoint (constprod_functor1 a).
 
   Definition Exponentials : UU := ∏ (a : C), is_exponentiable a.
-  Definition hasExponentials : UU := ∏ (a : C), ∥ is_exponentiable a ∥.
+  Definition hasExponentials : UU := ∏ (a : C), ∥ is_exponentiable a |.
 
   Definition flip_z_iso a : @z_iso [C,C] (constprod_functor1 a) (constprod_functor2 a)
     := z_iso_from_nat_z_iso _

@@ -355,7 +355,7 @@ Section complexes_homotopies.
   Arguments ComplexHomotFunctor : simpl never.
 
   Lemma ComplexHomotFunctor_issurj {C1 C2 : ComplexPreCat_Additive A}
-        (f : ComplexHomot_Additive⟦C1, C2⟧) : ∥ hfiber (# ComplexHomotFunctor) f ∥.
+        (f : ComplexHomot_Additive⟦C1, C2⟧) : ∥ hfiber (# ComplexHomotFunctor) f |.
   Proof.
     apply issurjsetquotpr.
   Qed.
@@ -396,7 +396,7 @@ Section complexes_homotopies.
   Lemma ComplexHomotFunctor_im_to_homot {C1 C2 : ComplexPreCat_Additive A}
         (f g : (ComplexPreCat_Additive A)⟦C1, C2⟧)
         (H : # ComplexHomotFunctor f = # ComplexHomotFunctor g) :
-    ∥ ∑ h : ComplexHomot C1 C2, ComplexHomotMorphism h = to_binop _ _ f (to_inv g) ∥.
+    ∥ ∑ h : ComplexHomot C1 C2, ComplexHomotMorphism h = to_binop _ _ f (to_inv g) |.
   Proof.
     use (squash_to_prop (ComplexHomotFunctor_mor_rel f g H) (propproperty _)). intros h.
     induction h as [b hh]. cbn in b. unfold ComplexHomotSubset in b.
@@ -412,7 +412,7 @@ Section complexes_homotopies.
         (f1 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f2 f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f2 = # ComplexHomotFunctor f3) :
     ∥ ∑ (h : ComplexHomot C1 C3),
-    ComplexHomotMorphism h = to_binop _ _ (f1 · f2) (to_inv (f1 · f3)) ∥.
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f2) (to_inv (f1 · f3)) |.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 · f2) = # ComplexHomotFunctor (f1 · f3)).
     {
@@ -425,7 +425,7 @@ Section complexes_homotopies.
         (f1 f2 : (ComplexPreCat_Additive A)⟦C1, C2⟧) (f3 : (ComplexPreCat_Additive A)⟦C2, C3⟧)
         (H : # ComplexHomotFunctor f1 = # ComplexHomotFunctor f2) :
     ∥ ∑ (h : ComplexHomot C1 C3),
-    ComplexHomotMorphism h = to_binop _ _ (f1 · f3) (to_inv (f2 · f3)) ∥.
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f3) (to_inv (f2 · f3)) |.
   Proof.
     assert (e : # ComplexHomotFunctor (f1 · f3) = # ComplexHomotFunctor (f2 · f3)).
     {

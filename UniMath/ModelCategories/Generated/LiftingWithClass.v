@@ -251,7 +251,7 @@ Definition algebraically_free : UU :=
 (* Garner 2008, Proposition 3.12 / Garner 2007, p18 *)
 Lemma algebraically_free_nwfs_gives_cofibrantly_generated_wfs :
   algebraically_free ->
-    (nwfs_R_maps_class n)^cl = λ x y f, ∥rlp_morcls_disp J f∥.
+    (nwfs_R_maps_class n)^cl = λ x y f, ∥rlp_morcls_disp J f|.
 Proof.
   intro H.
   destruct H as [η cofibη].

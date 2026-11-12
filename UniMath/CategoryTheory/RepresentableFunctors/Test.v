@@ -55,7 +55,7 @@ Definition make_CoproductCocone (a b : C) :
   := λ c f g i, c,,(f,,g),,i.
 
 Definition Coproducts := BinarySums C.
-Definition hasCoproducts (C:category) := ∏ (a b:C), ∥ BinarySum a b ∥.
+Definition hasCoproducts (C:category) := ∏ (a b:C), ∥ BinarySum a b |.
 
 
 Definition CoproductObject {a b : C} (CC : CoproductCocone a b) : C :=

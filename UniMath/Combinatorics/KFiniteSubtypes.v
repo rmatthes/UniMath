@@ -123,7 +123,7 @@ Section kfinite_subtypes.
     (index_finite : ∏ (i : I), iskfinite (index i))
     : iskfinite (⋃ index).
   Proof.
-    assert(finitechoicebase : ∥ ∏ (i : I), kfinstruct (index i) ∥). {
+    assert(finitechoicebase : ∥ ∏ (i : I), kfinstruct (index i) |). {
       use ischoicebasefiniteset.
       apply Ifinite.
       apply index_finite.

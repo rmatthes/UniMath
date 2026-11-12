@@ -7,7 +7,7 @@
   subcategory of the base category.
   Because both the morphisms and the equalities of the objects in the resulting subcategory are
   inherited from the base category, the resulting category is univalent if the base category is.
-  If we send the data `p : P c` to its truncation `hinhpr p : ∥ P c ∥`, we get a displayed functor
+  If we send the data `p : P c` to its truncation `hinhpr p : ∥ P c |`, we get a displayed functor
   over the identity, and this truncation functor is a weak equivalence.
 
   Contents
@@ -105,7 +105,7 @@ Section TruncationFunctor.
     : disp_functor
       (functor_identity C)
       (disp_full_sub C P)
-      (disp_full_sub C (λ X, ∥ P X ∥)).
+      (disp_full_sub C (λ X, ∥ P X |)).
   Proof.
     use tpair.
     - use tpair.
@@ -115,7 +115,7 @@ Section TruncationFunctor.
   Defined.
 
   Definition truncation_functor
-    : full_subcat C P ⟶ full_subcat C (λ X, ∥ P X ∥)
+    : full_subcat C P ⟶ full_subcat C (λ X, ∥ P X |)
     := total_functor disp_truncation_functor.
 
   Lemma truncation_functor_fully_faithful

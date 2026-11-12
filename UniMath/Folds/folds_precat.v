@@ -51,7 +51,7 @@ Definition T {C : folds_id_T} : ∏ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a 
 (** **  The axioms for identity *)
 
 Definition folds_ax_I (C : folds_id_T) :=
-     (∏ a : C, ∥ ∑ f : a ⇒ a, I f ∥ )  (* there is an id *)
+     (∏ a : C, ∥ ∑ f : a ⇒ a, I f | )  (* there is an id *)
   × ((∏ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) (* id is post neutral *)
    × (∏ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). (* id is pre neutral *)
 
@@ -64,7 +64,7 @@ Proof.
 Qed.
 
 Definition folds_ax_T (C : folds_id_T) :=
-     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) (* there is a composite *)
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h | ) (* there is a composite *)
  ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
                   T f g h → T f g k → h = k )       (* composite is unique *)
   ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)

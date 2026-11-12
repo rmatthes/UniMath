@@ -6,7 +6,7 @@ Require Export UniMath.MoreFoundations.Sets.
 (** ** Preliminaries  *)
 
 Lemma pr1_issurjective {X : UU} {P : X -> UU} :
-  (∏ x : X, ∥ P x ∥) -> issurjective (pr1 : (∑ x, P x) -> X).
+  (∏ x : X, ∥ P x |) -> issurjective (pr1 : (∑ x, P x) -> X).
 (* move upstream later *)
 Proof.
   intros ne x. simple refine (hinhuniv _ (ne x)).

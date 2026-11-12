@@ -301,11 +301,11 @@ Section M.
         cbn.
         cbn -[settrunc].
         set (f0 := settrunc_rec _ (λ x, settruncin _ (pr1 f x)) :  SET ⟦ pr1 (functor_coalgebra_UU_to_HSET_obj a), pr1 (functor_coalgebra_UU_to_HSET_obj b) ⟧).
-        assert (p1 : ∏ x : pr1 a, ∥ (pr2 (functor_coalgebra_UU_to_HSET_obj a) · # F' f0) (settruncin _ x) = (f0 · pr2 (functor_coalgebra_UU_to_HSET_obj b)) (settruncin _ x) ∥ ).
+        assert (p1 : ∏ x : pr1 a, ∥ (pr2 (functor_coalgebra_UU_to_HSET_obj a) · # F' f0) (settruncin _ x) = (f0 · pr2 (functor_coalgebra_UU_to_HSET_obj b)) (settruncin _ x) | ).
         {
           intro x.
           cbn -[F'].
-          set (goal := ∥ # F' f0 (out_set_trunc a x) = out_set_trunc b (pr1 f x) ∥).
+          set (goal := ∥ # F' f0 (out_set_trunc a x) = out_set_trunc b (pr1 f x) |).
           set (p11 := UniMath.Induction.FunctorCoalgebras_legacy_alt_UU.coalgebra_homo_commutes F f x goal).
           apply p11.
           cbn -[F F'].
@@ -313,7 +313,7 @@ Section M.
           set (p13 := is_morph_UU_to_HSET x p12).
           exact (hinhpr p13).
         }
-        assert (p2 : ∏ x : pr1 (settrunc (coalgebra_ob F a)), ∥ ((pr2 (functor_coalgebra_UU_to_HSET_obj a)) · #F' f0) x = (f0 · (pr2 (functor_coalgebra_UU_to_HSET_obj b))) x ∥).
+        assert (p2 : ∏ x : pr1 (settrunc (coalgebra_ob F a)), ∥ ((pr2 (functor_coalgebra_UU_to_HSET_obj a)) · #F' f0) x = (f0 · (pr2 (functor_coalgebra_UU_to_HSET_obj b))) x |).
         {
           use setquotunivprop'.
           - intro. apply propproperty.
@@ -364,7 +364,7 @@ Section M.
       unfold FunctorCoalgebras_legacy_alt_UU.coalgebra_homo.
       cbn -[F F' settrunc].
       set (f := (settruncin (pr1 X)) : type_precat ⟦ FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F X, FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F ((functor_coalgebra_UU_to_HSET ∙ functor_coalgebra_HSET_to_UU) X) ⟧).
-      assert (p : ∏ x : FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F X, ∥ (FunctorCoalgebras_legacy_alt_UU.is_coalgebra_homo F f x) ∥).
+      assert (p : ∏ x : FunctorCoalgebras_legacy_alt_UU.coalgebra_ob F X, ∥ (FunctorCoalgebras_legacy_alt_UU.is_coalgebra_homo F f x) |).
       {
         intro x.
         exact (hinhpr (idpath ((#F f ∘ (pr2 X)) x))).
@@ -391,7 +391,7 @@ Section M.
       cbn.
       cbn -[F F' settrunc].
       set (f := settrunc_rec _ (λ x : pr11 X, x) : SET ⟦ pr1 ((functor_coalgebra_HSET_to_UU ∙ functor_coalgebra_UU_to_HSET) X), pr1 X ⟧).
-      assert (p1 :  ∏ x : pr1 (settrunc (pr11 X)), ∥ ((pr2 ((functor_coalgebra_HSET_to_UU ∙ functor_coalgebra_UU_to_HSET) X)) · #F' f) x = (f · pr2 X) x ∥).
+      assert (p1 :  ∏ x : pr1 (settrunc (pr11 X)), ∥ ((pr2 ((functor_coalgebra_HSET_to_UU ∙ functor_coalgebra_UU_to_HSET) X)) · #F' f) x = (f · pr2 X) x |).
       {
         use setquotunivprop'.
         - intro. apply propproperty.

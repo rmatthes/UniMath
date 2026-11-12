@@ -196,9 +196,9 @@ Section ElementsWithInverses.
   Definition hasrinv_to_rinvel {x : X} : hasrinv x → X := pr1.
   Definition hasinv_to_invel {x : X} : hasinv x → X := pr1.
 
-  Definition merely_haslinv (x : X) : hProp := ∥ haslinv x ∥.
-  Definition merely_hasrinv (x : X) : hProp := ∥ hasrinv x ∥.
-  Definition merely_hasinv (x : X) : hProp := ∥ hasinv x ∥.
+  Definition merely_haslinv (x : X) : hProp := ∥ haslinv x |.
+  Definition merely_hasrinv (x : X) : hProp := ∥ hasrinv x |.
+  Definition merely_hasinv (x : X) : hProp := ∥ hasinv x |.
 
   (** Lemmas for elements with inverses *)
 

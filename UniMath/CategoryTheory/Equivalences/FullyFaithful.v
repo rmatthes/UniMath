@@ -127,7 +127,7 @@ Section HomtypeProperties.
       could be strengthened to an untruncated version. *)
   (* TODO: better name? *)
   Lemma ff_es_homtype_weq (FFF : fully_faithful F) (FES : essentially_surjective F) :
-    (∏ d d' : ob D, ∥ ∑ c c' : ob C,  C⟦c, c'⟧ ≃ D⟦d, d'⟧ ∥).
+    (∏ d d' : ob D, ∥ ∑ c c' : ob C,  C⟦c, c'⟧ ≃ D⟦d, d'⟧ |).
   Proof.
     intros d d'.
 

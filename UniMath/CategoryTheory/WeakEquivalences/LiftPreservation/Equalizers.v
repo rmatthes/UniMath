@@ -290,7 +290,7 @@ Section LiftAlongWeakEquivalencePreservesChosenEqualizersUptoEquality.
     Let g₁ := (fully_faithful_inv_hom (ff_from_weak_equiv _ Gw)) _ _ g'.
 
     Lemma lift_preserves_chosen_equalizers_uptoeq_after_isotoid_induction
-      : ∥ H (E₂ (G x) (G y) f' g') = E₃ (H (G x)) (H (G y)) (# H f') (# H g') ∥.
+      : ∥ H (E₂ (G x) (G y) f' g') = E₃ (H (G x)) (H (G y)) (# H f') (# H g') |.
     Proof.
 
       use (factor_through_squash _ _ (Feq x y f₁ g₁)).

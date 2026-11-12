@@ -117,7 +117,7 @@ Section def_pseudo_element.
   Definition PEqEq {c : A} {PE1 PE2 : PseudoElem c} (PE : PEq PE1 PE2) :
     (PEqEpi1 PE) · PE2 = (PEqEpi2 PE) · PE1 := pr2 (pr2 (pr2 PE)).
 
-  Definition PEq_hrel {c : A} : hrel (PseudoElem c) := λ (PE1 PE2 : PseudoElem c), ∥ PEq PE1 PE2 ∥.
+  Definition PEq_hrel {c : A} : hrel (PseudoElem c) := λ (PE1 PE2 : PseudoElem c), ∥ PEq PE1 PE2 |.
 
   Definition PEq_precomp_Epi {c d : A} (P : PseudoElem c) (E : Epi A d (PseudoOb P)) :
     PEq P (make_PseudoElem (E · P)).
